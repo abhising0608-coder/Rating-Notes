@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData } from '@/types';
 import {
   Card,
   CardContent,
@@ -1033,6 +1033,7 @@ export default function SectionWrapper({
   const [modelSummary, setModelSummary] = useState(sectionData.modelSummary);
   const [parentGovSupport, setParentGovSupport] = useState(sectionData.parentGovSupport);
   const [ceChecklist, setCeChecklist] = useState(sectionData.ceChecklist);
+  const [linkedRatings, setLinkedRatings] = useState(sectionData.linkedRatings);
 
 
   useEffect(() => {
@@ -1135,7 +1136,16 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_linked_ratings') {
+        if(!linkedRatings) {
+            // Initially, we might not have a guarantor, so we can't fetch.
+            // This might be fetched based on a guarantor selected elsewhere.
+            // For now, initializing with empty array.
+            setLinkedRatings([]);
+            onUpdateSection(section.id, { linkedRatings: [] });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1229,6 +1239,7 @@ export default function SectionWrapper({
   const isModelSummarySection = section.id === 's_model_summary';
   const isParentGovSupportSection = section.id === 's_parent_gov_support';
   const isCEChecklistSection = section.id === 's_ce_checklist';
+  const isLinkedRatingsSection = section.id === 's_linked_ratings';
 
   return (
     <Card id={section.key}>
@@ -1308,10 +1319,17 @@ export default function SectionWrapper({
           />
         )}
         
-        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && !isParentGovSupportSection && !isCEChecklistSection && section.hasTable && sectionVisible && (
+        { !isCoverPage && 
+          !isKeyUpdatesSection && 
+          !isAnalyticalApproachSection && 
+          !isModelSummarySection && 
+          !isParentGovSupportSection && 
+          !isCEChecklistSection && 
+          section.hasTable && 
+          sectionVisible && (
           <TableSection
             initialRows={tableRows}
-            headers={tableHeaders}
+            headers={isLinkedRatingsSection && linkedRatings?.length ? Object.keys(linkedRatings[0]).filter(k => k !== 'id') : tableHeaders}
             allowAddRow={section.allowAddRow ?? false}
             instructions={section.instructions}
             sectionKey={section.key}

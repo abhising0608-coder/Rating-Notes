@@ -245,6 +245,15 @@ export interface CEChecklistData {
   }
 }
 
+export interface LinkedRatingsData extends TableRowData {
+    companyName: string;
+    lastRatingCommitteeDate: string;
+    amountRated: string;
+    rating: string;
+    instrumentDetails: string;
+    guarantor: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -265,6 +274,7 @@ export interface SectionData {
   modelSummary?: ModelSummaryRow[];
   parentGovSupport?: ParentGovSupportData;
   ceChecklist?: CEChecklistData;
+  linkedRatings?: LinkedRatingsData[];
 }
 
 export interface RatingNote {

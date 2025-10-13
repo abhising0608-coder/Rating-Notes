@@ -20,6 +20,7 @@ import type {
   ModelSummaryRow,
   ParentGovSupportData,
   CEChecklistData,
+  LinkedRatingsData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -102,6 +103,13 @@ const templates: Template[] = [
         id: 's_ce_checklist',
         title: '5. Checklist for CE Rating',
         hasTable: false,
+      },
+      {
+        id: 's_linked_ratings',
+        title: '2.5 Linked ratings',
+        hasTable: true,
+        allowAddRow: true,
+        tooltipKey: 'linked.ratings',
       },
       {
         id: 's2',
@@ -269,6 +277,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'about.group',
     text: 'Describe the parent group or holding company structure, if applicable. Explain the relationship and any support from the parent.'
+  },
+  {
+    key: 'linked.ratings',
+    text: 'This section is to be inserted in case ABC Ltd has extended guarantees/other forms of implicit/explicit support to other companies. In case there are no such linked ratings, this section is to be skipped.'
   }
 ];
 
@@ -427,6 +439,27 @@ const ceChecklistData: CEChecklistData = {
   }
 };
 
+const linkedRatingsData: LinkedRatingsData[] = [
+    {
+      id: 'lr-1',
+      companyName: "Reliance Retail",
+      lastRatingCommitteeDate: "2025-10-10",
+      amountRated: "1000000000",
+      rating: "AA+",
+      instrumentDetails: "Term Loan / Bond",
+      guarantor: "Reliance Industries"
+    },
+    {
+      id: 'lr-2',
+      companyName: "Reliance Jio",
+      lastRatingCommitteeDate: "2025-09-25",
+      amountRated: "500000000",
+      rating: "AAA",
+      instrumentDetails: "Long-term Debt",
+      guarantor: "Reliance Industries"
+    }
+];
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -504,6 +537,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
         ceChecklist: ceChecklistData,
       },
+      s_linked_ratings: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        linkedRatings: linkedRatingsData,
+      },
       s2: {
         applicable: 'Applicable',
         tableRows: financialData.find(fd => fd.tableId === 'financials')?.rows || [],
@@ -542,6 +582,14 @@ export const getRatingNoteById = async (id: string): Promise<RatingNote | undefi
 };
 
 export const getFinancialData = async (companyId: string, tableId: string): Promise<FinancialData | undefined> => {
+  if (tableId === 's_linked_ratings') {
+    return {
+      companyId: companyId,
+      year: new Date().getFullYear(),
+      tableId: tableId,
+      rows: linkedRatingsData.filter(lr => lr.guarantor === 'Reliance Industries') // Example filter
+    }
+  }
   return financialData.find(fd => fd.companyId === companyId && fd.tableId === tableId);
 }
 
@@ -746,4 +794,13 @@ export const getCEChecklistData = async (noteId: string): Promise<CEChecklistDat
         return ceChecklistData;
     }
     return null;
+}
+
+export const getLinkedRatingsData = async(guarantor: string): Promise<LinkedRatingsData[]> => {
+    console.log(`Fetching linked ratings data for guarantor: ${guarantor}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if(guarantor === 'Reliance Industries'){
+        return linkedRatingsData;
+    }
+    return [];
 }
