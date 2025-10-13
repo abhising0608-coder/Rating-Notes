@@ -153,6 +153,12 @@ const templates: Template[] = [
         hasTable: false,
         tooltipKey: 'projections.assumptions',
       },
+      {
+        id: 's_non_interest_income',
+        title: '12. Breakup of Non-interest Income',
+        hasTable: true,
+        allowAddRow: true
+      }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
     createdAt: '2023-12-01T10:00:00Z',
@@ -667,6 +673,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
         assumptionsForProjections: 'Assumptions for projections...'
       },
+      s_non_interest_income: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      }
     },
   },
 ];

@@ -1096,21 +1096,21 @@ const FinancialsPastProjectedSection = ({
         <RichTextField 
             label="Adjustments (if any) made to the financial statement for the interpretation of financial ratio"
             content={data.adjustments}
-            onContentChange={v => handleRichTextUpdate('adjustments', v)}
+            onContentChange={v => handleUpdate('adjustments', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
          <RichTextField 
             label="Assumptions for Projections"
             content={data.assumptions}
-            onContentChange={v => handleRichTextUpdate('assumptions', v)}
+            onContentChange={v => handleUpdate('assumptions', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
         <RichTextField 
             label="Note on material contingent liabilities"
             content={data.contingentLiabilities}
-            onContentChange={v => handleRichTextUpdate('contingentLiabilities', v)}
+            onContentChange={v => handleUpdate('contingentLiabilities', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
@@ -1612,6 +1612,7 @@ export default function SectionWrapper({
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
   const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
+  const isNonInterestIncomeSection = section.id === 's_non_interest_income';
 
 
   return (
@@ -1770,6 +1771,7 @@ export default function SectionWrapper({
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
           !isAssumptionsForProjectionsSection &&
+          !isNonInterestIncomeSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
@@ -1785,6 +1787,22 @@ export default function SectionWrapper({
             onRemoveRow={handleRowRemove}
           />
         )}
+
+        { isNonInterestIncomeSection && sectionVisible && (
+           <TableSection
+            initialRows={tableRows}
+            headers={['Particulars', 'Y-1', 'Y']}
+            allowAddRow={true}
+            instructions={section.instructions}
+            sectionKey={section.key}
+            companyName={note.company.name}
+            onRefresh={async () => tableRows}
+            onAddRow={handleRowAdd}
+            onUpdateRow={handleRowUpdate}
+            onRemoveRow={handleRowRemove}
+          />
+        )}
+
         <CommentsEditor 
           sectionId={section.id} 
           initialContent={sectionData.comments}
