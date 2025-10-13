@@ -1511,6 +1511,10 @@ export default function SectionWrapper({
   const handleSensitivityAnalysisUpdate = (content: string) => {
     onUpdateSection(section.id, { sensitivityAnalysis: content });
   };
+  
+  const handleGstCalculationUpdate = (content: string) => {
+    onUpdateSection(section.id, { gstCalculation: content });
+  };
 
 
   const sectionVisible = applicability === 'Applicable';
@@ -1527,6 +1531,7 @@ export default function SectionWrapper({
   const isInterimResultsSection = section.id === 's_interim_results';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
+  const isGstCalculationSection = section.id === 's_gst_calculation';
 
 
   return (
@@ -1645,6 +1650,15 @@ export default function SectionWrapper({
             />
         )}
 
+        { isGstCalculationSection && sectionVisible && (
+            <Textarea 
+                value={sectionData.gstCalculation}
+                onChange={(e) => handleGstCalculationUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter GST calculation details..."
+            />
+        )}
+
         { !isCoverPage && 
           !isKeyUpdatesSection && 
           !isAnalyticalApproachSection && 
@@ -1655,6 +1669,7 @@ export default function SectionWrapper({
           !isInterimResultsSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
+          !isGstCalculationSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

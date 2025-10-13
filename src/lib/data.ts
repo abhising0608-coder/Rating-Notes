@@ -136,6 +136,12 @@ const templates: Template[] = [
         tooltipKey: 'sensitivity.analysis',
       },
       {
+        id: 's_gst_calculation',
+        title: '10. GST Calculation',
+        hasTable: false,
+        tooltipKey: 'gst.calculation',
+      },
+      {
         id: 's2',
         title: 'Financial Summary',
         hasTable: true,
@@ -313,6 +319,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'sensitivity.analysis',
     text: 'Detail the sensitivity analysis for cash flow projections. This section is critical for Infrastructure projects.'
+  },
+  {
+    key: 'gst.calculation',
+    text: 'Provide details about GST calculation methodology. This section is relevant for Infrastructure projects.'
   }
 ];
 
@@ -621,6 +631,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Sensitivity analysis details can be added here.</p>',
+        attachments: [],
+      },
+      s_gst_calculation: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>GST calculation details can be added here.</p>',
         attachments: [],
       },
       s2: {

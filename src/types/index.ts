@@ -292,6 +292,7 @@ export interface SectionData {
   interimResults?: InterimResultsData;
   assumptionsForCashFlow?: string;
   sensitivityAnalysis?: string;
+  gstCalculation?: string;
 }
 
 export interface RatingNote {
