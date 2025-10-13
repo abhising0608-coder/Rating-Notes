@@ -32,6 +32,8 @@ type TableSectionProps = {
 };
 
 const MAX_MANUAL_ROWS = 10;
+const NM_ATTRIBUTE_IDS = ['1089', '1090', '7269', '1091', '1092', '1093', '7510', '1094', '7513', '7514'];
+
 
 export default function TableSection({
   initialRows,
@@ -143,7 +145,11 @@ export default function TableSection({
   };
 
   const tableHeaders = [...headers, 'Actions'];
-  const nmAttributeIds = ['attr_net_worth']; // Example, replace with actual IDs
+
+  const shouldShowNMFootnote = rows.some(row => 
+    NM_ATTRIBUTE_IDS.includes(row.mappedAttributeId ?? '') &&
+    headers.some(h => typeof row[h] === 'number' && (row[h] as number) < 0)
+  );
 
   return (
     <div className="mt-4">
@@ -184,9 +190,10 @@ export default function TableSection({
                 {headers.map((header) => {
                   const cellValue = row[header];
                   const isReadOnly = readOnly && !row.isManual;
-                  const displayValue = (typeof cellValue === 'number' && cellValue < 0 && nmAttributeIds.includes(row.mappedAttributeId))
-                    ? 'NM'
-                    : cellValue ?? '';
+                  const isNM = NM_ATTRIBUTE_IDS.includes(row.mappedAttributeId ?? '') && typeof cellValue === 'number' && cellValue < 0;
+
+                  const displayValue = isNM ? 'NM' : (cellValue ?? '');
+
                   return (
                     <TableCell key={header}>
                        <Input
@@ -194,7 +201,7 @@ export default function TableSection({
                           value={displayValue}
                           readOnly={isReadOnly}
                           onChange={(e) => handleCellChange(row.id, header, e.target.value)}
-                          className={`h-8 border-transparent focus:border-input ${isReadOnly ? 'bg-transparent' : 'hover:border-input'}`}
+                          className={`h-8 border-transparent focus:border-input ${isReadOnly ? 'bg-transparent cursor-default' : 'hover:border-input'}`}
                        />
                     </TableCell>
                   )
@@ -211,7 +218,7 @@ export default function TableSection({
           </TableBody>
         </Table>
       </div>
-      {nmAttributeIds.some(id => rows.some(r => r.mappedAttributeId === id && typeof r.value === 'number' && r.value < 0)) && (
+       {shouldShowNMFootnote && (
           <p className="text-xs text-muted-foreground mt-1">NM – Not Meaningful</p>
       )}
       {instructions && (

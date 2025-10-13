@@ -473,6 +473,8 @@ const financialsPastProjectedData: FinancialsPastProjectedData = {
         { id: 'fin-1', 'Particulars': 'Revenue', '2023A': 1100, '2024P': 1200, '2025E': 1300, isManual: false },
         { id: 'fin-2', 'Particulars': 'EBITDA', '2023A': 280, '2024P': 300, '2025E': 320, isManual: false },
         { id: 'fin-3', 'Particulars': 'Net Profit', '2023A': 140, '2024P': 150, '2025E': 160, isManual: false },
+        { id: 'fin-4', 'Particulars': 'Debt/Equity Ratio', '2023A': -0.5, '2024P': 0.6, '2025E': 0.55, isManual: false, mappedAttributeId: '1089' },
+
     ],
     referenceTable: [],
     quarterlyTable: [
