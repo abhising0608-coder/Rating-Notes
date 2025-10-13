@@ -11,7 +11,8 @@ import type {
   BankFacilitiesData,
   AnalystDetails,
   WorkflowInstrument,
-  RatingRecommendation
+  RatingRecommendation,
+  QCSectorSpecialistData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -259,6 +260,11 @@ const analystDetailsData: AnalystDetails = {
     qcHead: 'Sanjay Patel',
 };
 
+const qcSpecialistsData: QCSectorSpecialistData[] = [
+  { id: 'qc-1', name: "John Doe", qcObservations: "Observation 1", reason: "Reason 1" },
+  { id: 'qc-2', name: "Jane Smith", qcObservations: "Observation 2", reason: "Reason 2" },
+];
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -296,6 +302,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         },
         bankFacilities: bankFacilitiesData,
         analystDetails: analystDetailsData,
+        qcSpecialists: qcSpecialistsData,
       },
       s2: {
         applicable: 'Applicable',
@@ -442,3 +449,14 @@ export const getRatingRecommendation = async (noteId: string): Promise<RatingRec
 
     return null;
 }
+
+export const getQCSpecialists = async (noteId: string): Promise<QCSectorSpecialistData[] | null> => {
+    console.log(`Fetching QC specialists for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (noteId === '1') {
+        return qcSpecialistsData;
+    }
+
+    return null;
+};

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -25,6 +25,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Plus, Trash2 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
     <div className="space-y-3">
@@ -178,6 +182,93 @@ const RatingRecommendationSection = ({ ratings }: { ratings: RatingRecommendatio
     </div>
 );
 
+const QCSectorSpecialistSection = ({ specialists, onUpdate }: { specialists: QCSectorSpecialistData[], onUpdate: (data: QCSectorSpecialistData[]) => void }) => {
+    const [localSpecialists, setLocalSpecialists] = useState(specialists);
+
+    const handleUpdate = (index: number, field: keyof QCSectorSpecialistData, value: string) => {
+        const updated = [...localSpecialists];
+        updated[index] = { ...updated[index], [field]: value };
+        setLocalSpecialists(updated);
+        onUpdate(updated);
+    };
+
+    const handleAddRow = () => {
+        const newRow: QCSectorSpecialistData = {
+            id: `qc-manual-${Date.now()}`,
+            name: 'New Specialist', // This could be a dropdown in a real app
+            qcObservations: '',
+            reason: ''
+        };
+        const updated = [...localSpecialists, newRow];
+        setLocalSpecialists(updated);
+        onUpdate(updated);
+    };
+
+    const handleDeleteRow = (id: string) => {
+        const updated = localSpecialists.filter(sp => sp.id !== id);
+        setLocalSpecialists(updated);
+        onUpdate(updated);
+    };
+    
+    return (
+        <div className="space-y-3">
+            <h3 className="font-semibold text-lg font-headline">QC/Sector Specialist</h3>
+             <div className="border rounded-lg overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>QC/Sector Specialist</TableHead>
+                            <TableHead>QC Observations (only exceptions)</TableHead>
+                            <TableHead>Reason for not accepting / not acting</TableHead>
+                            <TableHead>Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {localSpecialists.map((row, index) => (
+                            <TableRow key={row.id}>
+                                <TableCell>
+                                    <Input
+                                        type="text"
+                                        value={row.name}
+                                        readOnly
+                                        className="h-8 bg-muted/50 border-transparent"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="text"
+                                        value={row.qcObservations}
+                                        onChange={(e) => handleUpdate(index, "qcObservations", e.target.value)}
+                                        className="h-8"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                     <Input
+                                        type="text"
+                                        value={row.reason}
+                                        onChange={(e) => handleUpdate(index, "reason", e.target.value)}
+                                        className="h-8"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDeleteRow(row.id)}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+             <Button variant="outline" size="sm" onClick={handleAddRow}>
+                <Plus className="mr-2" />
+                Add Row
+            </Button>
+        </div>
+    );
+};
+
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -198,6 +289,7 @@ export default function SectionWrapper({
   const [bankFacilitiesData, setBankFacilitiesData] = useState(sectionData.bankFacilities);
   const [analystDetails, setAnalystDetails] = useState(sectionData.analystDetails);
   const [ratingRecommendation, setRatingRecommendation] = useState(sectionData.ratingRecommendation);
+  const [qcSpecialists, setQcSpecialists] = useState(sectionData.qcSpecialists);
 
 
   useEffect(() => {
@@ -233,8 +325,16 @@ export default function SectionWrapper({
                 }
             });
         }
+        if (!qcSpecialists) {
+            getQCSpecialists(note.id).then(data => {
+                if (data) {
+                    setQcSpecialists(data);
+                    onUpdateSection(section.id, { qcSpecialists: data });
+                }
+            });
+        }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -269,6 +369,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { tableRows: updatedRows });
   }
 
+  const handleSpecialistUpdate = (data: QCSectorSpecialistData[]) => {
+    setQcSpecialists(data);
+    onUpdateSection(section.id, { qcSpecialists: data });
+  };
+
   const tableVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
@@ -296,18 +401,21 @@ export default function SectionWrapper({
         </div>
       </CardHeader>
       <CardContent>
-        {isCoverPage && (
+        {isCoverPage && tableVisible && (
           <div className="space-y-6">
             {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
             {analystDetails && <Separator />}
             {analystDetails && <AnalystDetailsSection details={analystDetails} />}
             {ratingRecommendation && <Separator />}
             {ratingRecommendation && <RatingRecommendationSection ratings={ratingRecommendation} />}
+             {qcSpecialists && <Separator />}
+            {qcSpecialists && <QCSectorSpecialistSection specialists={qcSpecialists} onUpdate={handleSpecialistUpdate} />}
             {bankFacilitiesData && <Separator />}
             {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
           </div>
         )}
-        {section.hasTable && tableVisible && (
+        
+        {!isCoverPage && section.hasTable && tableVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}

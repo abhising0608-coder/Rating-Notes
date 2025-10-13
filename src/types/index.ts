@@ -99,6 +99,13 @@ export interface RatingRecommendation {
     pendingSteps: string;
 }
 
+export interface QCSectorSpecialistData {
+  id: string;
+  name: string;
+  qcObservations: string;
+  reason: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -111,6 +118,7 @@ export interface SectionData {
   bankFacilities?: BankFacilitiesData;
   analystDetails?: AnalystDetails;
   ratingRecommendation?: RatingRecommendation;
+  qcSpecialists?: QCSectorSpecialistData[];
 }
 
 export interface RatingNote {
