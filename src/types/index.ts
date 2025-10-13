@@ -119,6 +119,7 @@ export interface SectionData {
   analystDetails?: AnalystDetails;
   ratingRecommendation?: RatingRecommendation;
   qcSpecialists?: QCSectorSpecialistData[];
+  careAndCrasText?: string;
 }
 
 export interface RatingNote {

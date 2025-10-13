@@ -303,6 +303,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         bankFacilities: bankFacilitiesData,
         analystDetails: analystDetailsData,
         qcSpecialists: qcSpecialistsData,
+        careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
       },
       s2: {
         applicable: 'Applicable',

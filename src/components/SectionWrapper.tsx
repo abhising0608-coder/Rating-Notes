@@ -29,6 +29,7 @@ import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Label } from './ui/label';
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
     <div className="space-y-3">
@@ -268,6 +269,36 @@ const QCSectorSpecialistSection = ({ specialists, onUpdate }: { specialists: QCS
     );
 };
 
+const CareAndCrasSection = ({ text, onTextChange }: { text: string, onTextChange: (newText: string) => void }) => {
+    
+    const handleClick = () => {
+        alert("Navigate to CARE and other CRAs - rating history, sensitivities and key factors");
+    };
+
+    return (
+        <div className="space-y-3">
+            <Label htmlFor="care-cras-input" className="font-semibold text-lg font-headline">CARE and Other CRAs</Label>
+            <TooltipProvider>
+                <ShadcnTooltip>
+                    <TooltipTrigger asChild>
+                        <Input
+                            id="care-cras-input"
+                            type="text"
+                            value={text}
+                            onChange={(e) => onTextChange(e.target.value)}
+                            onClick={handleClick}
+                            className="cursor-pointer text-primary underline"
+                        />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Click to view CARE and other CRAs - rating history, sensitivities and key factors</p>
+                    </TooltipContent>
+                </ShadcnTooltip>
+            </TooltipProvider>
+        </div>
+    );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -290,6 +321,9 @@ export default function SectionWrapper({
   const [analystDetails, setAnalystDetails] = useState(sectionData.analystDetails);
   const [ratingRecommendation, setRatingRecommendation] = useState(sectionData.ratingRecommendation);
   const [qcSpecialists, setQcSpecialists] = useState(sectionData.qcSpecialists);
+  const [careAndCrasText, setCareAndCrasText] = useState(
+    sectionData.careAndCrasText || "CARE and other CRAs (Click here for their history, sensitivities and key factors)"
+  );
 
 
   useEffect(() => {
@@ -374,6 +408,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { qcSpecialists: data });
   };
 
+  const handleCareAndCrasTextChange = (newText: string) => {
+    setCareAndCrasText(newText);
+    onUpdateSection(section.id, { careAndCrasText: newText });
+  };
+
   const tableVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
@@ -408,10 +447,12 @@ export default function SectionWrapper({
             {analystDetails && <AnalystDetailsSection details={analystDetails} />}
             {ratingRecommendation && <Separator />}
             {ratingRecommendation && <RatingRecommendationSection ratings={ratingRecommendation} />}
-             {qcSpecialists && <Separator />}
+            {qcSpecialists && <Separator />}
             {qcSpecialists && <QCSectorSpecialistSection specialists={qcSpecialists} onUpdate={handleSpecialistUpdate} />}
             {bankFacilitiesData && <Separator />}
             {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
+            <Separator />
+            <CareAndCrasSection text={careAndCrasText} onTextChange={handleCareAndCrasTextChange} />
           </div>
         )}
         
