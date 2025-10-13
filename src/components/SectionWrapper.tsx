@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Plus, Trash2, RefreshCw } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Upload } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
 import SummaryHygieneChecks from './SummaryHygieneChecks';
@@ -428,6 +428,138 @@ const KeyUpdatesSection = ({ content, onUpdate, onRefresh, sector }: { content: 
     );
 };
 
+const AnalyticalApproachSection = ({
+  data,
+  onUpdate
+}: {
+  data: AnalyticalApproachData;
+  onUpdate: (data: AnalyticalApproachData) => void;
+}) => {
+  const [localData, setLocalData] = useState(data);
+
+  const handleUpdate = (field: keyof AnalyticalApproachData, value: any) => {
+    const updatedData = { ...localData, [field]: value };
+    setLocalData(updatedData);
+    onUpdate(updatedData);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newAttachments: Attachment[] = Array.from(e.target.files).map(file => ({
+        id: `annex-${Date.now()}-${file.name}`,
+        name: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file), // This is temporary for preview
+      }));
+      handleUpdate('annexureAttachments', [...localData.annexureAttachments, ...newAttachments]);
+    }
+  };
+
+  const removeAttachment = (id: string) => {
+    const updatedAttachments = localData.annexureAttachments.filter(att => att.id !== id);
+    handleUpdate('annexureAttachments', updatedAttachments);
+  };
+  
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>Analytical Approach</Label>
+        <Input 
+          value={localData.selectedApproach} 
+          onChange={(e) => handleUpdate('selectedApproach', e.target.value)} 
+        />
+      </div>
+       <div className="space-y-2">
+        <Label>Is Credit Enhancement (CE) rating applicable?</Label>
+        <Select 
+          value={localData.ceApplicable} 
+          onValueChange={(v) => handleUpdate('ceApplicable', v as any)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Yes">Yes</SelectItem>
+            <SelectItem value="No">No</SelectItem>
+          </SelectContent>
+        </Select>
+        {localData.ceApplicable === '' && <p className="text-sm text-destructive">This field is mandatory.</p>}
+      </div>
+
+      {localData.ceApplicable === 'Yes' && (
+        <div className="space-y-4 p-4 border rounded-md">
+           <div className="space-y-2">
+              <Label>Select Guarantor</Label>
+              <Input 
+                value={localData.guarantor} 
+                onChange={(e) => handleUpdate('guarantor', e.target.value)}
+                placeholder="Search or enter guarantor name"
+              />
+              {localData.guarantor === '' && <p className="text-sm text-destructive">Guarantor is mandatory.</p>}
+           </div>
+            <div className="space-y-2">
+              <Label>Is rating note for selected guarantor available?</Label>
+               <Select 
+                value={localData.guarantorRatingAvailable} 
+                onValueChange={(v) => handleUpdate('guarantorRatingAvailable', v as any)}
+              >
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {localData.guarantorRatingAvailable === 'Yes' && (
+              <div className="space-y-2">
+                <Label>Attach Guarantor Rating Note (PDF)</Label>
+                <div className="flex items-center gap-2">
+                  <Input type="file" accept="application/pdf" onChange={handleFileUpload} className="hidden" id="guarantor-note-upload" multiple />
+                  <Label htmlFor="guarantor-note-upload" className={cn(buttonVariants({variant: 'outline'}), 'cursor-pointer')}>
+                    <Upload className="mr-2"/> Upload PDF
+                  </Label>
+                </div>
+                 {localData.annexureAttachments.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {localData.annexureAttachments.map(file => (
+                      <li key={file.id} className="flex items-center justify-between p-1 bg-muted/50 rounded-md">
+                        <span>{file.name}</span>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeAttachment(file.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+            {localData.guarantorRatingAvailable === 'No' && (
+                <div className="space-y-2">
+                    <Label>Comments / Data</Label>
+                    <Textarea 
+                      value={localData.comments}
+                      onChange={(e) => handleUpdate('comments', e.target.value)}
+                    />
+                </div>
+            )}
+        </div>
+      )}
+
+      {localData.ceApplicable === 'No' && (
+        <div className="space-y-2">
+            <Label>Comments / Data (Optional)</Label>
+            <Textarea 
+              value={localData.comments}
+              onChange={(e) => handleUpdate('comments', e.target.value)}
+            />
+        </div>
+      )}
+    </div>
+  );
+};
+
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -454,6 +586,7 @@ export default function SectionWrapper({
   );
   const [summaryHygieneChecks, setSummaryHygieneChecks] = useState(sectionData.summaryHygieneChecks);
   const [keyUpdatesContent, setKeyUpdatesContent] = useState(sectionData.keyUpdatesContent);
+  const [analyticalApproach, setAnalyticalApproach] = useState(sectionData.analyticalApproach);
 
 
   useEffect(() => {
@@ -516,7 +649,17 @@ export default function SectionWrapper({
             })
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, note.companyId, note.id, onUpdateSection]);
+     if (section.id === 's_analytical_approach') {
+        if(!analyticalApproach) {
+            getAnalyticalApproachData(note.id).then(data => {
+                 if (data) {
+                    setAnalyticalApproach(data);
+                    onUpdateSection(section.id, { analyticalApproach: data });
+                }
+            })
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -570,6 +713,11 @@ export default function SectionWrapper({
     setKeyUpdatesContent(content);
     onUpdateSection(section.id, { keyUpdatesContent: content });
   };
+
+  const handleAnalyticalApproachUpdate = (data: AnalyticalApproachData) => {
+    setAnalyticalApproach(data);
+    onUpdateSection(section.id, { analyticalApproach: data });
+  };
   
   const handleKeyUpdatesContentRefresh = async (field: string): Promise<string> => {
     const data = await getKeyUpdatesData(note.companyId, true); // force refresh
@@ -581,6 +729,7 @@ export default function SectionWrapper({
 
   const isCoverPage = section.id === 's1';
   const isKeyUpdatesSection = section.id === 's_key_updates';
+  const isAnalyticalApproachSection = section.id === 's_analytical_approach';
 
   return (
     <Card id={section.key}>
@@ -631,7 +780,14 @@ export default function SectionWrapper({
              />
         )}
         
-        {!isCoverPage && !isKeyUpdatesSection && section.hasTable && sectionVisible && (
+         {isAnalyticalApproachSection && sectionVisible && analyticalApproach && (
+          <AnalyticalApproachSection
+            data={analyticalApproach}
+            onUpdate={handleAnalyticalApproachUpdate}
+          />
+        )}
+        
+        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && section.hasTable && sectionVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}

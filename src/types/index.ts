@@ -160,6 +160,15 @@ export interface KeyUpdatesContent {
   keyUpdatesComments: string;
 }
 
+export interface AnalyticalApproachData {
+  selectedApproach: string;
+  ceApplicable: '' | 'Yes' | 'No';
+  guarantor: string;
+  guarantorRatingAvailable: '' | 'Yes' | 'No';
+  comments: string;
+  annexureAttachments: Attachment[];
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -176,6 +185,7 @@ export interface SectionData {
   careAndCrasText?: string;
   summaryHygieneChecks?: SummaryHygieneChecksData;
   keyUpdatesContent?: KeyUpdatesContent;
+  analyticalApproach?: AnalyticalApproachData;
 }
 
 export interface RatingNote {

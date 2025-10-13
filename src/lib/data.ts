@@ -16,6 +16,7 @@ import type {
   SummaryHygieneChecksData,
   RichTextContent,
   KeyUpdatesContent,
+  AnalyticalApproachData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -77,6 +78,11 @@ const templates: Template[] = [
       {
         id: 's_key_updates',
         title: '1. About the Company and Key Updates',
+        hasTable: false,
+      },
+       {
+        id: 's_analytical_approach',
+        title: '2. Analytical Approach',
         hasTable: false,
       },
       {
@@ -328,6 +334,15 @@ const keyUpdatesData: KeyUpdatesContent = {
     keyUpdatesComments: "",
 };
 
+const analyticalApproachData: AnalyticalApproachData = {
+  selectedApproach: 'Quantitative Approach',
+  ceApplicable: '',
+  guarantor: '',
+  guarantorRatingAvailable: '',
+  comments: '',
+  annexureAttachments: [],
+};
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -375,6 +390,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         keyUpdatesContent: keyUpdatesData,
+      },
+       s_analytical_approach: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        analyticalApproach: analyticalApproachData
       },
       s2: {
         applicable: 'Applicable',
@@ -579,4 +601,15 @@ export const getKeyUpdatesData = async (companyId: string, forceRefresh = false)
   }
 
   return keyUpdatesData;
+}
+
+export const getAnalyticalApproachData = async (noteId: string): Promise<AnalyticalApproachData | null> => {
+    console.log(`Fetching analytical approach data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (noteId === '1') {
+        return analyticalApproachData;
+    }
+
+    return null;
 }
