@@ -1594,6 +1594,10 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { noteOnMaterialContingentLiabilities: content });
   };
 
+  const handleRationaleAndKeyRatingDriversUpdate = (content: string) => {
+    onUpdateSection(section.id, { rationaleAndKeyRatingDrivers: content });
+  };
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1614,6 +1618,7 @@ export default function SectionWrapper({
   const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
   const isNonInterestIncomeSection = section.id === 's_non_interest_income';
   const isStressedAssetsSection = section.id === 's_stressed_assets';
+  const isRationaleDriversSection = section.id === 's_rationale_drivers';
 
 
   return (
@@ -1758,6 +1763,22 @@ export default function SectionWrapper({
                 placeholder="Enter assumptions for projections..."
             />
         )}
+
+        { isRationaleDriversSection && sectionVisible && (
+            <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                    <Label htmlFor={`rationale-${section.id}`} className="text-base">Rationale and Key Rating Drivers</Label>
+                    {section.tooltipKey && <Tooltip tooltipKey={section.tooltipKey} />}
+                </div>
+                <Textarea 
+                    id={`rationale-${section.id}`}
+                    value={sectionData.rationaleAndKeyRatingDrivers || ''}
+                    onChange={(e) => handleRationaleAndKeyRatingDriversUpdate(e.target.value)}
+                    rows={10}
+                    placeholder="Enter rationale and key rating drivers..."
+                />
+            </div>
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1774,6 +1795,7 @@ export default function SectionWrapper({
           !isAssumptionsForProjectionsSection &&
           !isNonInterestIncomeSection &&
           !isStressedAssetsSection &&
+          !isRationaleDriversSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

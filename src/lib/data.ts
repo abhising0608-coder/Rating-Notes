@@ -164,6 +164,12 @@ const templates: Template[] = [
         title: '13. Details of Stressed Assets',
         hasTable: true,
         allowAddRow: true
+      },
+      {
+        id: 's_rationale_drivers',
+        title: 'Rationale and key rating drivers',
+        hasTable: false,
+        tooltipKey: 'rationale.drivers',
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -337,6 +343,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'projections.assumptions',
     text: 'Provide details about the assumptions made for the projections.'
+  },
+  {
+    key: 'rationale.drivers',
+    text: 'Reason for upgrade / downgrade / reaffirmation / credit watch / outlook to be mentioned here. Please note: In case RC decided rating is different, this should be suitably changed while putting in the PR.'
   }
 ];
 
@@ -690,6 +700,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: [],
+      },
+      s_rationale_drivers: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        rationaleAndKeyRatingDrivers: 'Initial rationale...'
       }
     },
   },

@@ -302,6 +302,7 @@ export interface SectionData {
   adjustmentsToFinancialStatement?: string;
   noteOnMaterialContingentLiabilities?: string;
   quarterlyFinancials?: QuarterlyFinancialsData;
+  rationaleAndKeyRatingDrivers?: string;
 }
 
 export interface RatingNote {
