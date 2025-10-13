@@ -148,6 +148,11 @@ const templates: Template[] = [
         tooltipKey: 'projections.assumptions',
       },
       {
+        id: 's_adjustments_financial_statement',
+        title: '12. Adjustments to Financial Statement',
+        hasTable: false,
+      },
+      {
         id: 's2',
         title: 'Financial Summary',
         hasTable: true,
@@ -653,6 +658,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Assumptions for projections can be detailed here.</p>',
+        attachments: [],
+      },
+      s_adjustments_financial_statement: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>Adjustments to financial statements can be detailed here.</p>',
         attachments: [],
       },
       s2: {

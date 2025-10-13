@@ -294,6 +294,7 @@ export interface SectionData {
   sensitivityAnalysis?: string;
   gstCalculation?: string;
   assumptionsForProjections?: string;
+  adjustmentsToFinancialStatement?: string;
 }
 
 export interface RatingNote {

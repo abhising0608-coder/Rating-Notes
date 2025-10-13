@@ -1520,6 +1520,10 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { assumptionsForProjections: content });
   };
 
+  const handleAdjustmentsToFinancialStatementUpdate = (content: string) => {
+    onUpdateSection(section.id, { adjustmentsToFinancialStatement: content });
+  };
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1537,6 +1541,7 @@ export default function SectionWrapper({
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
   const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
+  const isAdjustmentsToFinancialStatementSection = section.id === 's_adjustments_financial_statement';
 
 
   return (
@@ -1672,6 +1677,15 @@ export default function SectionWrapper({
                 placeholder="Enter assumptions for projections..."
             />
         )}
+        
+        { isAdjustmentsToFinancialStatementSection && sectionVisible && (
+            <Textarea 
+                value={sectionData.adjustmentsToFinancialStatement}
+                onChange={(e) => handleAdjustmentsToFinancialStatementUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter adjustments to financial statement..."
+            />
+        )}
 
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1685,6 +1699,7 @@ export default function SectionWrapper({
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
           !isAssumptionsForProjectionsSection &&
+          !isAdjustmentsToFinancialStatementSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
