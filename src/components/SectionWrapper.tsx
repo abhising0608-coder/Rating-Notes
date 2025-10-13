@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1032,6 +1032,10 @@ const FinancialsPastProjectedSection = ({
       if (rows.length === 0) return [];
       return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
   }
+  
+  const handleRichTextUpdate = (field: 'adjustments' | 'assumptions' | 'contingentLiabilities', content: string) => {
+      handleUpdate(field, content);
+  }
 
   return (
     <div className="space-y-8">
@@ -1057,7 +1061,7 @@ const FinancialsPastProjectedSection = ({
         <h3 className="font-semibold text-lg font-headline mb-2">Reference Table</h3>
         <TableSection
           initialRows={data.referenceTable}
-          headers={getTableHeaders(data.referenceTable)}
+          headers={getTableHeaders(data.mainTable)} // Use main table headers for consistency
           onRefresh={async () => data.referenceTable} // No refresh for reference table
           onAddRow={(row) => handleUpdate('referenceTable', [...data.referenceTable, row])}
           onUpdateRow={(updatedRow) => handleUpdate('referenceTable', data.referenceTable.map(r => r.id === updatedRow.id ? updatedRow : r))}
@@ -1090,23 +1094,23 @@ const FinancialsPastProjectedSection = ({
 
       <div className="space-y-4">
         <RichTextField 
-            label="Adjustment (if any) made to the financial statement for the interpretation of financial ratio"
+            label="Adjustments (if any) made to the financial statement for the interpretation of financial ratio"
             content={data.adjustments}
-            onContentChange={v => handleUpdate('adjustments', v)}
+            onContentChange={v => handleRichTextUpdate('adjustments', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
          <RichTextField 
             label="Assumptions for Projections"
             content={data.assumptions}
-            onContentChange={v => handleUpdate('assumptions', v)}
+            onContentChange={v => handleRichTextUpdate('assumptions', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
         <RichTextField 
             label="Note on material contingent liabilities"
             content={data.contingentLiabilities}
-            onContentChange={v => handleUpdate('contingentLiabilities', v)}
+            onContentChange={v => handleRichTextUpdate('contingentLiabilities', v)}
             comments={""}
             onCommentsChange={()=>{}}
         />
@@ -1135,21 +1139,14 @@ const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: I
 
     const tableHeaders = useMemo(() => {
         if (!data.tableRows || data.tableRows.length === 0) return [];
-        
-        const headers = Object.keys(data.tableRows[0]);
         const ytdExists = data.tableRows.some(row => row['YTD : Y'] !== undefined && row['YTD : Y'] !== null);
         const projectionsExist = data.tableRows.some(row => row['Projections'] !== undefined && row['Projections'] !== null);
-
-        let orderedHeaders = ['Particulars', '3M : Y', '3M : Y-1', 'Change %'];
-        if (ytdExists) {
-            orderedHeaders.push('YTD : Y', 'YTD : Y-1', 'Change % (YTD)');
-        }
-        if (projectionsExist) {
-            orderedHeaders.push('Projections', 'Projections Achieved (%)');
-        }
         
-        return orderedHeaders;
-
+        let headers = ['Particulars', '3M : Y', '3M : Y-1', 'Change %'];
+        if (ytdExists) headers.push('YTD : Y', 'YTD : Y-1', 'Change % (YTD)');
+        if (projectionsExist) headers.push('Projections', 'Projections Achieved (%)');
+        
+        return headers;
     }, [data.tableRows]);
 
 
@@ -1159,58 +1156,47 @@ const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: I
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-muted/50">
-                            <TableHead rowSpan={2} className="align-bottom">Particulars<br/>(₹ crore)</TableHead>
-                            <TableHead colSpan={3} className="text-center">3M</TableHead>
-                            {tableHeaders.includes('YTD : Y') && <TableHead colSpan={3} className="text-center">YTD</TableHead>}
-                            {tableHeaders.includes('Projections') && <TableHead colSpan={2} className="text-center">Projections</TableHead>}
+                            <TableHead rowSpan={2} className="align-bottom p-2">Particulars<br/>(₹ crore)</TableHead>
+                            <TableHead colSpan={3} className="text-center p-2 border-l">3M</TableHead>
+                            {tableHeaders.includes('YTD : Y') && <TableHead colSpan={3} className="text-center p-2 border-l">YTD</TableHead>}
+                            {tableHeaders.includes('Projections') && <TableHead colSpan={2} className="text-center p-2 border-l">Projections</TableHead>}
                         </TableRow>
                         <TableRow className="bg-muted/50">
-                           <TableHead className="text-center">Y</TableHead>
-                           <TableHead className="text-center">Y-1</TableHead>
-                           <TableHead className="text-center">Change (%)</TableHead>
+                           <TableHead className="text-center p-2 border-l">Y</TableHead>
+                           <TableHead className="text-center p-2 border-l">Y-1</TableHead>
+                           <TableHead className="text-center p-2 border-l">Change (%)</TableHead>
                            {tableHeaders.includes('YTD : Y') && <>
-                                <TableHead className="text-center">Y</TableHead>
-                                <TableHead className="text-center">Y-1</TableHead>
-                                <TableHead className="text-center">Change (%)</TableHead>
+                                <TableHead className="text-center p-2 border-l">Y</TableHead>
+                                <TableHead className="text-center p-2 border-l">Y-1</TableHead>
+                                <TableHead className="text-center p-2 border-l">Change (%)</TableHead>
                            </>}
                            {tableHeaders.includes('Projections') && <>
-                                <TableHead className="text-center">Y</TableHead>
-                                <TableHead className="text-center">Achieved (%)</TableHead>
+                                <TableHead className="text-center p-2 border-l">Y</TableHead>
+                                <TableHead className="text-center p-2 border-l">Achieved (%)</TableHead>
                            </>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {data.tableRows.map(row => (
                             <TableRow key={row.id}>
-                               {tableHeaders.map(header => {
-                                    const isEditable = header === 'Projections Achieved (%)';
-                                    const value = row[header];
-                                    
-                                    if (header.startsWith('3M') || header.startsWith('YTD') || header.startsWith('Change') || header === 'Projections') return null;
-
-                                    if (header === 'Particulars') {
-                                        return <TableCell key={header}>{value}</TableCell>;
-                                    }
-
-                                    return null; // This part will be rebuilt
-                               })}
-                                <TableCell>{row['3M : Y']}</TableCell>
-                                <TableCell>{row['3M : Y-1']}</TableCell>
-                                <TableCell>{row['Change %']}</TableCell>
+                                <TableCell className="p-2 font-medium">{row['Particulars']}</TableCell>
+                                <TableCell className="p-2 text-right border-l">{row['3M : Y'] ?? 'N/A'}</TableCell>
+                                <TableCell className="p-2 text-right border-l">{row['3M : Y-1'] ?? 'N/A'}</TableCell>
+                                <TableCell className="p-2 text-right border-l">{row['Change %'] ?? 'N/A'}</TableCell>
 
                                 {tableHeaders.includes('YTD : Y') && <>
-                                    <TableCell>{row['YTD : Y']}</TableCell>
-                                    <TableCell>{row['YTD : Y-1']}</TableCell>
-                                    <TableCell>{row['Change % (YTD)']}</TableCell>
+                                    <TableCell className="p-2 text-right border-l">{row['YTD : Y'] ?? 'N/A'}</TableCell>
+                                    <TableCell className="p-2 text-right border-l">{row['YTD : Y-1'] ?? 'N/A'}</TableCell>
+                                    <TableCell className="p-2 text-right border-l">{row['Change % (YTD)'] ?? 'N/A'}</TableCell>
                                 </>}
                                 {tableHeaders.includes('Projections') && <>
-                                    <TableCell>{row['Projections']}</TableCell>
-                                    <TableCell>
+                                    <TableCell className="p-2 text-right border-l">{row['Projections'] ?? 'N/A'}</TableCell>
+                                    <TableCell className="p-2 border-l">
                                         <Input
                                             type="number"
                                             value={row['Projections Achieved (%)'] || ''}
                                             onChange={(e) => handleRowUpdate(row.id, 'Projections Achieved (%)', e.target.value === '' ? null : parseFloat(e.target.value))}
-                                            className="h-8"
+                                            className="h-8 text-right"
                                         />
                                     </TableCell>
                                 </>}
@@ -1231,6 +1217,58 @@ const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: I
         </div>
     );
 };
+
+const QuarterlyFinancialsSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName,
+}: {
+  initialData: QuarterlyFinancialsData;
+  onUpdate: (data: QuarterlyFinancialsData) => void;
+  onRefresh: () => Promise<TableRowData[]>;
+  companyName: string;
+}) => {
+  const [data, setData] = useState(initialData);
+
+  const handleUpdate = (field: keyof QuarterlyFinancialsData, value: any) => {
+    const updatedData = { ...data, [field]: value };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+  
+  const getTableHeaders = (rows: TableRowData[]) => {
+      if (rows.length === 0) return [];
+      return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-4">
+      <TableSection
+        initialRows={data.tableRows}
+        headers={getTableHeaders(data.tableRows)}
+        onRefresh={onRefresh}
+        onAddRow={() => {}} // No adding rows
+        onUpdateRow={() => {}} // Read-only
+        onRemoveRow={() => {}} // No removing rows
+        allowAddRow={false}
+        sectionKey="quarterly_financials"
+        companyName={companyName}
+        readOnly={true}
+      />
+      <div className="space-y-2">
+        <Label>Comments</Label>
+        <Textarea
+          value={data.comments}
+          onChange={(e) => handleUpdate('comments', e.target.value)}
+          rows={4}
+          placeholder="Add your comments for the quarterly financials here..."
+        />
+      </div>
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1265,6 +1303,7 @@ export default function SectionWrapper({
   const [linkedRatings, setLinkedRatings] = useState(sectionData.linkedRatings);
   const [financials, setFinancials] = useState(sectionData.financials);
   const [interimResults, setInterimResults] = useState(sectionData.interimResults);
+  const [quarterlyFinancials, setQuarterlyFinancials] = useState(sectionData.quarterlyFinancials);
 
 
 
@@ -1399,7 +1438,17 @@ export default function SectionWrapper({
             });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_quarterly_financials') {
+        if(!quarterlyFinancials) {
+            getQuarterlyFinancialsData(note.id).then(data => {
+                if (data) {
+                    setQuarterlyFinancials(data);
+                    onUpdateSection(section.id, { quarterlyFinancials: data });
+                }
+            });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1509,6 +1558,21 @@ export default function SectionWrapper({
       setInterimResults(data);
       onUpdateSection(section.id, { interimResults: data });
   }
+  
+  const handleQuarterlyFinancialsUpdate = (data: QuarterlyFinancialsData) => {
+      setQuarterlyFinancials(data);
+      onUpdateSection(section.id, { quarterlyFinancials: data });
+  }
+
+  const handleQuarterlyFinancialsRefresh = async (): Promise<TableRowData[]> => {
+      console.log(`Refreshing quarterly financials...`);
+      const refreshedData = await getQuarterlyFinancialsData(note.id);
+      if (!refreshedData) return [];
+      
+      const updatedRows = refreshedData.tableRows.map(row => ({...row, 'Q3-24': (row['Q3-24'] as number) + 1})); // Simulate change
+      handleQuarterlyFinancialsUpdate({...quarterlyFinancials!, tableRows: updatedRows});
+      return updatedRows;
+  }
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
@@ -1526,8 +1590,8 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { assumptionsForProjections: content });
   };
 
-  const handleAdjustmentsToFinancialStatementUpdate = (content: string) => {
-    onUpdateSection(section.id, { adjustmentsToFinancialStatement: content });
+  const handleNoteOnMaterialContingentLiabilitiesUpdate = (content: string) => {
+    onUpdateSection(section.id, { noteOnMaterialContingentLiabilities: content });
   };
 
 
@@ -1543,11 +1607,11 @@ export default function SectionWrapper({
   const isLinkedRatingsSection = section.id === 's_linked_ratings';
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
   const isInterimResultsSection = section.id === 's_interim_results';
+  const isQuarterlyFinancialsSection = section.id === 's_quarterly_financials';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
   const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
-  const isAdjustmentsToFinancialStatementSection = section.id === 's_adjustments_financial_statement';
 
 
   return (
@@ -1647,10 +1711,19 @@ export default function SectionWrapper({
                 onUpdate={handleInterimResultsUpdate}
             />
         )}
+
+        {isQuarterlyFinancialsSection && sectionVisible && quarterlyFinancials && (
+          <QuarterlyFinancialsSection
+            initialData={quarterlyFinancials}
+            onUpdate={handleQuarterlyFinancialsUpdate}
+            onRefresh={handleQuarterlyFinancialsRefresh}
+            companyName={note.company.name}
+          />
+        )}
         
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
-                value={sectionData.assumptionsForCashFlow}
+                value={sectionData.assumptionsForCashFlow || ''}
                 onChange={(e) => handleAssumptionsForCashFlowUpdate(e.target.value)}
                 rows={10}
                 placeholder="Enter assumptions for cash flow..."
@@ -1659,7 +1732,7 @@ export default function SectionWrapper({
 
         { isSensitivityAnalysisSection && sectionVisible && (
             <Textarea 
-                value={sectionData.sensitivityAnalysis}
+                value={sectionData.sensitivityAnalysis || ''}
                 onChange={(e) => handleSensitivityAnalysisUpdate(e.target.value)}
                 rows={10}
                 placeholder="Enter sensitivity analysis details..."
@@ -1668,7 +1741,7 @@ export default function SectionWrapper({
 
         { isGstCalculationSection && sectionVisible && (
             <Textarea 
-                value={sectionData.gstCalculation}
+                value={sectionData.gstCalculation || ''}
                 onChange={(e) => handleGstCalculationUpdate(e.target.value)}
                 rows={10}
                 placeholder="Enter GST calculation details..."
@@ -1677,22 +1750,13 @@ export default function SectionWrapper({
         
         { isAssumptionsForProjectionsSection && sectionVisible && (
             <Textarea 
-                value={sectionData.assumptionsForProjections}
+                value={sectionData.assumptionsForProjections || ''}
                 onChange={(e) => handleAssumptionsForProjectionsUpdate(e.target.value)}
                 rows={10}
                 placeholder="Enter assumptions for projections..."
             />
         )}
         
-        { isAdjustmentsToFinancialStatementSection && sectionVisible && (
-            <Textarea 
-                value={sectionData.adjustmentsToFinancialStatement}
-                onChange={(e) => handleAdjustmentsToFinancialStatementUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter adjustments to financial statement..."
-            />
-        )}
-
         { !isCoverPage && 
           !isKeyUpdatesSection && 
           !isAnalyticalApproachSection && 
@@ -1701,11 +1765,11 @@ export default function SectionWrapper({
           !isCEChecklistSection && 
           !isFinancialsPastProjectedSection &&
           !isInterimResultsSection &&
+          !isQuarterlyFinancialsSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
           !isAssumptionsForProjectionsSection &&
-          !isAdjustmentsToFinancialStatementSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

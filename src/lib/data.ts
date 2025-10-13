@@ -23,6 +23,7 @@ import type {
   LinkedRatingsData,
   FinancialsPastProjectedData,
   InterimResultsData,
+  QuarterlyFinancialsData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -116,11 +117,16 @@ const templates: Template[] = [
       {
         id: 's_financials_past_projected',
         title: '7.1 Financials (Past/Projected)',
-        hasTable: true,
+        hasTable: false, // It's a complex component now
       },
        {
         id: 's_interim_results',
         title: '7.2 For Interim Result Reviews',
+        hasTable: false,
+      },
+      {
+        id: 's_quarterly_financials',
+        title: '7.3 Quarterly Financials',
         hasTable: false,
       },
       {
@@ -146,25 +152,6 @@ const templates: Template[] = [
         title: '11. Assumptions for Projections',
         hasTable: false,
         tooltipKey: 'projections.assumptions',
-      },
-      {
-        id: 's_adjustments_financial_statement',
-        title: '12. Adjustments to Financial Statement',
-        hasTable: false,
-      },
-      {
-        id: 's2',
-        title: 'Financial Summary',
-        hasTable: true,
-        allowAddRow: true,
-        instructions: 'All figures in millions. Data sourced from annual reports. Add manual rows for adjustments.',
-      },
-      {
-        id: 's3',
-        title: 'Risk Assessment',
-        hasTable: true,
-        allowAddRow: false,
-        instructions: 'Assess risks based on the provided framework.',
       },
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -525,9 +512,9 @@ const financialsPastProjectedData: FinancialsPastProjectedData = {
     quarterlyTable: [
         { id: 'q-1', 'Particulars': 'Revenue', 'Q1-24': 300, 'Q2-24': 310, isManual: false }
     ],
-    adjustments: "",
-    assumptions: "",
-    contingentLiabilities: "",
+    adjustments: "Initial adjustment notes can go here.",
+    assumptions: "Initial assumptions for projections can go here.",
+    contingentLiabilities: "Initial notes on material contingent liabilities.",
 };
 
 const interimResultsData: InterimResultsData = {
@@ -536,6 +523,15 @@ const interimResultsData: InterimResultsData = {
         { id: 'ir-2', 'Particulars': 'PBT', '3M : Y': 20, '3M : Y-1': 18, 'Change %': 11.1, 'Projections': null, 'Projections Achieved (%)': null },
     ],
     comments: ""
+};
+
+const quarterlyFinancialsData: QuarterlyFinancialsData = {
+    tableRows: [
+        { id: 'qf-1', 'Particulars': 'Net Interest Income', 'Q3-24': 120, 'Q2-24': 115, 'Q1-24': 110, 'Q4-23': 105 },
+        { id: 'qf-2', 'Particulars': 'Provisions', 'Q3-24': 20, 'Q2-24': 18, 'Q1-24': 22, 'Q4-23': 15 },
+        { id: 'qf-3', 'Particulars': 'PAT', 'Q3-24': 40, 'Q2-24': 38, 'Q1-24': 35, 'Q4-23': 32 },
+    ],
+    comments: "Quarterly financials for the Banking sector."
 };
 
 
@@ -636,49 +632,40 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
         interimResults: interimResultsData,
       },
+       s_quarterly_financials: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        quarterlyFinancials: quarterlyFinancialsData,
+      },
       s_cash_flow_assumptions: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Initial assumptions for the cash flow models are documented here.</p>',
         attachments: [],
+        assumptionsForCashFlow: 'Initial assumptions...'
       },
       s_sensitivity_analysis: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Sensitivity analysis details can be added here.</p>',
         attachments: [],
+        sensitivityAnalysis: 'Sensitivity analysis...'
       },
       s_gst_calculation: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>GST calculation details can be added here.</p>',
         attachments: [],
+        gstCalculation: 'GST calculation...'
       },
       s_projections_assumptions: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Assumptions for projections can be detailed here.</p>',
         attachments: [],
-      },
-      s_adjustments_financial_statement: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>Adjustments to financial statements can be detailed here.</p>',
-        attachments: [],
-      },
-      s2: {
-        applicable: 'Applicable',
-        tableRows: financialData.find(fd => fd.tableId === 'financials')?.rows || [],
-        comments: '<p>Financials look stable with moderate growth.</p>',
-        attachments: [
-          { id: 'att-1', name: 'Annual Report 2024.pdf', type: 'application/pdf', url: '#' }
-        ],
-      },
-       s3: {
-        applicable: 'Not Applicable',
-        tableRows: financialData.find(fd => fd.tableId === 'risk_assessment')?.rows || [],
-        comments: '<p>Risk assessment deferred to next quarter.</p>',
-        attachments: [],
+        assumptionsForProjections: 'Assumptions for projections...'
       },
     },
   },
@@ -937,6 +924,15 @@ export const getInterimResultsData = async(noteId: string): Promise<InterimResul
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return interimResultsData;
+    }
+    return null;
+}
+
+export const getQuarterlyFinancialsData = async(noteId: string): Promise<QuarterlyFinancialsData | null> => {
+    console.log(`Fetching quarterly financials data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') { // Assuming it's for a banking sector note
+        return quarterlyFinancialsData;
     }
     return null;
 }

@@ -266,6 +266,11 @@ export interface InterimResultsData {
     comments: string;
 }
 
+export interface QuarterlyFinancialsData {
+    tableRows: TableRowData[];
+    comments: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -295,6 +300,8 @@ export interface SectionData {
   gstCalculation?: string;
   assumptionsForProjections?: string;
   adjustmentsToFinancialStatement?: string;
+  noteOnMaterialContingentLiabilities?: string;
+  quarterlyFinancials?: QuarterlyFinancialsData;
 }
 
 export interface RatingNote {
