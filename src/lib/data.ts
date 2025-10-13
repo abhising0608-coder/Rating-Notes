@@ -108,7 +108,7 @@ const templates: Template[] = [
       },
       {
         id: 's_linked_ratings',
-        title: '2.5 Linked ratings',
+        title: 'Linked ratings',
         hasTable: true,
         allowAddRow: true,
         tooltipKey: 'linked.ratings',
