@@ -77,6 +77,13 @@ export interface BankFacilitiesData {
   facilities: BankFacility[];
 }
 
+export interface AnalystDetails {
+  analyst1: string;
+  groupHead: string;
+  ratingHead: string;
+  qcHead: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -87,6 +94,7 @@ export interface SectionData {
     managingDirector: string;
   };
   bankFacilities?: BankFacilitiesData;
+  analystDetails?: AnalystDetails;
 }
 
 export interface RatingNote {

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails } from '@/lib/data';
 import { Separator } from './ui/separator';
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -90,6 +90,32 @@ const BankFacilitiesSection = ({ facilitiesData }: { facilitiesData: BankFacilit
     );
 };
 
+const AnalystDetailsSection = ({ details }: { details: AnalystDetails }) => (
+    <div className="space-y-3">
+        <h3 className="font-semibold text-lg font-headline">Analyst Details</h3>
+        <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                    <tr className="divide-x">
+                        <th className="p-2 text-left font-medium">Analyst</th>
+                        <th className="p-2 text-left font-medium">Group Head</th>
+                        <th className="p-2 text-left font-medium">Rating Head</th>
+                        <th className="p-2 text-left font-medium">QC Head</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y">
+                    <tr className="divide-x hover:bg-muted/50">
+                        <td className="p-2">{details.analyst1 || 'Not Available'}</td>
+                        <td className="p-2">{details.groupHead || 'Not Available'}</td>
+                        <td className="p-2">{details.ratingHead || 'Not Available'}</td>
+                        <td className="p-2">{details.qcHead || 'Not Available'}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -109,6 +135,7 @@ export default function SectionWrapper({
   const [tableRows, setTableRows] = useState(sectionData.tableRows);
   const [disclosureData, setDisclosureData] = useState(sectionData.disclosure);
   const [bankFacilitiesData, setBankFacilitiesData] = useState(sectionData.bankFacilities);
+  const [analystDetails, setAnalystDetails] = useState(sectionData.analystDetails);
 
   useEffect(() => {
     if (section.id === 's1') { // Cover page section
@@ -127,8 +154,16 @@ export default function SectionWrapper({
                 }
             });
         }
+        if (!analystDetails) {
+            getAnalystDetails(note.id).then(data => {
+                if(data) {
+                    setAnalystDetails(data);
+                    onUpdateSection(section.id, { analystDetails: data });
+                }
+            })
+        }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, note.companyId, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -193,6 +228,8 @@ export default function SectionWrapper({
         {isCoverPage && (
           <div className="space-y-6">
             {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
+            {analystDetails && <Separator />}
+            {analystDetails && <AnalystDetailsSection details={analystDetails} />}
             {disclosureData && bankFacilitiesData && <Separator />}
             {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
           </div>

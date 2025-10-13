@@ -8,7 +8,8 @@ import type {
   IndustryMapping,
   User,
   Criteria,
-  BankFacilitiesData
+  BankFacilitiesData,
+  AnalystDetails,
 } from '@/types';
 
 const companies: Company[] = [
@@ -249,6 +250,13 @@ const bankFacilitiesData: BankFacilitiesData = {
   ]
 };
 
+const analystDetailsData: AnalystDetails = {
+    analyst1: 'Rahul Sharma',
+    groupHead: 'Ananya Mehta',
+    ratingHead: 'Vikram Nair',
+    qcHead: 'Sanjay Patel',
+};
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -285,6 +293,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
           managingDirector: 'CEO has no declared interests in rated entities.',
         },
         bankFacilities: bankFacilitiesData,
+        analystDetails: analystDetailsData,
       },
       s2: {
         applicable: 'Applicable',
@@ -381,6 +390,18 @@ export const getBankFacilitiesData = async (companyId: string): Promise<BankFaci
 
     if (companyId === '1') {
         return bankFacilitiesData;
+    }
+    return null;
+}
+
+export const getAnalystDetails = async (noteId: string): Promise<AnalystDetails | null> => {
+    console.log(`Fetching analyst details for note: ${noteId}`);
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // In a real app, this would be based on the noteId or associated users
+    if (noteId === '1') {
+        return analystDetailsData;
     }
     return null;
 }
