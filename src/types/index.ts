@@ -224,6 +224,26 @@ export interface ParentGovSupportData {
     governmentSupport: GovernmentSupportFrameworkData;
 }
 
+export interface CERatingTableRow {
+  id: number;
+  parameter: string;
+  asPerModel: string;
+  analystComments: string;
+}
+
+export interface CEChecklistData {
+  ceRatingSelection: 'Applicable' | 'Not Applicable' | '';
+  ceType: 'loc' | 'guaranteed' | '';
+  locBackedRatingsTable: CERatingTableRow[];
+  guaranteedRatingsTable: CERatingTableRow[];
+  combinedViewSelection: 'Applicable' | 'Not Applicable' | '';
+  combinedViewTable: TableRowData[];
+  comments: {
+    locBackedComments: string;
+    guaranteedComments: string;
+    combinedViewComments: string;
+  }
+}
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -244,6 +264,7 @@ export interface SectionData {
   analyticalApproach?: AnalyticalApproachData;
   modelSummary?: ModelSummaryRow[];
   parentGovSupport?: ParentGovSupportData;
+  ceChecklist?: CEChecklistData;
 }
 
 export interface RatingNote {

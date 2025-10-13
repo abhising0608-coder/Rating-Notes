@@ -19,6 +19,7 @@ import type {
   AnalyticalApproachData,
   ModelSummaryRow,
   ParentGovSupportData,
+  CEChecklistData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -95,6 +96,11 @@ const templates: Template[] = [
        {
         id: 's_parent_gov_support',
         title: '4. Parent/Government Support Framework',
+        hasTable: false,
+      },
+      {
+        id: 's_ce_checklist',
+        title: '5. Checklist for CE Rating',
         hasTable: false,
       },
       {
@@ -398,6 +404,30 @@ const parentGovSupportData: ParentGovSupportData = {
     }
 };
 
+const ceChecklistData: CEChecklistData = {
+  ceRatingSelection: '',
+  ceType: '',
+  locBackedRatingsTable: [
+    { id: 1, parameter: 'Parameter 1', asPerModel: 'Value A', analystComments: '' },
+    { id: 2, parameter: 'Parameter 2', asPerModel: 'Value B', analystComments: '' }
+  ],
+  guaranteedRatingsTable: [
+    { id: 1, parameter: 'Parameter X', asPerModel: 'Value Y', analystComments: '' },
+    { id: 2, parameter: 'Parameter Z', asPerModel: 'Value W', analystComments: '' }
+  ],
+  combinedViewSelection: '',
+  combinedViewTable: [
+      { id: 'cv-1', 'Column 1': 'Data 1', 'Column 2': 'Data A' },
+      { id: 'cv-2', 'Column 1': 'Data 2', 'Column 2': 'Data B' }
+  ],
+  comments: {
+    locBackedComments: '',
+    guaranteedComments: '',
+    combinedViewComments: ''
+  }
+};
+
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -466,6 +496,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
           comments: '',
           attachments: [],
           parentGovSupport: parentGovSupportData,
+      },
+      s_ce_checklist: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        ceChecklist: ceChecklistData,
       },
       s2: {
         applicable: 'Applicable',
@@ -698,6 +735,15 @@ export const getParentGovSupportData = async (noteId: string): Promise<ParentGov
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return parentGovSupportData;
+    }
+    return null;
+}
+
+export const getCEChecklistData = async (noteId: string): Promise<CEChecklistData | null> => {
+    console.log(`Fetching CE checklist data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return ceChecklistData;
     }
     return null;
 }

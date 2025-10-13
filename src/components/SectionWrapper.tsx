@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, ParentSupportFrameworkRow, GovernmentSupportFrameworkRow } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -35,6 +35,7 @@ import { Textarea } from './ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from './ui/button';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -852,6 +853,155 @@ const ParentGovSupportSection = ({ initialData, onUpdate }: { initialData: Paren
     );
 };
 
+const CEChecklistSection = ({ initialData, onUpdate }: { initialData: CEChecklistData, onUpdate: (data: CEChecklistData) => void }) => {
+  const [data, setData] = useState(initialData);
+
+  const handleUpdate = (field: keyof CEChecklistData, value: any) => {
+    const updatedData = { ...data, [field]: value };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+  
+  const handleTableUpdate = (table: 'locBackedRatingsTable' | 'guaranteedRatingsTable', rowId: number, field: keyof CERatingTableRow, value: string) => {
+      const updatedTable = data[table].map(row => row.id === rowId ? {...row, [field]: value} : row);
+      handleUpdate(table, updatedTable);
+  }
+  
+  const handleCombinedTableUpdate = (rowId: string, column: string, value: string) => {
+      const updatedTable = data.combinedViewTable.map(row => row.id === rowId ? {...row, [column]: value} : row);
+      handleUpdate('combinedViewTable', updatedTable);
+  }
+  
+  const handleCommentsUpdate = (field: keyof CEChecklistData['comments'], value: string) => {
+      handleUpdate('comments', {...data.comments, [field]: value});
+  }
+
+  const CETable = ({ title, tableData, onUpdateRow }: { title: string, tableData: CERatingTableRow[], onUpdateRow: (rowId: number, field: keyof CERatingTableRow, value: string) => void }) => (
+    <div className="space-y-2">
+        <h4 className="font-semibold">{title}</h4>
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead>Parameter</TableHead>
+                    <TableHead>As per Model</TableHead>
+                    <TableHead>Analyst Comments</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {tableData.map(row => (
+                    <TableRow key={row.id}>
+                        <TableCell>{row.parameter}</TableCell>
+                        <TableCell>{row.asPerModel}</TableCell>
+                        <TableCell>
+                            <Textarea 
+                                value={row.analystComments} 
+                                onChange={e => onUpdateRow(row.id, 'analystComments', e.target.value)}
+                                rows={2}
+                            />
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+        <div className="space-y-2">
+            <Label>Checklist for CE rating</Label>
+            <Select value={data.ceRatingSelection} onValueChange={v => handleUpdate('ceRatingSelection', v)}>
+                <SelectTrigger className="w-[220px]"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Applicable">Applicable</SelectItem>
+                    <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+
+        {data.ceRatingSelection === 'Applicable' && (
+            <div className="p-4 border rounded-md space-y-6">
+                <RadioGroup value={data.ceType} onValueChange={v => handleUpdate('ceType', v)} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="loc" id="loc" />
+                        <Label htmlFor="loc">In case of LOC backed ratings</Label>
+                    </div>
+                     <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="guaranteed" id="guaranteed" />
+                        <Label htmlFor="guaranteed">In case of guaranteed rating</Label>
+                    </div>
+                </RadioGroup>
+
+                {data.ceType === 'loc' && (
+                    <div className="space-y-4">
+                        <CETable title="LOC Backed Ratings" tableData={data.locBackedRatingsTable} onUpdateRow={(rowId, field, value) => handleTableUpdate('locBackedRatingsTable', rowId, field, value)} />
+                        <div>
+                            <Label>Comments</Label>
+                            <Textarea value={data.comments.locBackedComments} onChange={e => handleCommentsUpdate('locBackedComments', e.target.value)} />
+                        </div>
+                    </div>
+                )}
+                {data.ceType === 'guaranteed' && (
+                    <div className="space-y-4">
+                         <CETable title="Guaranteed Ratings" tableData={data.guaranteedRatingsTable} onUpdateRow={(rowId, field, value) => handleTableUpdate('guaranteedRatingsTable', rowId, field, value)} />
+                         <div>
+                            <Label>Comments</Label>
+                            <Textarea value={data.comments.guaranteedComments} onChange={e => handleCommentsUpdate('guaranteedComments', e.target.value)} />
+                        </div>
+                    </div>
+                )}
+            </div>
+        )}
+
+        <Separator />
+        
+        <div className="space-y-2">
+            <Label>Checklist for combined view</Label>
+             <Select value={data.combinedViewSelection} onValueChange={v => handleUpdate('combinedViewSelection', v)}>
+                <SelectTrigger className="w-[220px]"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Applicable">Applicable</SelectItem>
+                    <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+
+        {data.combinedViewSelection === 'Applicable' && (
+            <div className="p-4 border rounded-md space-y-4">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Column 1</TableHead>
+                            <TableHead>Column 2</TableHead>
+                            <TableHead>Analyst Comments</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.combinedViewTable.map(row => (
+                            <TableRow key={row.id}>
+                                <TableCell>
+                                    <Input value={row['Column 1']} onChange={e => handleCombinedTableUpdate(row.id, 'Column 1', e.target.value)} />
+                                </TableCell>
+                                <TableCell>
+                                    <Input value={row['Column 2']} onChange={e => handleCombinedTableUpdate(row.id, 'Column 2', e.target.value)} />
+                                </TableCell>
+                                 <TableCell>
+                                    <Textarea value={row['Analyst Comments']} onChange={e => handleCombinedTableUpdate(row.id, 'Analyst Comments', e.target.value)} />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+                 <div>
+                    <Label>Comments</Label>
+                    <Textarea value={data.comments.combinedViewComments} onChange={e => handleCommentsUpdate('combinedViewComments', e.target.value)} />
+                </div>
+            </div>
+        )}
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -882,6 +1032,7 @@ export default function SectionWrapper({
   const [analyticalApproach, setAnalyticalApproach] = useState(sectionData.analyticalApproach);
   const [modelSummary, setModelSummary] = useState(sectionData.modelSummary);
   const [parentGovSupport, setParentGovSupport] = useState(sectionData.parentGovSupport);
+  const [ceChecklist, setCeChecklist] = useState(sectionData.ceChecklist);
 
 
   useEffect(() => {
@@ -974,7 +1125,17 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, note.companyId, note.id, onUpdateSection]);
+    if(section.id === 's_ce_checklist') {
+      if(!ceChecklist) {
+        getCEChecklistData(note.id).then(data => {
+          if (data) {
+            setCeChecklist(data);
+            onUpdateSection(section.id, { ceChecklist: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1054,6 +1215,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { parentGovSupport: data });
   }
 
+  const handleCEChecklistUpdate = (data: CEChecklistData) => {
+    setCeChecklist(data);
+    onUpdateSection(section.id, { ceChecklist: data });
+  }
+
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
@@ -1062,6 +1228,7 @@ export default function SectionWrapper({
   const isAnalyticalApproachSection = section.id === 's_analytical_approach';
   const isModelSummarySection = section.id === 's_model_summary';
   const isParentGovSupportSection = section.id === 's_parent_gov_support';
+  const isCEChecklistSection = section.id === 's_ce_checklist';
 
   return (
     <Card id={section.key}>
@@ -1133,8 +1300,15 @@ export default function SectionWrapper({
             onUpdate={handleParentGovSupportUpdate}
           />
         )}
+
+        {isCEChecklistSection && sectionVisible && ceChecklist && (
+          <CEChecklistSection
+            initialData={ceChecklist}
+            onUpdate={handleCEChecklistUpdate}
+          />
+        )}
         
-        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && !isParentGovSupportSection && section.hasTable && sectionVisible && (
+        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && !isParentGovSupportSection && !isCEChecklistSection && section.hasTable && sectionVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}
