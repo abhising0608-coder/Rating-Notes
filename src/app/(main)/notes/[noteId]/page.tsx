@@ -42,7 +42,7 @@ export default async function NotePage({ params }: { params: { noteId: string } 
         {note.template.sections.map((section) => (
           <SectionWrapper
             key={section.id}
-            section={section}
+            section={{...section, key: section.id}}
             note={note}
             onUpdateSection={handleUpdateSection}
             onRefreshTable={handleRefreshTable}

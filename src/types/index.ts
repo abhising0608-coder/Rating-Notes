@@ -68,6 +68,10 @@ export interface SectionData {
   tableRows: TableRowData[];
   comments: string;
   attachments: Attachment[];
+  disclosure?: {
+    independentDirectors: string;
+    managingDirector: string;
+  }
 }
 
 export interface RatingNote {

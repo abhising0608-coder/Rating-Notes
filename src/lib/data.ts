@@ -64,6 +64,7 @@ const templates: Template[] = [
         id: 's1',
         title: 'Cover Page',
         hasTable: false,
+        tooltipKey: 'cover.disclosureOfInterest'
       },
       {
         id: 's2',
@@ -249,6 +250,10 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '<h1>Cover Page Comments</h1><p>Initial draft of the cover page is ready.</p>',
         attachments: [],
+        disclosure: {
+          independentDirectors: 'No director has disclosed any conflict of interest for FY2024.',
+          managingDirector: 'CEO has no declared interests in rated entities.',
+        }
       },
       s2: {
         applicable: 'Applicable',
@@ -321,4 +326,19 @@ export const getUsers = async (): Promise<User[]> => {
 
 export const getCriteria = async (): Promise<Criteria[]> => {
     return criteria;
+}
+
+export const getDisclosureData = async (companyId: string): Promise<any> => {
+    console.log(`Fetching disclosure data for company: ${companyId}`);
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // In a real app, this would fetch from an external API
+    if (companyId === '1') {
+        return {
+            independentDirectors: 'No director has disclosed any conflict of interest for FY2024.',
+            managingDirector: 'CEO has no declared interests in rated entities.',
+        };
+    }
+    return null;
 }
