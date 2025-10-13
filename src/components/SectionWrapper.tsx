@@ -1418,6 +1418,7 @@ export default function SectionWrapper({
   const [interimResults, setInterimResults] = useState(sectionData.interimResults);
   const [quarterlyFinancials, setQuarterlyFinancials] = useState(sectionData.quarterlyFinancials);
   const [ratingSensitivities, setRatingSensitivities] = useState(sectionData.ratingSensitivities);
+  const [detailedDescriptionOfKeyRatingDrivers, setDetailedDescriptionOfKeyRatingDrivers] = useState(sectionData.detailedDescriptionOfKeyRatingDrivers);
 
 
 
@@ -1711,10 +1712,6 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { assumptionsForProjections: content });
   };
 
-  const handleNoteOnMaterialContingentLiabilitiesUpdate = (content: string) => {
-    onUpdateSection(section.id, { noteOnMaterialContingentLiabilities: content });
-  };
-
   const handleRationaleAndKeyRatingDriversUpdate = (content: string) => {
     onUpdateSection(section.id, { rationaleAndKeyRatingDrivers: content });
   };
@@ -1723,6 +1720,11 @@ export default function SectionWrapper({
     setRatingSensitivities(data);
     onUpdateSection(section.id, { ratingSensitivities: data });
   }
+
+  const handleDetailedDescriptionOfKeyRatingDriversUpdate = (content: string) => {
+    setDetailedDescriptionOfKeyRatingDrivers(content);
+    onUpdateSection(section.id, { detailedDescriptionOfKeyRatingDrivers: content });
+  };
 
 
   const sectionVisible = applicability === 'Applicable';
@@ -1747,6 +1749,7 @@ export default function SectionWrapper({
   const isRationaleDriversSection = section.id === 's_rationale_drivers';
   const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
   const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
+  const isDetailedDriversSection = section.id === 's_detailed_drivers';
 
 
   return (
@@ -1918,6 +1921,19 @@ export default function SectionWrapper({
                 onUpdate={handleRatingSensitivitiesUpdate}
             />
         )}
+
+        { isDetailedDriversSection && sectionVisible && (
+            <div className="space-y-2">
+                <Label htmlFor={`detailed-drivers-${section.id}`} className="text-base">Detailed description of the key rating drivers</Label>
+                <Textarea 
+                    id={`detailed-drivers-${section.id}`}
+                    value={detailedDescriptionOfKeyRatingDrivers || ''}
+                    onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate(e.target.value)}
+                    rows={10}
+                    placeholder="Enter detailed description..."
+                />
+            </div>
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1937,6 +1953,7 @@ export default function SectionWrapper({
           !isStressedAssetsSection &&
           !isRationaleDriversSection &&
           !isRatingSensitivitiesSection &&
+          !isDetailedDriversSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

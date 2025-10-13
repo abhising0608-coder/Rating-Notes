@@ -256,9 +256,9 @@ export interface FinancialsPastProjectedData {
     mainTable: TableRowData[];
     referenceTable: TableRowData[];
     quarterlyTable: TableRowData[];
-    adjustments: string;
-    assumptions: string;
-    contingentLiabilities: string;
+    adjustmentsToFinancialStatement: string;
+    assumptionsForProjections: string;
+    noteOnMaterialContingentLiabilities: string;
 }
 
 export interface InterimResultsData {
@@ -309,6 +309,7 @@ export interface SectionData {
   quarterlyFinancials?: QuarterlyFinancialsData;
   rationaleAndKeyRatingDrivers?: string;
   ratingSensitivities?: RatingSensitivitiesData;
+  detailedDescriptionOfKeyRatingDrivers?: string;
 }
 
 export interface RatingNote {

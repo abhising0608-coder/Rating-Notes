@@ -180,6 +180,11 @@ const templates: Template[] = [
         id: 's_analytical_approach_display',
         title: 'Analytical Approach',
         hasTable: false,
+      },
+      {
+        id: 's_detailed_drivers',
+        title: 'Detailed description of the key rating drivers',
+        hasTable: false,
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -733,6 +738,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: []
+      },
+      s_detailed_drivers: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        detailedDescriptionOfKeyRatingDrivers: 'Initial detailed description...'
       }
     },
   },
