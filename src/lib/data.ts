@@ -7,7 +7,8 @@ import type {
   Sector,
   IndustryMapping,
   User,
-  Criteria
+  Criteria,
+  BankFacilitiesData
 } from '@/types';
 
 const companies: Company[] = [
@@ -216,8 +217,37 @@ const tooltips: TooltipData[] = [
   {
     key: 'section.applicable',
     text: 'Select "Applicable" if this section is relevant for the rating. "Not Applicable" will hide the section\'s content from the final report but retain comments. "Not Available" implies data could not be sourced.'
+  },
+  {
+    key: 'cover.bankFacilities.volume',
+    text: 'Please put previous year’s figure of volume in brackets.'
+  },
+  {
+    key: 'cover.bankFacilities.existingRating',
+    text: 'If existing rating is under watch or having positive/negative outlook, please cover the reasons for it below this table.'
   }
 ];
+
+const bankFacilitiesData: BankFacilitiesData = {
+  totalAmountCrore: 245.75,
+  currency: "INR",
+  facilities: [
+    {
+      facilityType: "Cash Credit",
+      volumeCrore: 50,
+      existingRating: "CARE A+; Stable",
+      proposedRating: "CARE AA-; Stable",
+      remarks: "Increase in working capital limits."
+    },
+    {
+      facilityType: "Term Loan",
+      volumeCrore: 195.75,
+      existingRating: "CARE A; Positive",
+      proposedRating: "CARE A+; Stable",
+      remarks: "Project completion achieved."
+    }
+  ]
+};
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -253,7 +283,8 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         disclosure: {
           independentDirectors: 'No director has disclosed any conflict of interest for FY2024.',
           managingDirector: 'CEO has no declared interests in rated entities.',
-        }
+        },
+        bankFacilities: bankFacilitiesData,
       },
       s2: {
         applicable: 'Applicable',
@@ -339,6 +370,17 @@ export const getDisclosureData = async (companyId: string): Promise<any> => {
             independentDirectors: 'No director has disclosed any conflict of interest for FY2024.',
             managingDirector: 'CEO has no declared interests in rated entities.',
         };
+    }
+    return null;
+}
+
+export const getBankFacilitiesData = async (companyId: string): Promise<BankFacilitiesData | null> => {
+    console.log(`Fetching bank facilities data for company: ${companyId}`);
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (companyId === '1') {
+        return bankFacilitiesData;
     }
     return null;
 }

@@ -63,6 +63,20 @@ export interface Attachment {
   name: string;
 }
 
+export interface BankFacility {
+  facilityType: string;
+  volumeCrore: number;
+  existingRating: string;
+  proposedRating: string;
+  remarks: string;
+}
+
+export interface BankFacilitiesData {
+  totalAmountCrore: number;
+  currency: string;
+  facilities: BankFacility[];
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -71,7 +85,8 @@ export interface SectionData {
   disclosure?: {
     independentDirectors: string;
     managingDirector: string;
-  }
+  };
+  bankFacilities?: BankFacilitiesData;
 }
 
 export interface RatingNote {

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,8 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData } from '@/lib/data';
+import { Separator } from './ui/separator';
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
     <div className="space-y-3">
@@ -42,6 +43,53 @@ const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any
     </div>
 );
 
+const BankFacilitiesSection = ({ facilitiesData }: { facilitiesData: BankFacilitiesData }) => {
+    const { totalAmountCrore, facilities } = facilitiesData;
+    return (
+        <div className="space-y-3">
+            <h3 className="font-semibold text-lg font-headline">
+                Rating of Bank Facilities/Instruments of ₹{totalAmountCrore.toFixed(2)} crore*
+            </h3>
+            <div className="border rounded-lg overflow-hidden">
+                <table className="w-full text-sm">
+                    <thead className="bg-muted/50">
+                        <tr className="divide-x">
+                            <th className="p-2 text-left font-medium">Facility Type</th>
+                            <th className="p-2 text-left font-medium flex items-center gap-1">
+                                Volume (₹ crore) <Tooltip tooltipKey="cover.bankFacilities.volume" />
+                            </th>
+                            <th className="p-2 text-left font-medium flex items-center gap-1">
+                                Existing Rating <Tooltip tooltipKey="cover.bankFacilities.existingRating" />
+                            </th>
+                            <th className="p-2 text-left font-medium">Proposed Rating</th>
+                            <th className="p-2 text-left font-medium">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                        {facilities.length > 0 ? (
+                            facilities.map((facility, index) => (
+                                <tr key={index} className="divide-x hover:bg-muted/50">
+                                    <td className="p-2">{facility.facilityType}</td>
+                                    <td className="p-2">{facility.volumeCrore.toFixed(2)}</td>
+                                    <td className="p-2">{facility.existingRating}</td>
+                                    <td className="p-2">{facility.proposedRating}</td>
+                                    <td className="p-2">{facility.remarks}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={5} className="text-center p-4 text-muted-foreground">
+                                    No facilities available.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -60,16 +108,27 @@ export default function SectionWrapper({
   const [applicability, setApplicability] = useState(sectionData.applicable);
   const [tableRows, setTableRows] = useState(sectionData.tableRows);
   const [disclosureData, setDisclosureData] = useState(sectionData.disclosure);
+  const [bankFacilitiesData, setBankFacilitiesData] = useState(sectionData.bankFacilities);
 
   useEffect(() => {
-    if (section.id === 's1' && !disclosureData) { // Cover page section
-        getDisclosureData(note.companyId).then(data => {
-            const newDisclosureData = data || { independentDirectors: 'Not Applicable', managingDirector: 'Not Applicable' };
-            setDisclosureData(newDisclosureData);
-            onUpdateSection(section.id, { disclosure: newDisclosureData });
-        });
+    if (section.id === 's1') { // Cover page section
+        if (!disclosureData) {
+            getDisclosureData(note.companyId).then(data => {
+                const newDisclosureData = data || { independentDirectors: 'Not Applicable', managingDirector: 'Not Applicable' };
+                setDisclosureData(newDisclosureData);
+                onUpdateSection(section.id, { disclosure: newDisclosureData });
+            });
+        }
+        if (!bankFacilitiesData) {
+            getBankFacilitiesData(note.companyId).then(data => {
+                if (data) {
+                    setBankFacilitiesData(data);
+                    onUpdateSection(section.id, { bankFacilities: data });
+                }
+            });
+        }
     }
-  }, [section.id, disclosureData, note.companyId, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, note.companyId, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -131,8 +190,12 @@ export default function SectionWrapper({
         </div>
       </CardHeader>
       <CardContent>
-        {isCoverPage && disclosureData && (
-             <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />
+        {isCoverPage && (
+          <div className="space-y-6">
+            {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
+            {disclosureData && bankFacilitiesData && <Separator />}
+            {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
+          </div>
         )}
         {section.hasTable && tableVisible && (
           <TableSection
