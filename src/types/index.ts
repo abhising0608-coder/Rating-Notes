@@ -252,6 +252,15 @@ export interface LinkedRatingsData extends TableRowData {
     'Rating': string;
 }
 
+export interface FinancialsPastProjectedData {
+    mainTable: TableRowData[];
+    referenceTable: TableRowData[];
+    quarterlyTable: TableRowData[];
+    adjustments: string;
+    assumptions: string;
+    contingentLiabilities: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -273,6 +282,7 @@ export interface SectionData {
   parentGovSupport?: ParentGovSupportData;
   ceChecklist?: CEChecklistData;
   linkedRatings?: LinkedRatingsData[];
+  financials?: FinancialsPastProjectedData;
 }
 
 export interface RatingNote {

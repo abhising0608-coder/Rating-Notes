@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1003,6 +1003,114 @@ const CEChecklistSection = ({ initialData, onUpdate }: { initialData: CEChecklis
 };
 
 
+const FinancialsPastProjectedSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName
+}: {
+  initialData: FinancialsPastProjectedData;
+  onUpdate: (data: FinancialsPastProjectedData) => void;
+  onRefresh: (table: 'main' | 'quarterly') => Promise<TableRowData[]>;
+  companyName: string;
+}) => {
+  const [data, setData] = useState(initialData);
+
+  const handleUpdate = (field: keyof FinancialsPastProjectedData, value: any) => {
+    const updatedData = { ...data, [field]: value };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+  
+  const getTableHeaders = (rows: TableRowData[]) => {
+      if (rows.length === 0) return [];
+      return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h3 className="font-semibold text-lg font-headline mb-2">Main Financials</h3>
+        <TableSection
+          initialRows={data.mainTable}
+          headers={getTableHeaders(data.mainTable)}
+          onRefresh={() => onRefresh('main')}
+          onAddRow={(row) => handleUpdate('mainTable', [...data.mainTable, row])}
+          onUpdateRow={(updatedRow) => handleUpdate('mainTable', data.mainTable.map(r => r.id === updatedRow.id ? updatedRow : r))}
+          onRemoveRow={(rowId) => handleUpdate('mainTable', data.mainTable.filter(r => r.id !== rowId))}
+          allowAddRow={false}
+          sectionKey="financials_main"
+          companyName={companyName}
+          readOnly={true}
+        />
+      </div>
+      
+      <Separator />
+
+      <div>
+        <h3 className="font-semibold text-lg font-headline mb-2">Reference Table</h3>
+        <TableSection
+          initialRows={data.referenceTable}
+          headers={getTableHeaders(data.referenceTable)}
+          onRefresh={async () => data.referenceTable} // No refresh for reference table
+          onAddRow={(row) => handleUpdate('referenceTable', [...data.referenceTable, row])}
+          onUpdateRow={(updatedRow) => handleUpdate('referenceTable', data.referenceTable.map(r => r.id === updatedRow.id ? updatedRow : r))}
+          onRemoveRow={(rowId) => handleUpdate('referenceTable', data.referenceTable.filter(r => r.id !== rowId))}
+          allowAddRow={true}
+          sectionKey="financials_reference"
+          companyName={companyName}
+        />
+      </div>
+
+       <Separator />
+      
+       <div>
+        <h3 className="font-semibold text-lg font-headline mb-2">Quarterly Data</h3>
+        <TableSection
+          initialRows={data.quarterlyTable}
+          headers={getTableHeaders(data.quarterlyTable)}
+          onRefresh={() => onRefresh('quarterly')}
+          onAddRow={(row) => handleUpdate('quarterlyTable', [...data.quarterlyTable, row])}
+          onUpdateRow={(updatedRow) => handleUpdate('quarterlyTable', data.quarterlyTable.map(r => r.id === updatedRow.id ? updatedRow : r))}
+          onRemoveRow={(rowId) => handleUpdate('quarterlyTable', data.quarterlyTable.filter(r => r.id !== rowId))}
+          allowAddRow={false}
+          sectionKey="financials_quarterly"
+          companyName={companyName}
+          readOnly={true}
+        />
+      </div>
+      
+      <Separator />
+
+      <div className="space-y-4">
+        <RichTextField 
+            label="Adjustment (if any) made to the financial statement for the interpretation of financial ratio"
+            content={data.adjustments}
+            onContentChange={v => handleUpdate('adjustments', v)}
+            comments={""}
+            onCommentsChange={()=>{}}
+        />
+         <RichTextField 
+            label="Assumptions for Projections"
+            content={data.assumptions}
+            onContentChange={v => handleUpdate('assumptions', v)}
+            comments={""}
+            onCommentsChange={()=>{}}
+        />
+         <RichTextField 
+            label="Note on material contingent liabilities"
+            content={data.contingentLiabilities}
+            onContentChange={v => handleUpdate('contingentLiabilities', v)}
+            comments={""}
+            onCommentsChange={()=>{}}
+        />
+      </div>
+
+    </div>
+  );
+};
+
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -1034,6 +1142,8 @@ export default function SectionWrapper({
   const [parentGovSupport, setParentGovSupport] = useState(sectionData.parentGovSupport);
   const [ceChecklist, setCeChecklist] = useState(sectionData.ceChecklist);
   const [linkedRatings, setLinkedRatings] = useState(sectionData.linkedRatings);
+  const [financials, setFinancials] = useState(sectionData.financials);
+
 
 
   useEffect(() => {
@@ -1147,7 +1257,17 @@ export default function SectionWrapper({
             })
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_financials_past_projected') {
+        if(!financials) {
+            getFinancialsPastProjectedData(note.id).then(data => {
+                if (data) {
+                    setFinancials(data);
+                    onUpdateSection(section.id, { financials: data });
+                }
+            });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1231,6 +1351,28 @@ export default function SectionWrapper({
     setCeChecklist(data);
     onUpdateSection(section.id, { ceChecklist: data });
   }
+  
+  const handleFinancialsUpdate = (data: FinancialsPastProjectedData) => {
+    setFinancials(data);
+    onUpdateSection(section.id, { financials: data });
+  }
+
+  const handleFinancialsRefresh = async (table: 'main' | 'quarterly'): Promise<TableRowData[]> => {
+    console.log(`Refreshing ${table} financials...`);
+    const refreshedData = await getFinancialsPastProjectedData(note.id); // Re-fetch all
+    if (!refreshedData) return [];
+    
+    if (table === 'main') {
+        const updatedMain = refreshedData.mainTable.map(row => ({...row, '2025E': (row['2025E'] as number) + 10})); // Simulate change
+        handleFinancialsUpdate({...financials!, mainTable: updatedMain});
+        return updatedMain;
+    } else {
+        const updatedQuarterly = refreshedData.quarterlyTable.map(row => ({...row, 'Q2-24': (row['Q2-24'] as number) + 5})); // Simulate change
+        handleFinancialsUpdate({...financials!, quarterlyTable: updatedQuarterly});
+        return updatedQuarterly;
+    }
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1242,6 +1384,8 @@ export default function SectionWrapper({
   const isParentGovSupportSection = section.id === 's_parent_gov_support';
   const isCEChecklistSection = section.id === 's_ce_checklist';
   const isLinkedRatingsSection = section.id === 's_linked_ratings';
+  const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
+
 
   return (
     <Card id={section.key}>
@@ -1265,6 +1409,10 @@ export default function SectionWrapper({
         </div>
       </CardHeader>
       <CardContent>
+        {!sectionVisible && (
+          <p className="text-muted-foreground p-4 text-center">This section is marked as "{applicability}". Comments can still be added below.</p>
+        )}
+
         {isCoverPage && sectionVisible && (
           <div className="space-y-6">
             {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
@@ -1320,6 +1468,15 @@ export default function SectionWrapper({
             onUpdate={handleCEChecklistUpdate}
           />
         )}
+
+        {isFinancialsPastProjectedSection && sectionVisible && financials && (
+            <FinancialsPastProjectedSection 
+                initialData={financials}
+                onUpdate={handleFinancialsUpdate}
+                onRefresh={handleFinancialsRefresh}
+                companyName={note.company.name}
+            />
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1327,6 +1484,7 @@ export default function SectionWrapper({
           !isModelSummarySection && 
           !isParentGovSupportSection && 
           !isCEChecklistSection && 
+          !isFinancialsPastProjectedSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

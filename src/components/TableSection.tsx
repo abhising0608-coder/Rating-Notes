@@ -28,6 +28,7 @@ type TableSectionProps = {
   instructions?: string;
   sectionKey: string;
   companyName: string;
+  readOnly?: boolean;
 };
 
 const MAX_MANUAL_ROWS = 10;
@@ -43,6 +44,7 @@ export default function TableSection({
   instructions,
   sectionKey,
   companyName,
+  readOnly = false,
 }: TableSectionProps) {
   const [rows, setRows] = useState<TableRowData[]>(initialRows);
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -77,11 +79,11 @@ export default function TableSection({
 
   const handleAddRow = () => {
     const manualRowsCount = rows.filter(r => r.isManual).length;
-    if (manualRowsCount >= MAX_MANUAL_ROWS) {
-      toast({
+    if (allowAddRow && sectionKey === 'financials_reference' && manualRowsCount >= MAX_MANUAL_ROWS) {
+       toast({
         variant: 'destructive',
         title: 'Row Limit Reached',
-        description: `You can only add a maximum of ${MAX_MANUAL_ROWS} manual rows.`,
+        description: `You can only add a maximum of ${MAX_MANUAL_ROWS} manual rows to the reference table.`,
       });
       return;
     }
@@ -141,6 +143,7 @@ export default function TableSection({
   };
 
   const tableHeaders = [...headers, 'Actions'];
+  const nmAttributeIds = ['attr_net_worth']; // Example, replace with actual IDs
 
   return (
     <div className="mt-4">
@@ -178,16 +181,24 @@ export default function TableSection({
           <TableBody>
             {rows.map((row) => (
               <TableRow key={row.id}>
-                {headers.map((header) => (
-                  <TableCell key={header}>
-                     <Input
-                        type="text"
-                        value={row[header] ?? ''}
-                        onChange={(e) => handleCellChange(row.id, header, e.target.value)}
-                        className="h-8 border-transparent hover:border-input focus:border-input"
-                     />
-                  </TableCell>
-                ))}
+                {headers.map((header) => {
+                  const cellValue = row[header];
+                  const isReadOnly = readOnly && !row.isManual;
+                  const displayValue = (typeof cellValue === 'number' && cellValue < 0 && nmAttributeIds.includes(row.mappedAttributeId))
+                    ? 'NM'
+                    : cellValue ?? '';
+                  return (
+                    <TableCell key={header}>
+                       <Input
+                          type="text"
+                          value={displayValue}
+                          readOnly={isReadOnly}
+                          onChange={(e) => handleCellChange(row.id, header, e.target.value)}
+                          className={`h-8 border-transparent focus:border-input ${isReadOnly ? 'bg-transparent' : 'hover:border-input'}`}
+                       />
+                    </TableCell>
+                  )
+                })}
                 <TableCell>
                     {row.isManual && (
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemoveRow(row.id)}>
@@ -200,6 +211,9 @@ export default function TableSection({
           </TableBody>
         </Table>
       </div>
+      {nmAttributeIds.some(id => rows.some(r => r.mappedAttributeId === id && typeof r.value === 'number' && r.value < 0)) && (
+          <p className="text-xs text-muted-foreground mt-1">NM – Not Meaningful</p>
+      )}
       {instructions && (
         <p className="text-sm text-muted-foreground mt-2">{instructions}</p>
       )}

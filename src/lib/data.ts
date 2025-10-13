@@ -21,6 +21,7 @@ import type {
   ParentGovSupportData,
   CEChecklistData,
   LinkedRatingsData,
+  FinancialsPastProjectedData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -117,6 +118,11 @@ const templates: Template[] = [
         hasTable: true,
         allowAddRow: true,
         instructions: 'All figures in millions. Data sourced from annual reports. Add manual rows for adjustments.',
+      },
+      {
+        id: 's_financials_past_projected',
+        title: '7.1 Financials (Past/Projected)',
+        hasTable: true,
       },
       {
         id: 's3',
@@ -429,8 +435,8 @@ const ceChecklistData: CEChecklistData = {
   ],
   combinedViewSelection: '',
   combinedViewTable: [
-      { id: 'cv-1', 'Column 1': 'Data 1', 'Column 2': 'Data A' },
-      { id: 'cv-2', 'Column 1': 'Data 2', 'Column 2': 'Data B' }
+      { id: 'cv-1', 'Column 1': 'Data 1', 'Column 2': 'Data A', 'Analyst Comments': '' },
+      { id: 'cv-2', 'Column 1': 'Data 2', 'Column 2': 'Data B', 'Analyst Comments': '' }
   ],
   comments: {
     locBackedComments: '',
@@ -455,6 +461,21 @@ const linkedRatingsData: LinkedRatingsData[] = [
       'Rating': "AAA",
     }
 ];
+
+const financialsPastProjectedData: FinancialsPastProjectedData = {
+    mainTable: [
+        { id: 'fin-1', 'Particulars': 'Revenue', '2023A': 1100, '2024P': 1200, '2025E': 1300, isManual: false },
+        { id: 'fin-2', 'Particulars': 'EBITDA', '2023A': 280, '2024P': 300, '2025E': 320, isManual: false },
+        { id: 'fin-3', 'Particulars': 'Net Profit', '2023A': 140, '2024P': 150, '2025E': 160, isManual: false },
+    ],
+    referenceTable: [],
+    quarterlyTable: [
+        { id: 'q-1', 'Particulars': 'Revenue', 'Q1-24': 300, 'Q2-24': 310, isManual: false }
+    ],
+    adjustments: "",
+    assumptions: "",
+    contingentLiabilities: "",
+};
 
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
@@ -539,6 +560,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         linkedRatings: linkedRatingsData,
+      },
+       s_financials_past_projected: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        financials: financialsPastProjectedData,
       },
       s2: {
         applicable: 'Applicable',
@@ -794,4 +822,14 @@ export const getLinkedRatingsData = async(guarantor: string): Promise<LinkedRati
     // In a real app, you'd filter by the guarantor.
     // For this mock, we just return all data.
     return linkedRatingsData;
+}
+
+
+export const getFinancialsPastProjectedData = async(noteId: string): Promise<FinancialsPastProjectedData | null> => {
+    console.log(`Fetching financials data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return financialsPastProjectedData;
+    }
+    return null;
 }
