@@ -4,51 +4,163 @@ import type {
   RatingNote,
   Template,
   TooltipData,
+  Sector,
+  IndustryMapping,
 } from '@/types';
 
 const companies: Company[] = [
   {
     id: '1',
     name: 'Sample Industries Ltd',
-    nseIndustry: 'Industrial Manufacturing',
+    nseIndustry: 'NSE_MANUFACTURING',
     subIndustry: 'Heavy Machinery',
     registeredOffice: '123 Industrial Way, Mumbai, India',
+  },
+  {
+    id: '2',
+    name: 'Tech Solutions Inc.',
+    nseIndustry: 'NSE_IT',
+    subIndustry: 'Software Development',
+    registeredOffice: '456 Tech Park, Bangalore, India',
+  },
+   {
+    id: '3',
+    name: 'General Goods Co.',
+    nseIndustry: 'NSE_MISCELLANEOUS',
+    subIndustry: 'Retail',
+    registeredOffice: '789 Market St, Delhi, India',
   },
 ];
 
 const templates: Template[] = [
   {
-    id: 't1',
-    name: 'Standard Industrial Rating',
-    sector: 'Industrial',
+    id: 'tmpl_001',
+    name: 'Manufacturing - Heavy Engineering',
+    sector: 'Manufacturing',
+    subSector: 'Heavy Engineering',
+    isAgnostic: false,
+    version: 'v1.0',
+    effectiveFrom: '2024-01-01',
+    description: 'Template for Manufacturing sector - Heavy Engineering.',
+    sampleFormatUrl: '/samples/template_manufacturing_v1.xlsx',
     sections: [
       {
         id: 's1',
-        key: 'cover',
         title: 'Cover Page',
         hasTable: false,
       },
       {
         id: 's2',
-        key: 'financials',
         title: 'Financial Summary',
         hasTable: true,
         allowAddRow: true,
         instructions: 'All figures in millions. Data sourced from annual reports. Add manual rows for adjustments.',
-        tableSchemaId: 'financialSummarySchema'
       },
       {
         id: 's3',
-        key: 'risk_assessment',
         title: 'Risk Assessment',
         hasTable: true,
         allowAddRow: false,
         instructions: 'Assess risks based on the provided framework.',
-        tableSchemaId: 'riskAssessmentSchema'
       },
     ],
+    industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
+    createdAt: '2023-12-01T10:00:00Z',
+    createdBy: 'system'
+  },
+  {
+    id: 'tmpl_002',
+    name: 'IT Services Template',
+    sector: 'Technology',
+    subSector: 'IT Services',
+    isAgnostic: false,
+    version: 'v1.2',
+    effectiveFrom: '2024-02-01',
+    description: 'Standard template for IT services and consulting companies.',
+    sampleFormatUrl: '/samples/template_it_v1.xlsx',
+    sections: [
+       { id: 's_it_1', title: 'Client Concentration', hasTable: true, allowAddRow: false },
+       { id: 's_it_2', title: 'Service Offering Mix', hasTable: true, allowAddRow: true }
+    ],
+    industryMapping: ['NSE_IT'],
+    createdAt: '2024-01-15T10:00:00Z',
+    createdBy: 'system'
+  },
+  {
+    id: 'tmpl_agn_01',
+    name: 'Sector-Agnostic General',
+    sector: 'Agnostic',
+    isAgnostic: true,
+    version: 'v1.0',
+    effectiveFrom: '2024-01-01',
+    description: 'A general-purpose template for any sector.',
+    sampleFormatUrl: null,
+    sections: [
+      { id: 's_common_1', title: 'Generic Financial Assessment', hasTable: true },
+      { id: 's_common_2', title: 'SWOT Analysis', hasTable: false }
+    ],
+    industryMapping: [],
+    createdAt: '2023-11-01T10:00:00Z',
+    createdBy: 'system'
+  },
+  {
+    id: 'tmpl_agn_02',
+    name: 'Sector-Agnostic Start-up',
+    sector: 'Agnostic',
+    isAgnostic: true,
+    version: 'v1.1',
+    effectiveFrom: '2024-03-01',
+    description: 'Template for early-stage companies and start-ups.',
+    sampleFormatUrl: null,
+    sections: [
+      { id: 's_su_1', title: 'Funding Overview', hasTable: true },
+      { id: 's_su_2', title: 'Growth Projections', hasTable: true }
+    ],
+    industryMapping: [],
+    createdAt: '2024-02-20T10:00:00Z',
+    createdBy: 'system'
+  }
+];
+
+const sectors: Sector[] = [
+  {
+    id: 'sector_manufacturing',
+    name: 'Manufacturing',
+    subSectors: ['Heavy Engineering', 'Textiles', 'Automotive', 'Chemicals'],
+    templateIds: ['tmpl_001'],
+  },
+  {
+    id: 'sector_technology',
+    name: 'Technology',
+    subSectors: ['IT Services', 'SaaS', 'Hardware'],
+    templateIds: ['tmpl_002'],
+  },
+  {
+    id: 'sector_agnostic',
+    name: 'Agnostic',
+    subSectors: [],
+    templateIds: ['tmpl_agn_01', 'tmpl_agn_02'],
   },
 ];
+
+const industryMappings: IndustryMapping[] = [
+  {
+    nseIndustryCode: 'NSE_MANUFACTURING',
+    description: 'NSE Industry - Manufacturing',
+    recommendedTemplateIds: ['tmpl_001'],
+  },
+  {
+    nseIndustryCode: 'NSE_IT',
+    description: 'NSE Industry - Information Technology',
+    recommendedTemplateIds: ['tmpl_002'],
+  },
+  {
+    nseIndustryCode: 'NSE_MISCELLANEOUS',
+    description: 'NSE Industry - Miscellaneous',
+    recommendedTemplateIds: ['tmpl_agn_01', 'tmpl_agn_02'],
+  },
+];
+
 
 const financialData: FinancialData[] = [
   {
@@ -94,7 +206,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
     companyId: '1',
-    templateId: 't1',
+    templateId: 'tmpl_001',
     createdBy: 'user1',
     status: 'In Progress',
     currencyDenomination: 'INR',
@@ -155,4 +267,20 @@ export const getTooltips = async (): Promise<TooltipData[]> => {
 
 export const getTooltipByKey = async (key: string): Promise<TooltipData | undefined> => {
   return tooltips.find(t => t.key === key);
+}
+
+export const getCompanies = async (): Promise<Company[]> => {
+    return companies;
+}
+
+export const getTemplates = async (): Promise<Template[]> => {
+    return templates;
+}
+
+export const getSectors = async (): Promise<Sector[]> => {
+    return sectors;
+}
+
+export const getIndustryMappings = async (): Promise<IndustryMapping[]> => {
+    return industryMappings;
 }

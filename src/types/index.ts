@@ -15,13 +15,23 @@ export interface TemplateSection {
   instructions?: string;
   mandatoryDropdown?: boolean;
   allowAddRow?: boolean;
+  tooltipKey?: string;
 }
 
 export interface Template {
   id: string;
   name: string;
   sector: string;
-  sections: TemplateSection[];
+  subSector?: string;
+  isAgnostic: boolean;
+  version: string;
+  effectiveFrom: string;
+  description?: string;
+  sampleFormatUrl?: string;
+  sections: Omit<TemplateSection, 'key' | 'tableSchemaId'>[];
+  industryMapping: string[];
+  createdAt: string;
+  createdBy: string;
 }
 
 export interface TableRowData {
@@ -76,4 +86,17 @@ export interface TooltipData {
   sectorOverrides?: {
     [sector: string]: string;
   };
+}
+
+export interface Sector {
+  id: string;
+  name: string;
+  subSectors: string[];
+  templateIds: string[];
+}
+
+export interface IndustryMapping {
+  nseIndustryCode: string;
+  description: string;
+  recommendedTemplateIds: string[];
 }

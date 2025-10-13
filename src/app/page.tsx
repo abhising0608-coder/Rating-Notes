@@ -20,9 +20,11 @@ export default async function Home() {
       <main className="flex-1 container mx-auto p-4 md:p-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold font-headline">Rating Notes</h1>
-          <Button>
-            <Plus className="mr-2" /> Create New Note
-          </Button>
+          <Link href="/notes/new" passHref>
+            <Button>
+              <Plus className="mr-2" /> Create New Note
+            </Button>
+          </Link>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
