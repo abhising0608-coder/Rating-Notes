@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -30,6 +30,8 @@ import { Button } from './ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
+import SummaryHygieneChecks from './SummaryHygieneChecks';
+
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
     <div className="space-y-3">
@@ -324,6 +326,7 @@ export default function SectionWrapper({
   const [careAndCrasText, setCareAndCrasText] = useState(
     sectionData.careAndCrasText || "CARE and other CRAs (Click here for their history, sensitivities and key factors)"
   );
+  const [summaryHygieneChecks, setSummaryHygieneChecks] = useState(sectionData.summaryHygieneChecks);
 
 
   useEffect(() => {
@@ -367,8 +370,16 @@ export default function SectionWrapper({
                 }
             });
         }
+         if (!summaryHygieneChecks) {
+            getSummaryHygieneChecksData(note.id).then(data => {
+                if (data) {
+                    setSummaryHygieneChecks(data);
+                    onUpdateSection(section.id, { summaryHygieneChecks: data });
+                }
+            });
+        }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -413,6 +424,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { careAndCrasText: newText });
   };
 
+  const handleHygieneChecksUpdate = (data: SummaryHygieneChecksData) => {
+    setSummaryHygieneChecks(data);
+    onUpdateSection(section.id, { summaryHygieneChecks: data });
+  }
+
   const tableVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
@@ -443,6 +459,8 @@ export default function SectionWrapper({
         {isCoverPage && tableVisible && (
           <div className="space-y-6">
             {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
+            {summaryHygieneChecks && <Separator />}
+            {summaryHygieneChecks && <SummaryHygieneChecks initialData={summaryHygieneChecks} onUpdate={handleHygieneChecksUpdate} />}
             {analystDetails && <Separator />}
             {analystDetails && <AnalystDetailsSection details={analystDetails} />}
             {ratingRecommendation && <Separator />}

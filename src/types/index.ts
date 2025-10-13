@@ -106,6 +106,42 @@ export interface QCSectorSpecialistData {
   reason: string;
 }
 
+export interface SummaryHygieneChecksData {
+  negativeObservations: {
+    NDS: string;
+    CIBIL: string;
+    BankStatements: string;
+    RegulatoryDeclaration: string;
+    AuditorReport: string;
+    DebtListed: string;
+    HistoricalDefault: string;
+  };
+  incorporationDate: string;
+  natureOfBusiness: string;
+  constitution: string;
+  group: string;
+  offices: {
+    registered: string;
+    corporate: string;
+  };
+  cfo: string;
+  ceo: string;
+  chairman: string;
+  companySecretary: string;
+  numEmployees: string;
+  email: string;
+  website: string;
+  controllingOffice: string;
+  auditorName: string;
+  auditorReasonChange: string;
+  auditorMembershipNo: string;
+  auditorSigningAuthority: string;
+  CIN: string;
+  ownershipStructure: string;
+  oneTimeSettlement: string;
+  listedOn: string[];
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -120,6 +156,7 @@ export interface SectionData {
   ratingRecommendation?: RatingRecommendation;
   qcSpecialists?: QCSectorSpecialistData[];
   careAndCrasText?: string;
+  summaryHygieneChecks?: SummaryHygieneChecksData;
 }
 
 export interface RatingNote {

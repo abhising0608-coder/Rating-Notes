@@ -13,6 +13,7 @@ import type {
   WorkflowInstrument,
   RatingRecommendation,
   QCSectorSpecialistData,
+  SummaryHygieneChecksData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -265,6 +266,43 @@ const qcSpecialistsData: QCSectorSpecialistData[] = [
   { id: 'qc-2', name: "Jane Smith", qcObservations: "Observation 2", reason: "Reason 2" },
 ];
 
+const hygieneChecksData: SummaryHygieneChecksData = {
+  negativeObservations: {
+    NDS: "No",
+    CIBIL: "No",
+    BankStatements: "Yes",
+    RegulatoryDeclaration: "No",
+    AuditorReport: "No",
+    DebtListed: "Not Applicable",
+    HistoricalDefault: "No"
+  },
+  incorporationDate: "2005-04-12",
+  natureOfBusiness: "Basic Industry - Chemicals",
+  constitution: "Private Limited",
+  group: "ABC Group",
+  offices: {
+    registered: "Mumbai, India",
+    corporate: "Mumbai, India"
+  },
+  cfo: "John Doe",
+  ceo: "Jane Smith",
+  chairman: "Mr. Chairman",
+  companySecretary: "Alice Johnson",
+  numEmployees: "550",
+  email: "contact@sampleindustries.com",
+  website: "https://sampleindustries.com",
+  controllingOffice: "Mumbai HO",
+  auditorName: "Audit & Co.",
+  auditorReasonChange: "N/A",
+  auditorMembershipNo: "12345",
+  auditorSigningAuthority: "Yes",
+  CIN: "L12345MH2025PLC123456",
+  ownershipStructure: "Closely held by promoters",
+  oneTimeSettlement: "No",
+  listedOn: ["NSE", "BSE"]
+};
+
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -304,6 +342,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         analystDetails: analystDetailsData,
         qcSpecialists: qcSpecialistsData,
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
+        summaryHygieneChecks: hygieneChecksData,
       },
       s2: {
         applicable: 'Applicable',
@@ -461,3 +500,14 @@ export const getQCSpecialists = async (noteId: string): Promise<QCSectorSpeciali
 
     return null;
 };
+
+export const getSummaryHygieneChecksData = async (noteId: string): Promise<SummaryHygieneChecksData | null> => {
+    console.log(`Fetching summary hygiene checks data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (noteId === '1') {
+        return hygieneChecksData;
+    }
+
+    return null;
+}
