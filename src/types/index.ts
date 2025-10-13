@@ -6,6 +6,20 @@ export interface Company {
   registeredOffice: string;
 }
 
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: 'Analyst' | 'Admin';
+}
+
+export interface Criteria {
+  id: string;
+  title: string;
+  description: string;
+  sectorMapping: string[];
+}
+
 export interface TemplateSection {
   id: string;
   key: string;
@@ -27,7 +41,7 @@ export interface Template {
   version: string;
   effectiveFrom: string;
   description?: string;
-  sampleFormatUrl?: string;
+  sampleFormatUrl?: string | null;
   sections: Omit<TemplateSection, 'key' | 'tableSchemaId'>[];
   industryMapping: string[];
   createdAt: string;
@@ -60,11 +74,24 @@ export interface RatingNote {
   id: string;
   companyId: string;
   templateId: string;
-  createdBy: string;
-  status: string;
+  analysts: string[];
+  financialApproach: 'Standalone' | 'Consolidated' | 'Combined';
+  combinedEntities?: string[];
+  financialYearFrom: number;
+  financialYearTo: number;
+  operationalApproach: 'Standalone' | 'Consolidated';
+  operationalYearFrom: number;
+  operationalYearTo: number;
   currencyDenomination: string;
   scale: string;
   decimalPrecision: number;
+  zeroRowPolicy: 'Delete' | 'No Deletion';
+  zeroColumnPolicy: 'Delete' | 'No Deletion';
+  highlightZeros: boolean;
+  applicableCriteria: string[];
+  description: string;
+  status: string;
+  createdBy: string;
   sections: {
     [sectionId: string]: SectionData;
   };

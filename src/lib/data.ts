@@ -6,6 +6,8 @@ import type {
   TooltipData,
   Sector,
   IndustryMapping,
+  User,
+  Criteria
 } from '@/types';
 
 const companies: Company[] = [
@@ -30,6 +32,20 @@ const companies: Company[] = [
     subIndustry: 'Retail',
     registeredOffice: '789 Market St, Delhi, India',
   },
+];
+
+const users: User[] = [
+    { id: 'u_001', name: 'Ananlyst 1', email: 'analyst1@example.com', role: 'Analyst' },
+    { id: 'u_002', name: 'Ananlyst 2', email: 'analyst2@example.com', role: 'Analyst' },
+    { id: 'u_003', name: 'Ananlyst 3', email: 'analyst3@example.com', role: 'Analyst' },
+    { id: 'admin_01', name: 'Admin User', email: 'admin@example.com', role: 'Admin' },
+];
+
+const criteria: Criteria[] = [
+    { id: 'cr_001', title: 'Capital Adequacy and Leverage', description: 'Evaluate company leverage ratio and solvency metrics.', sectorMapping: ['Manufacturing', 'BFSI', 'Agnostic'] },
+    { id: 'cr_002', title: 'Liquidity Position', description: 'Assess short-term liquidity and cash flow health.', sectorMapping: ['Manufacturing', 'Agnostic'] },
+    { id: 'cr_003', title: 'Client Concentration Risk', description: 'Analyze revenue dependency on top clients.', sectorMapping: ['Technology'] },
+    { id: 'cr_004', title: 'Regulatory Compliance', description: 'Check adherence to industry-specific regulations.', sectorMapping: ['BFSI'] },
 ];
 
 const templates: Template[] = [
@@ -213,6 +229,18 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     scale: 'Long Term',
     decimalPrecision: 2,
     createdAt: '2024-07-29T10:00:00Z',
+    analysts: ['u_001', 'u_002'],
+    financialApproach: 'Standalone',
+    financialYearFrom: 2022,
+    financialYearTo: 2024,
+    operationalApproach: 'Standalone',
+    operationalYearFrom: 2022,
+    operationalYearTo: 2024,
+    zeroRowPolicy: 'Delete',
+    zeroColumnPolicy: 'Delete',
+    highlightZeros: false,
+    applicableCriteria: ['cr_001', 'cr_002'],
+    description: 'FY22-24 rating note.',
     sections: {
       s1: {
         applicable: 'Applicable',
@@ -283,4 +311,12 @@ export const getSectors = async (): Promise<Sector[]> => {
 
 export const getIndustryMappings = async (): Promise<IndustryMapping[]> => {
     return industryMappings;
+}
+
+export const getUsers = async (): Promise<User[]> => {
+    return users;
+}
+
+export const getCriteria = async (): Promise<Criteria[]> => {
+    return criteria;
 }

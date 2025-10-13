@@ -1,0 +1,228 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { NewNoteConfig } from '@/app/(main)/notes/new/page';
+import { getCriteria, getCompanies } from '@/lib/data';
+import type { Criteria, Company } from '@/types';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Checkbox } from '../ui/checkbox';
+import { Separator } from '../ui/separator';
+import { Textarea } from '../ui/textarea';
+import { Switch } from '../ui/switch';
+
+type Step3Props = {
+  config: NewNoteConfig;
+  onConfigChange: (newConfig: Partial<NewNoteConfig>) => void;
+};
+
+const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear + 1; i > currentYear - 10; i--) {
+        years.push(i);
+    }
+    return years;
+}
+
+export default function Step3_AddDetails({ config, onConfigChange }: Step3Props) {
+  const [allCriteria, setAllCriteria] = useState<Criteria[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const yearOptions = generateYearOptions();
+
+  useEffect(() => {
+    getCriteria().then(setAllCriteria);
+    getCompanies().then(setCompanies);
+  }, []);
+
+  const applicableCriteria = allCriteria.filter(c => 
+    c.sectorMapping.includes(config.template?.sector || '') || c.sectorMapping.includes('Agnostic')
+  );
+
+  const handleCriteriaToggle = (criteriaId: string) => {
+    const currentCriteria = config.applicableCriteria || [];
+    const newCriteria = currentCriteria.includes(criteriaId)
+      ? currentCriteria.filter((id) => id !== criteriaId)
+      : [...currentCriteria, criteriaId];
+    onConfigChange({ applicableCriteria: newCriteria });
+  };
+  
+  const handleCombinedEntitiesChange = (entityIds: string[]) => {
+    onConfigChange({ combinedEntities: entityIds });
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Financial Data Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold font-headline">Financial Data</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
+          <div>
+            <Label>Analytical Approach for Financials</Label>
+            <Select value={config.financialApproach} onValueChange={(v) => onConfigChange({ financialApproach: v as any })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Standalone">Standalone</SelectItem>
+                <SelectItem value="Consolidated">Consolidated</SelectItem>
+                <SelectItem value="Combined">Combined</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {config.financialApproach === 'Combined' && (
+            <div>
+              <Label>Combined Entities</Label>
+              {/* A real multi-select would be better here */}
+               <Textarea placeholder="Enter comma-separated company IDs for now." />
+            </div>
+          )}
+           <div className="flex gap-4">
+                <div>
+                    <Label>From Year</Label>
+                    <Select value={config.financialYearFrom?.toString()} onValueChange={(v) => onConfigChange({ financialYearFrom: parseInt(v) })}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>To Year</Label>
+                    <Select value={config.financialYearTo?.toString()} onValueChange={(v) => onConfigChange({ financialYearTo: parseInt(v) })}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      {/* Operational Data Section */}
+       <div className="space-y-4">
+        <h3 className="text-lg font-semibold font-headline">Operational Data</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
+          <div>
+            <Label>Approach for Operational Data</Label>
+            <Select value={config.operationalApproach} onValueChange={(v) => onConfigChange({ operationalApproach: v as any })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Standalone">Standalone</SelectItem>
+                <SelectItem value="Consolidated">Consolidated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+           <div className="flex gap-4">
+                <div>
+                    <Label>From Year</Label>
+                    <Select value={config.operationalYearFrom?.toString()} onValueChange={(v) => onConfigChange({ operationalYearFrom: parseInt(v) })}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>To Year</Label>
+                     <Select value={config.operationalYearTo?.toString()} onValueChange={(v) => onConfigChange({ operationalYearTo: parseInt(v) })}>
+                        <SelectTrigger><SelectValue/></SelectTrigger>
+                        <SelectContent>{yearOptions.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}</SelectContent>
+                    </Select>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Currency, Scale, Decimal Section */}
+       <div className="space-y-4">
+            <h3 className="text-lg font-semibold font-headline">Formatting</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 border rounded-lg">
+                <div>
+                    <Label>Currency Denomination</Label>
+                    <Select value={config.currencyDenomination} onValueChange={v => onConfigChange({ currencyDenomination: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="INR">Indian Rupee</SelectItem>
+                            <SelectItem value="USD">US Dollar</SelectItem>
+                            <SelectItem value="EUR">Euro</SelectItem>
+                            <SelectItem value="GBP">Great Britain Pound</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div>
+                    <Label>Scale</Label>
+                    <Select value={config.scale} onValueChange={v => onConfigChange({ scale: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                             <SelectItem value="Hundreds">Hundreds</SelectItem>
+                            <SelectItem value="Thousands">Thousands</SelectItem>
+                            <SelectItem value="Lacs">Lacs</SelectItem>
+                            <SelectItem value="Million">Million</SelectItem>
+                            <SelectItem value="Crores">Crores</SelectItem>
+                            <SelectItem value="Billions">Billions</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div>
+                    <Label>Decimal Precision</Label>
+                    <Select value={config.decimalPrecision?.toString()} onValueChange={v => onConfigChange({ decimalPrecision: parseInt(v) })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="0">0</SelectItem>
+                            <SelectItem value="1">1</SelectItem>
+                            <SelectItem value="2">2</SelectItem>
+                            <SelectItem value="3">3</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+       </div>
+
+        {/* Zero Rows/Columns Section */}
+         <div className="space-y-4">
+            <h3 className="text-lg font-semibold font-headline">Zero Value Display Policy</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg">
+                <div>
+                    <Label>Zero Rows</Label>
+                     <Select value={config.zeroRowPolicy} onValueChange={v => onConfigChange({ zeroRowPolicy: v as any })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Delete">Delete</SelectItem>
+                            <SelectItem value="No Deletion">No Deletion</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div>
+                    <Label>Zero Columns</Label>
+                     <Select value={config.zeroColumnPolicy} onValueChange={v => onConfigChange({ zeroColumnPolicy: v as any })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Delete">Delete</SelectItem>
+                            <SelectItem value="No Deletion">No Deletion</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex items-center space-x-2 pt-6">
+                    <Switch id="highlight-zeros" checked={config.highlightZeros} onCheckedChange={c => onConfigChange({ highlightZeros: c })}/>
+                    <Label htmlFor="highlight-zeros">Highlight Zero-Value Rows</Label>
+                </div>
+            </div>
+        </div>
+
+        <Separator />
+
+        {/* Applicable Criteria Section */}
+        <div className="space-y-4">
+            <h3 className="text-lg font-semibold font-headline">Applicable Criteria</h3>
+            <div className="space-y-2 rounded-md border p-4">
+                {applicableCriteria.map(c => (
+                    <div key={c.id} className="flex items-center space-x-2">
+                         <Checkbox
+                            id={`criteria-${c.id}`}
+                            checked={(config.applicableCriteria || []).includes(c.id)}
+                            onCheckedChange={() => handleCriteriaToggle(c.id)}
+                         />
+                         <Label htmlFor={`criteria-${c.id}`} className="font-normal">{c.title}</Label>
+                    </div>
+                ))}
+            </div>
+        </div>
+    </div>
+  );
+}
