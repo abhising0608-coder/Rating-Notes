@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1111,6 +1111,84 @@ const FinancialsPastProjectedSection = ({
 };
 
 
+const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: InterimResultsData, onUpdate: (data: InterimResultsData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (field: keyof InterimResultsData, value: any) => {
+        const updatedData = { ...data, [field]: value };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleRowUpdate = (rowId: string, field: string, value: any) => {
+        const updatedRows = data.tableRows.map(row => 
+            row.id === rowId ? { ...row, [field]: value } : row
+        );
+        handleUpdate('tableRows', updatedRows);
+    };
+
+    const tableHeaders = useMemo(() => {
+        if (!data.tableRows || data.tableRows.length === 0) return [];
+        
+        const headers = Object.keys(data.tableRows[0]);
+        const ytdExists = data.tableRows.some(row => row['YTD : Y'] !== undefined && row['YTD : Y'] !== null);
+        const projectionsExist = data.tableRows.some(row => row['Projections'] !== undefined && row['Projections'] !== null);
+
+        return headers.filter(h => {
+            if ((h === 'YTD : Y' || h === 'YTD : Y-1' || h === 'Change % (YTD)') && !ytdExists) return false;
+            if ((h === 'Projections' || h === 'Projections Achieved (%)') && !projectionsExist) return false;
+            return h !== 'id';
+        });
+
+    }, [data.tableRows]);
+
+
+    return (
+        <div className="space-y-4">
+             <div className="border rounded-lg overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            {tableHeaders.map(header => (
+                                <TableHead key={header}>{header}</TableHead>
+                            ))}
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.tableRows.map(row => (
+                            <TableRow key={row.id}>
+                                {tableHeaders.map(header => (
+                                    <TableCell key={header}>
+                                        {header === 'Projections Achieved (%)' ? (
+                                            <Input
+                                                type="number"
+                                                value={row[header]}
+                                                onChange={(e) => handleRowUpdate(row.id, header, parseFloat(e.target.value))}
+                                                className="h-8"
+                                            />
+                                        ) : (
+                                            <span>{row[header]}</span>
+                                        )}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+             <div className="space-y-2">
+                <Label>Comments</Label>
+                <Textarea
+                    value={data.comments}
+                    onChange={e => handleUpdate('comments', e.target.value)}
+                    rows={4}
+                    placeholder="Add your comments here..."
+                />
+            </div>
+        </div>
+    );
+};
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -1143,6 +1221,7 @@ export default function SectionWrapper({
   const [ceChecklist, setCeChecklist] = useState(sectionData.ceChecklist);
   const [linkedRatings, setLinkedRatings] = useState(sectionData.linkedRatings);
   const [financials, setFinancials] = useState(sectionData.financials);
+  const [interimResults, setInterimResults] = useState(sectionData.interimResults);
 
 
 
@@ -1267,7 +1346,17 @@ export default function SectionWrapper({
             });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_interim_results') {
+        if(!interimResults) {
+            getInterimResultsData(note.id).then(data => {
+                if (data) {
+                    setInterimResults(data);
+                    onUpdateSection(section.id, { interimResults: data });
+                }
+            });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1373,6 +1462,11 @@ export default function SectionWrapper({
     }
   }
 
+  const handleInterimResultsUpdate = (data: InterimResultsData) => {
+      setInterimResults(data);
+      onUpdateSection(section.id, { interimResults: data });
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1385,6 +1479,7 @@ export default function SectionWrapper({
   const isCEChecklistSection = section.id === 's_ce_checklist';
   const isLinkedRatingsSection = section.id === 's_linked_ratings';
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
+  const isInterimResultsSection = section.id === 's_interim_results';
 
 
   return (
@@ -1477,6 +1572,13 @@ export default function SectionWrapper({
                 companyName={note.company.name}
             />
         )}
+
+        {isInterimResultsSection && sectionVisible && interimResults && (
+            <InterimResultReviewsSection 
+                initialData={interimResults}
+                onUpdate={handleInterimResultsUpdate}
+            />
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1485,6 +1587,7 @@ export default function SectionWrapper({
           !isParentGovSupportSection && 
           !isCEChecklistSection && 
           !isFinancialsPastProjectedSection &&
+          !isInterimResultsSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

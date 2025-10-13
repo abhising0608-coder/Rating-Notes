@@ -22,6 +22,7 @@ import type {
   CEChecklistData,
   LinkedRatingsData,
   FinancialsPastProjectedData,
+  InterimResultsData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -123,6 +124,11 @@ const templates: Template[] = [
         id: 's_financials_past_projected',
         title: '7.1 Financials (Past/Projected)',
         hasTable: true,
+      },
+       {
+        id: 's_interim_results',
+        title: '7.2 For Interim Result Reviews',
+        hasTable: false,
       },
       {
         id: 's3',
@@ -477,6 +483,14 @@ const financialsPastProjectedData: FinancialsPastProjectedData = {
     contingentLiabilities: "",
 };
 
+const interimResultsData: InterimResultsData = {
+    tableRows: [
+        { id: 'ir-1', 'Particulars': 'Total operating income', '3M : Y': 100, '3M : Y-1': 90, 'Change %': 11.1, 'YTD : Y': 200, 'YTD : Y-1': 180, 'Change % (YTD)': 11.1, 'Projections': 400, 'Projections Achieved (%)': 50 },
+        { id: 'ir-2', 'Particulars': 'PBT', '3M : Y': 20, '3M : Y-1': 18, 'Change %': 11.1, 'YTD : Y': 40, 'YTD : Y-1': 36, 'Change % (YTD)': 11.1, 'Projections': 80, 'Projections Achieved (%)': 50 },
+    ],
+    comments: ""
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -567,6 +581,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         financials: financialsPastProjectedData,
+      },
+       s_interim_results: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        interimResults: interimResultsData,
       },
       s2: {
         applicable: 'Applicable',
@@ -830,6 +851,15 @@ export const getFinancialsPastProjectedData = async(noteId: string): Promise<Fin
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return financialsPastProjectedData;
+    }
+    return null;
+}
+
+export const getInterimResultsData = async(noteId: string): Promise<InterimResultsData | null> => {
+    console.log(`Fetching interim results data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return interimResultsData;
     }
     return null;
 }

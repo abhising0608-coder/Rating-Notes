@@ -261,6 +261,12 @@ export interface FinancialsPastProjectedData {
     contingentLiabilities: string;
 }
 
+export interface InterimResultsData {
+    tableRows: TableRowData[];
+    comments: string;
+}
+
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -283,6 +289,7 @@ export interface SectionData {
   ceChecklist?: CEChecklistData;
   linkedRatings?: LinkedRatingsData[];
   financials?: FinancialsPastProjectedData;
+  interimResults?: InterimResultsData;
 }
 
 export interface RatingNote {
