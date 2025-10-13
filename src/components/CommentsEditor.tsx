@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { Attachment, TableRowData } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, List, Link, Image as ImageIcon, FileSpreadsheet } from 'lucide-react';
+import { Bold, Italic, Underline, List, Link, Image as ImageIcon, FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import AttachmentList from './AttachmentList';
@@ -13,6 +13,73 @@ import { Label } from './ui/label';
 import { extractTable } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from './ui/alert';
+import Tooltip from './Tooltip';
+
+type RichTextFieldProps = {
+  label: string;
+  content: string;
+  onContentChange: (newContent: string) => void;
+  onRefresh?: () => void;
+  tooltipKey?: string;
+  sector?: string;
+  comments: string;
+  onCommentsChange: (newComments: string) => void;
+};
+
+export const RichTextField: React.FC<RichTextFieldProps> = ({
+  label,
+  content,
+  onContentChange,
+  onRefresh,
+  tooltipKey,
+  sector,
+  comments,
+  onCommentsChange
+}) => {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="font-semibold">{label}</h4>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+              <Button variant="ghost" size="sm" onClick={onRefresh}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Refresh
+              </Button>
+            )}
+            {tooltipKey && <Tooltip tooltipKey={tooltipKey} sector={sector} />}
+          </div>
+        </div>
+        <div className="rounded-lg border bg-background">
+          <div className="p-2 border-b flex items-center gap-1 flex-wrap">
+            <Button variant="ghost" size="icon"><Bold /></Button>
+            <Button variant="ghost" size="icon"><Italic /></Button>
+            <Button variant="ghost" size="icon"><Underline /></Button>
+          </div>
+          <Textarea
+            value={content}
+            onChange={(e) => onContentChange(e.target.value)}
+            rows={6}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+            placeholder={`Enter details about the ${label.toLowerCase()}...`}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="font-medium">Comments</Label>
+        <Textarea
+          value={comments}
+          onChange={(e) => onCommentsChange(e.target.value)}
+          rows={4}
+          className="w-full"
+          placeholder="Add your comments here..."
+        />
+      </div>
+    </div>
+  );
+};
+
 
 type CommentsEditorProps = {
   sectionId: string;

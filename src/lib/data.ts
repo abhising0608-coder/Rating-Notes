@@ -14,6 +14,7 @@ import type {
   RatingRecommendation,
   QCSectorSpecialistData,
   SummaryHygieneChecksData,
+  RichTextContent,
 } from '@/types';
 
 const companies: Company[] = [
@@ -71,6 +72,11 @@ const templates: Template[] = [
         title: 'Cover Page',
         hasTable: false,
         tooltipKey: 'cover.disclosureOfInterest'
+      },
+      {
+        id: 's_about',
+        title: 'About the Company & Group/Parent',
+        hasTable: false,
       },
       {
         id: 's2',
@@ -230,6 +236,14 @@ const tooltips: TooltipData[] = [
   {
     key: 'cover.bankFacilities.existingRating',
     text: 'If existing rating is under watch or having positive/negative outlook, please cover the reasons for it below this table.'
+  },
+  {
+    key: 'about.company',
+    text: 'Provide a brief overview of the company\'s operations, history, and market position. This content can be refreshed from rule-based data sources.'
+  },
+  {
+    key: 'about.group',
+    text: 'Describe the parent group or holding company structure, if applicable. Explain the relationship and any support from the parent.'
   }
 ];
 
@@ -302,6 +316,12 @@ const hygieneChecksData: SummaryHygieneChecksData = {
   listedOn: ["NSE", "BSE"]
 };
 
+const aboutCompanyData: RichTextContent = {
+    aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market.",
+    aboutCompanyComments: "Initial comments on company overview.",
+    aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support.",
+    aboutGroupComments: ""
+};
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -343,6 +363,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         qcSpecialists: qcSpecialistsData,
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
         summaryHygieneChecks: hygieneChecksData,
+      },
+      s_about: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        aboutCompanyContent: aboutCompanyData,
       },
       s2: {
         applicable: 'Applicable',
@@ -510,4 +537,19 @@ export const getSummaryHygieneChecksData = async (noteId: string): Promise<Summa
     }
 
     return null;
+}
+
+export const getAboutCompanyData = async (companyId: string, forceRefresh = false): Promise<RichTextContent> => {
+  console.log(`Fetching about company data for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  if(forceRefresh) {
+      // Simulate fetching slightly different data on refresh
+      return {
+        ...aboutCompanyData,
+        aboutCompanyText: aboutCompanyData.aboutCompanyText + " (Refreshed).",
+      };
+  }
+
+  return aboutCompanyData;
 }
