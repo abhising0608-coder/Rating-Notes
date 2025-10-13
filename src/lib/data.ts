@@ -170,6 +170,11 @@ const templates: Template[] = [
         title: 'Rationale and key rating drivers',
         hasTable: false,
         tooltipKey: 'rationale.drivers',
+      },
+      {
+        id: 's_rating_sensitivities',
+        title: 'Rating Sensitivities',
+        hasTable: false,
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -707,6 +712,16 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         rationaleAndKeyRatingDrivers: 'Initial rationale...'
+      },
+      s_rating_sensitivities: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        ratingSensitivities: {
+            positiveFactors: [],
+            negativeFactors: [],
+        }
       }
     },
   },

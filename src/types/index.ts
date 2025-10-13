@@ -271,6 +271,11 @@ export interface QuarterlyFinancialsData {
     comments: string;
 }
 
+export interface RatingSensitivitiesData {
+    positiveFactors: TableRowData[];
+    negativeFactors: TableRowData[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -303,6 +308,7 @@ export interface SectionData {
   noteOnMaterialContingentLiabilities?: string;
   quarterlyFinancials?: QuarterlyFinancialsData;
   rationaleAndKeyRatingDrivers?: string;
+  ratingSensitivities?: RatingSensitivitiesData;
 }
 
 export interface RatingNote {

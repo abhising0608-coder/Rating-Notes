@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData } from '@/types';
 import {
   Card,
   CardContent,
@@ -1269,6 +1269,77 @@ const QuarterlyFinancialsSection = ({
   );
 };
 
+const RatingSensitivitiesSection = ({
+  initialData,
+  onUpdate,
+}: {
+  initialData: RatingSensitivitiesData;
+  onUpdate: (data: RatingSensitivitiesData) => void;
+}) => {
+  const [data, setData] = useState(initialData);
+
+  const handleUpdate = (
+    factorType: 'positiveFactors' | 'negativeFactors',
+    newRows: TableRowData[]
+  ) => {
+    const updatedData = { ...data, [factorType]: newRows };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+
+  const handleAddRow = (factorType: 'positiveFactors' | 'negativeFactors') => {
+    const newRow = { id: `manual-${Date.now()}`, Factor: '', isManual: true };
+    const updatedRows = [...data[factorType], newRow];
+    handleUpdate(factorType, updatedRows);
+  };
+  
+  const handleRemoveRow = (factorType: 'positiveFactors' | 'negativeFactors', rowId: string) => {
+    const updatedRows = data[factorType].filter(row => row.id !== rowId);
+    handleUpdate(factorType, updatedRows);
+  };
+  
+  const handleRowChange = (factorType: 'positiveFactors' | 'negativeFactors', rowId: string, value: string) => {
+    const updatedRows = data[factorType].map(row => 
+        row.id === rowId ? { ...row, Factor: value } : row
+    );
+    handleUpdate(factorType, updatedRows);
+  };
+
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-lg font-semibold font-headline">Positive Factors</h3>
+        <TableSection
+          initialRows={data.positiveFactors}
+          headers={['Factor']}
+          onRefresh={async () => data.positiveFactors}
+          onAddRow={() => handleAddRow('positiveFactors')}
+          onUpdateRow={(row) => handleRowChange('positiveFactors', row.id, row.Factor)}
+          onRemoveRow={(rowId) => handleRemoveRow('positiveFactors', rowId)}
+          allowAddRow={true}
+          sectionKey="rating_sensitivities_positive"
+          companyName=""
+        />
+      </div>
+      <div>
+        <h3 className="text-lg font-semibold font-headline">Negative Factors</h3>
+        <TableSection
+          initialRows={data.negativeFactors}
+          headers={['Factor']}
+          onRefresh={async () => data.negativeFactors}
+          onAddRow={() => handleAddRow('negativeFactors')}
+          onUpdateRow={(row) => handleRowChange('negativeFactors', row.id, row.Factor)}
+          onRemoveRow={(rowId) => handleRemoveRow('negativeFactors', rowId)}
+          allowAddRow={true}
+          sectionKey="rating_sensitivities_negative"
+          companyName=""
+        />
+      </div>
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1304,6 +1375,7 @@ export default function SectionWrapper({
   const [financials, setFinancials] = useState(sectionData.financials);
   const [interimResults, setInterimResults] = useState(sectionData.interimResults);
   const [quarterlyFinancials, setQuarterlyFinancials] = useState(sectionData.quarterlyFinancials);
+  const [ratingSensitivities, setRatingSensitivities] = useState(sectionData.ratingSensitivities);
 
 
 
@@ -1448,7 +1520,14 @@ export default function SectionWrapper({
             });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, note.companyId, note.id, onUpdateSection]);
+    if(section.id === 's_rating_sensitivities') {
+        if (!ratingSensitivities) {
+            const initialData = { positiveFactors: [], negativeFactors: [] };
+            setRatingSensitivities(initialData);
+            onUpdateSection(section.id, { ratingSensitivities: initialData });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1597,6 +1676,11 @@ export default function SectionWrapper({
   const handleRationaleAndKeyRatingDriversUpdate = (content: string) => {
     onUpdateSection(section.id, { rationaleAndKeyRatingDrivers: content });
   };
+  
+  const handleRatingSensitivitiesUpdate = (data: RatingSensitivitiesData) => {
+    setRatingSensitivities(data);
+    onUpdateSection(section.id, { ratingSensitivities: data });
+  }
 
 
   const sectionVisible = applicability === 'Applicable';
@@ -1619,6 +1703,7 @@ export default function SectionWrapper({
   const isNonInterestIncomeSection = section.id === 's_non_interest_income';
   const isStressedAssetsSection = section.id === 's_stressed_assets';
   const isRationaleDriversSection = section.id === 's_rationale_drivers';
+  const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
 
 
   return (
@@ -1779,6 +1864,13 @@ export default function SectionWrapper({
                 />
             </div>
         )}
+
+        {isRatingSensitivitiesSection && sectionVisible && ratingSensitivities && (
+            <RatingSensitivitiesSection 
+                initialData={ratingSensitivities}
+                onUpdate={handleRatingSensitivitiesUpdate}
+            />
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1796,6 +1888,7 @@ export default function SectionWrapper({
           !isNonInterestIncomeSection &&
           !isStressedAssetsSection &&
           !isRationaleDriversSection &&
+          !isRatingSensitivitiesSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
