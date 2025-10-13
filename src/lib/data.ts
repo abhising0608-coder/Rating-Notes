@@ -15,6 +15,7 @@ import type {
   QCSectorSpecialistData,
   SummaryHygieneChecksData,
   RichTextContent,
+  KeyUpdatesContent,
 } from '@/types';
 
 const companies: Company[] = [
@@ -74,8 +75,8 @@ const templates: Template[] = [
         tooltipKey: 'cover.disclosureOfInterest'
       },
       {
-        id: 's_about',
-        title: 'About the Company & Group/Parent',
+        id: 's_key_updates',
+        title: '1. About the Company and Key Updates',
         hasTable: false,
       },
       {
@@ -316,11 +317,15 @@ const hygieneChecksData: SummaryHygieneChecksData = {
   listedOn: ["NSE", "BSE"]
 };
 
-const aboutCompanyData: RichTextContent = {
+const keyUpdatesData: KeyUpdatesContent = {
     aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market.",
     aboutCompanyComments: "Initial comments on company overview.",
     aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support.",
-    aboutGroupComments: ""
+    aboutGroupComments: "",
+    keyRatingDriversText: "1. Strong market position in niche chemical segments.\n2. Experienced management team.\n3. Moderation in profitability margins.",
+    keyRatingDriversComments: "",
+    keyUpdatesText: "1. Recently commissioned a new manufacturing plant in Dahej, Gujarat.\n2. Acquired a minority stake in a logistics startup to improve supply chain.",
+    keyUpdatesComments: "",
 };
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
@@ -364,12 +369,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
         summaryHygieneChecks: hygieneChecksData,
       },
-      s_about: {
+      s_key_updates: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
         attachments: [],
-        aboutCompanyContent: aboutCompanyData,
+        keyUpdatesContent: keyUpdatesData,
       },
       s2: {
         applicable: 'Applicable',
@@ -546,10 +551,32 @@ export const getAboutCompanyData = async (companyId: string, forceRefresh = fals
   if(forceRefresh) {
       // Simulate fetching slightly different data on refresh
       return {
-        ...aboutCompanyData,
-        aboutCompanyText: aboutCompanyData.aboutCompanyText + " (Refreshed).",
+        aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market. (Refreshed)",
+        aboutCompanyComments: "",
+        aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support. (Refreshed)",
+        aboutGroupComments: ""
       };
   }
 
-  return aboutCompanyData;
+  return {
+    aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market.",
+    aboutCompanyComments: "Initial comments on company overview.",
+    aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support.",
+    aboutGroupComments: ""
+  };
+}
+
+
+export const getKeyUpdatesData = async (companyId: string, forceRefresh = false): Promise<KeyUpdatesContent> => {
+  console.log(`Fetching key updates data for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  
+  if(forceRefresh) {
+      return {
+        ...keyUpdatesData,
+        aboutCompanyText: keyUpdatesData.aboutCompanyText + " (Refreshed).",
+      };
+  }
+
+  return keyUpdatesData;
 }

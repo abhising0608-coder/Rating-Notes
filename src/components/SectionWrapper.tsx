@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/select';
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
-import CommentsEditor, { RichTextField } from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData } from '@/lib/data';
+import CommentsEditor from './CommentsEditor';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -27,10 +27,11 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, RefreshCw } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
 import SummaryHygieneChecks from './SummaryHygieneChecks';
+import { Textarea } from './ui/textarea';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -301,46 +302,131 @@ const CareAndCrasSection = ({ text, onTextChange }: { text: string, onTextChange
     );
 };
 
-const AboutSection = ({ content, onUpdate, onRefresh, sector }: { content: RichTextContent, onUpdate: (newContent: RichTextContent) => void, onRefresh: () => Promise<RichTextContent>, sector: string }) => {
+const RichTextField = ({
+  label,
+  content,
+  onContentChange,
+  onRefresh,
+  tooltipKey,
+  sector,
+  comments,
+  onCommentsChange
+}: {
+  label: string;
+  content: string;
+  onContentChange: (newContent: string) => void;
+  onRefresh?: () => void;
+  tooltipKey?: string;
+  sector?: string;
+  comments: string;
+  onCommentsChange: (newComments: string) => void;
+}) => {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="font-semibold">{label}</h4>
+          <div className="flex items-center gap-2">
+            {onRefresh && (
+               <TooltipProvider>
+                  <ShadcnTooltip>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="sm" onClick={onRefresh}>
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Refresh
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Fetch latest rule-based data</p>
+                    </TooltipContent>
+                  </ShadcnTooltip>
+              </TooltipProvider>
+            )}
+            {tooltipKey && <Tooltip tooltipKey={tooltipKey} sector={sector} />}
+          </div>
+        </div>
+        <div className="rounded-lg border bg-background">
+          <Textarea
+            value={content}
+            onChange={(e) => onContentChange(e.target.value)}
+            rows={6}
+            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+            placeholder={`Enter details about the ${label.toLowerCase()}...`}
+          />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label className="font-medium">Comments</Label>
+        <Textarea
+          value={comments}
+          onChange={(e) => onCommentsChange(e.target.value)}
+          rows={4}
+          className="w-full"
+          placeholder="Add your comments here..."
+        />
+      </div>
+    </div>
+  );
+};
+
+
+const KeyUpdatesSection = ({ content, onUpdate, onRefresh, sector }: { content: any, onUpdate: (newContent: any) => void, onRefresh: (field: string) => Promise<string>, sector: string }) => {
     const [localContent, setLocalContent] = useState(content);
 
-    const handleContentChange = (field: keyof RichTextContent, value: string) => {
+    const handleContentChange = (field: string, value: string) => {
         const updated = { ...localContent, [field]: value };
         setLocalContent(updated);
         onUpdate(updated);
     };
-    
-    const handleRefresh = async () => {
-        const refreshedData = await onRefresh();
-        setLocalContent(refreshedData);
-        onUpdate(refreshedData);
-    };
 
+    const handleRefresh = async (field: string) => {
+        const refreshedData = await onRefresh(field);
+        handleContentChange(field, refreshedData);
+    };
+    
     return (
         <div className="space-y-6">
             <RichTextField
-                label="About the Company"
+                label="I) About the Company"
                 content={localContent.aboutCompanyText}
                 onContentChange={(v) => handleContentChange('aboutCompanyText', v)}
                 comments={localContent.aboutCompanyComments}
                 onCommentsChange={(v) => handleContentChange('aboutCompanyComments', v)}
-                onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh('aboutCompanyText')}
                 tooltipKey="about.company"
                 sector={sector}
             />
             <RichTextField
-                label="About the Group/Parent"
+                label="II) About the Group/Parent"
                 content={localContent.aboutGroupText}
                 onContentChange={(v) => handleContentChange('aboutGroupText', v)}
                 comments={localContent.aboutGroupComments}
                 onCommentsChange={(v) => handleContentChange('aboutGroupComments', v)}
-                 onRefresh={handleRefresh}
+                onRefresh={() => handleRefresh('aboutGroupText')}
                 tooltipKey="about.group"
+                sector={sector}
+            />
+             <RichTextField
+                label="III) Key Rating Drivers for the Proposed Rating"
+                content={localContent.keyRatingDriversText}
+                onContentChange={(v) => handleContentChange('keyRatingDriversText', v)}
+                comments={localContent.keyRatingDriversComments}
+                onCommentsChange={(v) => handleContentChange('keyRatingDriversComments', v)}
+                onRefresh={() => handleRefresh('keyRatingDriversText')}
+                sector={sector}
+            />
+             <RichTextField
+                label="IV) Key Updates Since Last RCM"
+                content={localContent.keyUpdatesText}
+                onContentChange={(v) => handleContentChange('keyUpdatesText', v)}
+                comments={localContent.keyUpdatesComments}
+                onCommentsChange={(v) => handleContentChange('keyUpdatesComments', v)}
+                onRefresh={() => handleRefresh('keyUpdatesText')}
                 sector={sector}
             />
         </div>
     );
-}
+};
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -367,7 +453,7 @@ export default function SectionWrapper({
     sectionData.careAndCrasText || "CARE and other CRAs (Click here for their history, sensitivities and key factors)"
   );
   const [summaryHygieneChecks, setSummaryHygieneChecks] = useState(sectionData.summaryHygieneChecks);
-  const [aboutCompanyContent, setAboutCompanyContent] = useState(sectionData.aboutCompanyContent);
+  const [keyUpdatesContent, setKeyUpdatesContent] = useState(sectionData.keyUpdatesContent);
 
 
   useEffect(() => {
@@ -420,17 +506,17 @@ export default function SectionWrapper({
             });
         }
     }
-    if (section.id === 's_about') {
-        if(!aboutCompanyContent) {
-            getAboutCompanyData(note.companyId).then(data => {
+    if (section.id === 's_key_updates') {
+        if(!keyUpdatesContent) {
+            getKeyUpdatesData(note.companyId).then(data => {
                  if (data) {
-                    setAboutCompanyContent(data);
-                    onUpdateSection(section.id, { aboutCompanyContent: data });
+                    setKeyUpdatesContent(data);
+                    onUpdateSection(section.id, { keyUpdatesContent: data });
                 }
             })
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompanyContent, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -480,21 +566,21 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { summaryHygieneChecks: data });
   }
   
-  const handleAboutContentUpdate = (content: RichTextContent) => {
-    setAboutCompanyContent(content);
-    onUpdateSection(section.id, { aboutCompanyContent: content });
+  const handleKeyUpdatesContentUpdate = (content: any) => {
+    setKeyUpdatesContent(content);
+    onUpdateSection(section.id, { keyUpdatesContent: content });
   };
   
-  const handleAboutContentRefresh = async (): Promise<RichTextContent> => {
-    const data = await getAboutCompanyData(note.companyId, true); // force refresh
-    return data;
+  const handleKeyUpdatesContentRefresh = async (field: string): Promise<string> => {
+    const data = await getKeyUpdatesData(note.companyId, true); // force refresh
+    return (data as any)[field] || '';
   }
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
   const isCoverPage = section.id === 's1';
-  const isAboutSection = section.id === 's_about';
+  const isKeyUpdatesSection = section.id === 's_key_updates';
 
   return (
     <Card id={section.key}>
@@ -536,16 +622,16 @@ export default function SectionWrapper({
           </div>
         )}
         
-        {isAboutSection && sectionVisible && aboutCompanyContent && (
-             <AboutSection 
-                content={aboutCompanyContent}
-                onUpdate={handleAboutContentUpdate}
-                onRefresh={handleAboutContentRefresh}
+        {isKeyUpdatesSection && sectionVisible && keyUpdatesContent && (
+             <KeyUpdatesSection 
+                content={keyUpdatesContent}
+                onUpdate={handleKeyUpdatesContentUpdate}
+                onRefresh={handleKeyUpdatesContentRefresh}
                 sector={note.template.sector}
              />
         )}
         
-        {!isCoverPage && !isAboutSection && section.hasTable && sectionVisible && (
+        {!isCoverPage && !isKeyUpdatesSection && section.hasTable && sectionVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}

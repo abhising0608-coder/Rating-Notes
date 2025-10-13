@@ -149,6 +149,17 @@ export interface RichTextContent {
   aboutGroupComments: string;
 }
 
+export interface KeyUpdatesContent {
+  aboutCompanyText: string;
+  aboutCompanyComments: string;
+  aboutGroupText: string;
+  aboutGroupComments: string;
+  keyRatingDriversText: string;
+  keyRatingDriversComments: string;
+  keyUpdatesText: string;
+  keyUpdatesComments: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -164,7 +175,7 @@ export interface SectionData {
   qcSpecialists?: QCSectorSpecialistData[];
   careAndCrasText?: string;
   summaryHygieneChecks?: SummaryHygieneChecksData;
-  aboutCompanyContent?: RichTextContent;
+  keyUpdatesContent?: KeyUpdatesContent;
 }
 
 export interface RatingNote {
