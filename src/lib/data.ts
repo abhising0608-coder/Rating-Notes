@@ -108,7 +108,7 @@ const templates: Template[] = [
       },
       {
         id: 's_linked_ratings',
-        title: 'Linked ratings',
+        title: '6. Linked ratings',
         hasTable: true,
         allowAddRow: true,
         tooltipKey: 'linked.ratings',
@@ -488,7 +488,7 @@ const financialsPastProjectedData: FinancialsPastProjectedData = {
 const interimResultsData: InterimResultsData = {
     tableRows: [
         { id: 'ir-1', 'Particulars': 'Total operating income', '3M : Y': 100, '3M : Y-1': 90, 'Change %': 11.1, 'YTD : Y': 200, 'YTD : Y-1': 180, 'Change % (YTD)': 11.1, 'Projections': 400, 'Projections Achieved (%)': 50 },
-        { id: 'ir-2', 'Particulars': 'PBT', '3M : Y': 20, '3M : Y-1': 18, 'Change %': 11.1, 'YTD : Y': 40, 'YTD : Y-1': 36, 'Change % (YTD)': 11.1, 'Projections': 80, 'Projections Achieved (%)': 50 },
+        { id: 'ir-2', 'Particulars': 'PBT', '3M : Y': 20, '3M : Y-1': 18, 'Change %': 11.1, 'Projections': null, 'Projections Achieved (%)': null },
     ],
     comments: ""
 };

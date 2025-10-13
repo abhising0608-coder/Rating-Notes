@@ -1134,11 +1134,15 @@ const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: I
         const ytdExists = data.tableRows.some(row => row['YTD : Y'] !== undefined && row['YTD : Y'] !== null);
         const projectionsExist = data.tableRows.some(row => row['Projections'] !== undefined && row['Projections'] !== null);
 
-        return headers.filter(h => {
-            if ((h === 'YTD : Y' || h === 'YTD : Y-1' || h === 'Change % (YTD)') && !ytdExists) return false;
-            if ((h === 'Projections' || h === 'Projections Achieved (%)') && !projectionsExist) return false;
-            return h !== 'id';
-        });
+        let orderedHeaders = ['Particulars', '3M : Y', '3M : Y-1', 'Change %'];
+        if (ytdExists) {
+            orderedHeaders.push('YTD : Y', 'YTD : Y-1', 'Change % (YTD)');
+        }
+        if (projectionsExist) {
+            orderedHeaders.push('Projections', 'Projections Achieved (%)');
+        }
+        
+        return orderedHeaders;
 
     }, [data.tableRows]);
 
@@ -1148,29 +1152,62 @@ const InterimResultReviewsSection = ({ initialData, onUpdate }: { initialData: I
              <div className="border rounded-lg overflow-hidden">
                 <Table>
                     <TableHeader>
-                        <TableRow>
-                            {tableHeaders.map(header => (
-                                <TableHead key={header}>{header}</TableHead>
-                            ))}
+                        <TableRow className="bg-muted/50">
+                            <TableHead rowSpan={2} className="align-bottom">Particulars<br/>(₹ crore)</TableHead>
+                            <TableHead colSpan={3} className="text-center">3M</TableHead>
+                            {tableHeaders.includes('YTD : Y') && <TableHead colSpan={3} className="text-center">YTD</TableHead>}
+                            {tableHeaders.includes('Projections') && <TableHead colSpan={2} className="text-center">Projections</TableHead>}
+                        </TableRow>
+                        <TableRow className="bg-muted/50">
+                           <TableHead className="text-center">Y</TableHead>
+                           <TableHead className="text-center">Y-1</TableHead>
+                           <TableHead className="text-center">Change (%)</TableHead>
+                           {tableHeaders.includes('YTD : Y') && <>
+                                <TableHead className="text-center">Y</TableHead>
+                                <TableHead className="text-center">Y-1</TableHead>
+                                <TableHead className="text-center">Change (%)</TableHead>
+                           </>}
+                           {tableHeaders.includes('Projections') && <>
+                                <TableHead className="text-center">Y</TableHead>
+                                <TableHead className="text-center">Achieved (%)</TableHead>
+                           </>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {data.tableRows.map(row => (
                             <TableRow key={row.id}>
-                                {tableHeaders.map(header => (
-                                    <TableCell key={header}>
-                                        {header === 'Projections Achieved (%)' ? (
-                                            <Input
-                                                type="number"
-                                                value={row[header]}
-                                                onChange={(e) => handleRowUpdate(row.id, header, parseFloat(e.target.value))}
-                                                className="h-8"
-                                            />
-                                        ) : (
-                                            <span>{row[header]}</span>
-                                        )}
+                               {tableHeaders.map(header => {
+                                    const isEditable = header === 'Projections Achieved (%)';
+                                    const value = row[header];
+                                    
+                                    if (header.startsWith('3M') || header.startsWith('YTD') || header.startsWith('Change') || header === 'Projections') return null;
+
+                                    if (header === 'Particulars') {
+                                        return <TableCell key={header}>{value}</TableCell>;
+                                    }
+
+                                    return null; // This part will be rebuilt
+                               })}
+                                <TableCell>{row['3M : Y']}</TableCell>
+                                <TableCell>{row['3M : Y-1']}</TableCell>
+                                <TableCell>{row['Change %']}</TableCell>
+
+                                {tableHeaders.includes('YTD : Y') && <>
+                                    <TableCell>{row['YTD : Y']}</TableCell>
+                                    <TableCell>{row['YTD : Y-1']}</TableCell>
+                                    <TableCell>{row['Change % (YTD)']}</TableCell>
+                                </>}
+                                {tableHeaders.includes('Projections') && <>
+                                    <TableCell>{row['Projections']}</TableCell>
+                                    <TableCell>
+                                        <Input
+                                            type="number"
+                                            value={row['Projections Achieved (%)'] || ''}
+                                            onChange={(e) => handleRowUpdate(row.id, 'Projections Achieved (%)', e.target.value === '' ? null : parseFloat(e.target.value))}
+                                            className="h-8"
+                                        />
                                     </TableCell>
-                                ))}
+                                </>}
                             </TableRow>
                         ))}
                     </TableBody>
