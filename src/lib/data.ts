@@ -175,6 +175,11 @@ const templates: Template[] = [
         id: 's_rating_sensitivities',
         title: 'Rating Sensitivities',
         hasTable: false,
+      },
+      {
+        id: 's_analytical_approach_display',
+        title: 'Analytical Approach',
+        hasTable: false,
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -539,9 +544,9 @@ const financialsPastProjectedData: FinancialsPastProjectedData = {
     quarterlyTable: [
         { id: 'q-1', 'Particulars': 'Revenue', 'Q1-24': 300, 'Q2-24': 310, isManual: false }
     ],
-    adjustments: "Initial adjustment notes can go here.",
-    assumptions: "Initial assumptions for projections can go here.",
-    contingentLiabilities: "Initial notes on material contingent liabilities.",
+    adjustmentsToFinancialStatement: "Initial adjustment notes can go here.",
+    assumptionsForProjections: "Initial assumptions for projections can go here.",
+    noteOnMaterialContingentLiabilities: "Initial notes on material contingent liabilities.",
 };
 
 const interimResultsData: InterimResultsData = {
@@ -722,6 +727,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
             positiveFactors: [],
             negativeFactors: [],
         }
+      },
+      s_analytical_approach_display: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: []
       }
     },
   },

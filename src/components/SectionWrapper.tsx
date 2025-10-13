@@ -1033,7 +1033,7 @@ const FinancialsPastProjectedSection = ({
       return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
   }
   
-  const handleRichTextUpdate = (field: 'adjustments' | 'assumptions' | 'contingentLiabilities', content: string) => {
+  const handleRichTextUpdate = (field: 'adjustmentsToFinancialStatement' | 'assumptionsForProjections' | 'noteOnMaterialContingentLiabilities', content: string) => {
       handleUpdate(field, content);
   }
 
@@ -1093,27 +1093,30 @@ const FinancialsPastProjectedSection = ({
       <Separator />
 
       <div className="space-y-4">
-        <RichTextField 
-            label="Adjustments (if any) made to the financial statement for the interpretation of financial ratio"
-            content={data.adjustments}
-            onContentChange={v => handleUpdate('adjustments', v)}
-            comments={""}
-            onCommentsChange={()=>{}}
-        />
-         <RichTextField 
-            label="Assumptions for Projections"
-            content={data.assumptions}
-            onContentChange={v => handleUpdate('assumptions', v)}
-            comments={""}
-            onCommentsChange={()=>{}}
-        />
-        <RichTextField 
-            label="Note on material contingent liabilities"
-            content={data.contingentLiabilities}
-            onContentChange={v => handleUpdate('contingentLiabilities', v)}
-            comments={""}
-            onCommentsChange={()=>{}}
-        />
+        <div className="space-y-2">
+            <Label>Adjustments (if any) made to the financial statement for the interpretation of financial ratio</Label>
+            <Textarea
+                value={data.adjustmentsToFinancialStatement}
+                onChange={(e) => handleRichTextUpdate('adjustmentsToFinancialStatement', e.target.value)}
+                rows={4}
+            />
+        </div>
+         <div className="space-y-2">
+            <Label>Assumptions for Projections</Label>
+            <Textarea
+                value={data.assumptionsForProjections}
+                onChange={(e) => handleRichTextUpdate('assumptionsForProjections', e.target.value)}
+                rows={4}
+            />
+        </div>
+        <div className="space-y-2">
+            <Label>Note on material contingent liabilities</Label>
+            <Textarea
+                value={data.noteOnMaterialContingentLiabilities}
+                onChange={(e) => handleRichTextUpdate('noteOnMaterialContingentLiabilities', e.target.value)}
+                rows={4}
+            />
+        </div>
       </div>
 
     </div>
@@ -1338,6 +1341,45 @@ const RatingSensitivitiesSection = ({
       </div>
     </div>
   );
+};
+
+
+const AnalyticalApproachDisplaySection = ({ analyticalApproach }: { analyticalApproach?: AnalyticalApproachData }) => {
+    if (!analyticalApproach) {
+        return <p className="text-muted-foreground">Analytical approach data not available.</p>;
+    }
+    return (
+        <div className="space-y-4 text-sm">
+             <div className="p-4 border rounded-lg bg-muted/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p className="font-medium text-muted-foreground">Analytical Approach</p>
+                        <p>{analyticalApproach.selectedApproach || 'N/A'}</p>
+                    </div>
+                     <div>
+                        <p className="font-medium text-muted-foreground">CE Rating Applicable?</p>
+                        <p>{analyticalApproach.ceApplicable || 'N/A'}</p>
+                    </div>
+                     {analyticalApproach.ceApplicable === 'Yes' && (
+                        <>
+                            <div>
+                                <p className="font-medium text-muted-foreground">Guarantor</p>
+                                <p>{analyticalApproach.guarantor || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p className="font-medium text-muted-foreground">Guarantor Rating Note Available?</p>
+                                <p>{analyticalApproach.guarantorRatingAvailable || 'N/A'}</p>
+                            </div>
+                        </>
+                    )}
+                </div>
+                 <div className="mt-4">
+                    <p className="font-medium text-muted-foreground">Comments</p>
+                    <p className="whitespace-pre-wrap">{analyticalApproach.comments || 'No comments.'}</p>
+                </div>
+             </div>
+        </div>
+    );
 };
 
 
@@ -1704,6 +1746,7 @@ export default function SectionWrapper({
   const isStressedAssetsSection = section.id === 's_stressed_assets';
   const isRationaleDriversSection = section.id === 's_rationale_drivers';
   const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
+  const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
 
 
   return (
@@ -1728,7 +1771,7 @@ export default function SectionWrapper({
         </div>
       </CardHeader>
       <CardContent>
-        {!sectionVisible && (
+        {!sectionVisible && !isAnalyticalApproachDisplaySection && (
           <p className="text-muted-foreground p-4 text-center">This section is marked as "{applicability}". Comments can still be added below.</p>
         )}
 
@@ -1764,6 +1807,10 @@ export default function SectionWrapper({
             data={analyticalApproach}
             onUpdate={handleAnalyticalApproachUpdate}
           />
+        )}
+
+        {isAnalyticalApproachDisplaySection && (
+           <AnalyticalApproachDisplaySection analyticalApproach={note.sections['s_analytical_approach']?.analyticalApproach} />
         )}
 
         {isModelSummarySection && sectionVisible && modelSummary && (
@@ -1874,7 +1921,8 @@ export default function SectionWrapper({
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
-          !isAnalyticalApproachSection && 
+          !isAnalyticalApproachSection &&
+          !isAnalyticalApproachDisplaySection &&
           !isModelSummarySection && 
           !isParentGovSupportSection && 
           !isCEChecklistSection && 
@@ -1935,13 +1983,15 @@ export default function SectionWrapper({
           />
         )}
 
-        <CommentsEditor 
-          sectionId={section.id} 
-          initialContent={sectionData.comments}
-          initialAttachments={sectionData.attachments}
-          onSave={handleSaveComment}
-          onTablePaste={handleTablePaste}
-        />
+        { !isAnalyticalApproachDisplaySection && (
+          <CommentsEditor 
+            sectionId={section.id} 
+            initialContent={sectionData.comments}
+            initialAttachments={sectionData.attachments}
+            onSave={handleSaveComment}
+            onTablePaste={handleTablePaste}
+          />
+        )}
       </CardContent>
     </Card>
   );
