@@ -18,6 +18,7 @@ import type {
   KeyUpdatesContent,
   AnalyticalApproachData,
   ModelSummaryRow,
+  ParentGovSupportData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -89,6 +90,11 @@ const templates: Template[] = [
        {
         id: 's_model_summary',
         title: '3. Model Summary',
+        hasTable: false,
+      },
+       {
+        id: 's_parent_gov_support',
+        title: '4. Parent/Government Support Framework',
         hasTable: false,
       },
       {
@@ -362,6 +368,36 @@ const modelSummaryData: ModelSummaryRow[] = [
     { id: 'ms-10', heading: "Final Rating Recommendation", ratingModel: "AA", ratingTeam: "", remarks: "" }
 ];
 
+const parentGovSupportData: ParentGovSupportData = {
+    parentSupport: {
+        selection: "",
+        rows: [
+            { id: 1, particular: "Strategic importance to Parent Company", scoreRange: [0,5], analystScore: 0, reasoning: "" },
+            { id: 2, particular: "Extent of Parent Shareholding", scoreRange: [0,5], analystScore: 0, reasoning: "" },
+            { id: 3, particular: "Economic incentive to Parent", scoreRange: [0,10], analystScore: 0, reasoning: "" },
+            { id: 4, particular: "Extent of Management Control", scoreRange: [0,10], analystScore: 0, reasoning: "" },
+            { id: 5, particular: "Shared Name", scoreRange: [0,5], analystScore: 0, reasoning: "" },
+            { id: 6, particular: "Stated Posture", scoreRange: [0,5], analystScore: 0, reasoning: "" },
+            { id: 7, particular: "Domiciled in the Same Country", scoreRange: [0,5], analystScore: 0, reasoning: "" },
+            { id: 8, particular: "Listing Status", scoreRange: [0,4], analystScore: 0, reasoning: "" },
+            { id: 9, particular: "Track record of support to group companies", scoreRange: [0,10], analystScore: 0, reasoning: "" }
+        ],
+        calculations: { economicIncentive: 0, moralObligation: 0, totalScore: 0, extentNotchUp: 0 },
+        comments: ""
+    },
+    governmentSupport: {
+        selection: "",
+        rows: [
+            { id: 1, particular: "Policy Function Served", scoreRange: [0,10], analystScore: 0, reasoning: "" },
+            { id: 2, particular: "Extent of Parent Shareholding of Govt/PSE", scoreRange: [0,15], analystScore: 0, reasoning: "" },
+            { id: 3, particular: "Extent of Management Control", scoreRange: [0,25], analystScore: 0, reasoning: "" },
+            { id: 4, particular: "Track Record of Support to entity", scoreRange: [0,10], analystScore: 0, reasoning: "" }
+        ],
+        calculations: { strategicImportance: 0, moralObligation: 0, totalScore: 0, extentNotchUp: 0 },
+        comments: ""
+    }
+};
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -423,6 +459,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         modelSummary: modelSummaryData,
+      },
+      s_parent_gov_support: {
+          applicable: 'Applicable',
+          tableRows: [],
+          comments: '',
+          attachments: [],
+          parentGovSupport: parentGovSupportData,
       },
       s2: {
         applicable: 'Applicable',
@@ -646,6 +689,15 @@ export const getModelSummaryData = async (noteId: string): Promise<ModelSummaryR
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return modelSummaryData;
+    }
+    return null;
+}
+
+export const getParentGovSupportData = async (noteId: string): Promise<ParentGovSupportData | null> => {
+    console.log(`Fetching parent/government support data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return parentGovSupportData;
     }
     return null;
 }

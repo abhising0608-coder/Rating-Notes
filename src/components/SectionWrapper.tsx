@@ -1,6 +1,6 @@
 'use client';
-import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow } from '@/types';
+import { useState, useEffect, useMemo } from 'react';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, ParentSupportFrameworkRow, GovernmentSupportFrameworkRow } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -685,6 +685,174 @@ const ModelSummarySection = ({ initialData, onUpdate, onRefresh }: { initialData
   )
 };
 
+const ParentGovSupportSection = ({ initialData, onUpdate }: { initialData: ParentGovSupportData, onUpdate: (data: ParentGovSupportData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleSelectionChange = (framework: 'parentSupport' | 'governmentSupport', value: 'Applicable' | 'Not Applicable' | '') => {
+        const updatedData = { ...data, [framework]: { ...data[framework], selection: value } };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleScoreChange = (framework: 'parentSupport' | 'governmentSupport', rowId: number, score: string) => {
+        const frameworkData = data[framework];
+        const row = frameworkData.rows.find(r => r.id === rowId);
+        if (!row) return;
+
+        let newScore = parseInt(score, 10);
+        if (isNaN(newScore)) newScore = 0;
+
+        if (newScore < row.scoreRange[0] || newScore > row.scoreRange[1]) {
+            // Out of range, maybe show a toast or message
+            return;
+        }
+
+        const updatedRows = frameworkData.rows.map(r => r.id === rowId ? { ...r, analystScore: newScore } : r);
+        const updatedFrameworkData = { ...frameworkData, rows: updatedRows };
+        const updatedData = { ...data, [framework]: updatedFrameworkData };
+        
+        recalculate(updatedData, framework);
+    };
+
+    const handleReasoningChange = (framework: 'parentSupport' | 'governmentSupport', rowId: number, reasoning: string) => {
+        const frameworkData = data[framework];
+        const updatedRows = frameworkData.rows.map(r => r.id === rowId ? { ...r, reasoning } : r);
+        const updatedFrameworkData = { ...frameworkData, rows: updatedRows };
+        const updatedData = { ...data, [framework]: updatedFrameworkData };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleCommentsChange = (framework: 'parentSupport' | 'governmentSupport', comments: string) => {
+        const updatedData = { ...data, [framework]: { ...data[framework], comments } };
+        setData(updatedData);
+        onUpdate(updatedData);
+    }
+    
+    const recalculate = (currentData: ParentGovSupportData, framework: 'parentSupport' | 'governmentSupport') => {
+        if (framework === 'parentSupport') {
+            const rows = currentData.parentSupport.rows;
+            const economicIncentive = (rows[1]?.analystScore || 0) + (rows[2]?.analystScore || 0);
+            const moralObligation = (rows[0]?.analystScore || 0) + (rows[3]?.analystScore || 0) + (rows[4]?.analystScore || 0) + (rows[5]?.analystScore || 0) + (rows[6]?.analystScore || 0) + (rows[7]?.analystScore || 0) + (rows[8]?.analystScore || 0);
+            const totalScore = economicIncentive + moralObligation;
+            // Assuming difference 'A' is 1 for now
+            const extentNotchUp = (totalScore / 100) * 1; 
+
+            const updated = { ...currentData, parentSupport: { ...currentData.parentSupport, calculations: { economicIncentive, moralObligation, totalScore, extentNotchUp } } };
+            setData(updated);
+            onUpdate(updated);
+        } else { // governmentSupport
+            const rows = currentData.governmentSupport.rows;
+            const strategicImportance = (rows[0]?.analystScore || 0);
+            const moralObligation = (rows[1]?.analystScore || 0) + (rows[2]?.analystScore || 0) + (rows[3]?.analystScore || 0);
+            const totalScore = strategicImportance + moralObligation;
+             // Assuming difference 'A' is 1 for now
+            const extentNotchUp = (totalScore / 100) * 1;
+            
+            const updated = { ...currentData, governmentSupport: { ...currentData.governmentSupport, calculations: { strategicImportance, moralObligation, totalScore, extentNotchUp } } };
+            setData(updated);
+            onUpdate(updated);
+        }
+    };
+    
+    const SupportFrameworkTable = ({ title, framework, frameworkKey }: { title: string, framework: any, frameworkKey: 'parentSupport' | 'governmentSupport' }) => {
+        const isParent = frameworkKey === 'parentSupport';
+
+        return (
+             <div className="space-y-4">
+                <h4 className="font-semibold text-lg">{title}</h4>
+                 <div className="space-y-2">
+                    <Label>Framework Applicability</Label>
+                    <Select value={framework.selection} onValueChange={(v) => handleSelectionChange(frameworkKey, v as any)}>
+                        <SelectTrigger className="w-[220px]"><SelectValue placeholder="Select Applicability" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Applicable">Applicable</SelectItem>
+                            <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                        </SelectContent>
+                    </Select>
+                 </div>
+                 {framework.selection === 'Applicable' && (
+                     <div className="space-y-4">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-1/2">Particular</TableHead>
+                                    <TableHead>Analyst Score ({isParent ? '0-10' : '0-25'})</TableHead>
+                                    <TableHead className="w-1/3">Analyst Reasoning (Mandatory if score &gt; 0)</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {framework.rows.map((row: any) => (
+                                     <TableRow key={row.id}>
+                                        <TableCell className="font-medium">{row.particular}</TableCell>
+                                        <TableCell>
+                                            <Input
+                                                type="number"
+                                                value={row.analystScore}
+                                                onChange={(e) => handleScoreChange(frameworkKey, row.id, e.target.value)}
+                                                min={row.scoreRange[0]}
+                                                max={row.scoreRange[1]}
+                                                className="h-8 w-24"
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Textarea
+                                                value={row.reasoning}
+                                                onChange={(e) => handleReasoningChange(frameworkKey, row.id, e.target.value)}
+                                                rows={2}
+                                                placeholder="Enter reasoning..."
+                                                className={cn(row.analystScore > 0 && !row.reasoning ? 'border-destructive' : '')}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                <TableRow className="bg-muted/80 font-semibold">
+                                    <TableCell>{isParent ? 'Total Economic Incentive' : 'Total Strategic Importance'}</TableCell>
+                                    <TableCell>{isParent ? framework.calculations.economicIncentive : framework.calculations.strategicImportance}</TableCell>
+                                    <TableCell><Input readOnly className="h-8 bg-muted" value="Auto-calculated"/></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-muted/80 font-semibold">
+                                    <TableCell>Total Moral Obligation</TableCell>
+                                    <TableCell>{framework.calculations.moralObligation}</TableCell>
+                                    <TableCell><Input readOnly className="h-8 bg-muted" value="Auto-calculated"/></TableCell>
+                                </TableRow>
+                                <TableRow className="bg-primary/10 font-bold text-primary">
+                                    <TableCell>Total Score</TableCell>
+                                    <TableCell>{framework.calculations.totalScore}</TableCell>
+                                    <TableCell><Input readOnly className="h-8 bg-primary/20 border-primary/30" value="Auto-calculated"/></TableCell>
+                                </TableRow>
+                                 <TableRow className="bg-primary/10 font-bold text-primary">
+                                    <TableCell>Extent of Notch-up</TableCell>
+                                    <TableCell>{framework.calculations.extentNotchUp.toFixed(2)}</TableCell>
+                                    <TableCell><Input readOnly className="h-8 bg-primary/20 border-primary/30" value="Auto-calculated"/></TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                         <div className="space-y-2">
+                            <Label>Comments</Label>
+                            <Textarea
+                                value={framework.comments}
+                                onChange={(e) => handleCommentsChange(frameworkKey, e.target.value)}
+                                rows={4}
+                                placeholder="Add your comments here..."
+                            />
+                        </div>
+                     </div>
+                 )}
+            </div>
+        )
+    };
+
+    return (
+        <div className="space-y-8">
+            <SupportFrameworkTable title="Parent Support Framework" framework={data.parentSupport} frameworkKey="parentSupport" />
+            <Separator />
+            <SupportFrameworkTable title="Government Support Framework" framework={data.governmentSupport} frameworkKey="governmentSupport" />
+        </div>
+    );
+};
+
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -713,6 +881,7 @@ export default function SectionWrapper({
   const [keyUpdatesContent, setKeyUpdatesContent] = useState(sectionData.keyUpdatesContent);
   const [analyticalApproach, setAnalyticalApproach] = useState(sectionData.analyticalApproach);
   const [modelSummary, setModelSummary] = useState(sectionData.modelSummary);
+  const [parentGovSupport, setParentGovSupport] = useState(sectionData.parentGovSupport);
 
 
   useEffect(() => {
@@ -795,7 +964,17 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_parent_gov_support') {
+      if(!parentGovSupport) {
+        getParentGovSupportData(note.id).then(data => {
+          if (data) {
+            setParentGovSupport(data);
+            onUpdateSection(section.id, { parentGovSupport: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -869,6 +1048,11 @@ export default function SectionWrapper({
     // Simulate data refresh
     console.log("Refreshing model summary...");
   }
+  
+  const handleParentGovSupportUpdate = (data: ParentGovSupportData) => {
+    setParentGovSupport(data);
+    onUpdateSection(section.id, { parentGovSupport: data });
+  }
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -877,6 +1061,7 @@ export default function SectionWrapper({
   const isKeyUpdatesSection = section.id === 's_key_updates';
   const isAnalyticalApproachSection = section.id === 's_analytical_approach';
   const isModelSummarySection = section.id === 's_model_summary';
+  const isParentGovSupportSection = section.id === 's_parent_gov_support';
 
   return (
     <Card id={section.key}>
@@ -941,8 +1126,15 @@ export default function SectionWrapper({
             onRefresh={handleModelSummaryRefresh}
           />
         )}
+
+        {isParentGovSupportSection && sectionVisible && parentGovSupport && (
+          <ParentGovSupportSection
+            initialData={parentGovSupport}
+            onUpdate={handleParentGovSupportUpdate}
+          />
+        )}
         
-        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && section.hasTable && sectionVisible && (
+        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && !isParentGovSupportSection && section.hasTable && sectionVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}

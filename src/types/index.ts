@@ -177,6 +177,54 @@ export interface ModelSummaryRow {
   remarks: string;
   isManual?: boolean;
 }
+
+export interface ParentSupportFrameworkRow {
+    id: number;
+    particular: string;
+    scoreRange: [number, number];
+    analystScore: number;
+    reasoning: string;
+}
+
+export interface ParentSupportFrameworkData {
+    selection: 'Applicable' | 'Not Applicable' | '';
+    rows: ParentSupportFrameworkRow[];
+    calculations: {
+        economicIncentive: number;
+        moralObligation: number;
+        totalScore: number;
+        extentNotchUp: number;
+    };
+    comments: string;
+}
+
+export interface GovernmentSupportFrameworkRow {
+    id: number;
+    particular: string;
+    scoreRange: [number, number];
+    analystScore: number;
+    reasoning: string;
+}
+
+export interface GovernmentSupportFrameworkData {
+    selection: 'Applicable' | 'Not Applicable' | '';
+    rows: GovernmentSupportFrameworkRow[];
+    calculations: {
+        strategicImportance: number;
+        moralObligation: number;
+        totalScore: number;
+        extentNotchUp: number;
+    };
+    comments: string;
+}
+
+
+export interface ParentGovSupportData {
+    parentSupport: ParentSupportFrameworkData;
+    governmentSupport: GovernmentSupportFrameworkData;
+}
+
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -195,6 +243,7 @@ export interface SectionData {
   keyUpdatesContent?: KeyUpdatesContent;
   analyticalApproach?: AnalyticalApproachData;
   modelSummary?: ModelSummaryRow[];
+  parentGovSupport?: ParentGovSupportData;
 }
 
 export interface RatingNote {
