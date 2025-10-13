@@ -325,6 +325,8 @@ const RichTextField = ({
   comments: string;
   onCommentsChange: (newComments: string) => void;
 }) => {
+  const [showComments, setShowComments] = useState(false);
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -360,14 +362,18 @@ const RichTextField = ({
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="font-medium">Comments</Label>
-        <Textarea
-          value={comments}
-          onChange={(e) => onCommentsChange(e.target.value)}
-          rows={4}
-          className="w-full"
-          placeholder="Add your comments here..."
-        />
+         <Button variant="link" className="p-0 h-auto" onClick={() => setShowComments(!showComments)}>
+            {showComments ? 'Hide Comments' : 'Show Comments'}
+          </Button>
+        {showComments && (
+            <Textarea
+              value={comments}
+              onChange={(e) => onCommentsChange(e.target.value)}
+              rows={4}
+              className="w-full"
+              placeholder="Add your comments here..."
+            />
+        )}
       </div>
     </div>
   );
@@ -1097,7 +1103,7 @@ const FinancialsPastProjectedSection = ({
             comments={""}
             onCommentsChange={()=>{}}
         />
-         <RichTextField 
+        <RichTextField 
             label="Note on material contingent liabilities"
             content={data.contingentLiabilities}
             onContentChange={v => handleUpdate('contingentLiabilities', v)}
@@ -1704,7 +1710,7 @@ export default function SectionWrapper({
           sectionVisible && (
           <TableSection
             initialRows={isLinkedRatingsSection ? (linkedRatings || []) : tableRows}
-            headers={isLinkedRatingsSection ? Object.keys(linkedRatings?.[0] || {}).filter(k => k !== 'id') : tableHeaders}
+            headers={isLinkedRatingsSection ? ['Name of Company', 'Date', 'Amount Rated', 'Rating'] : tableHeaders}
             allowAddRow={section.allowAddRow ?? false}
             instructions={section.instructions}
             sectionKey={section.key}
