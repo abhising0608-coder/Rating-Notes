@@ -309,7 +309,10 @@ export interface SectionData {
   quarterlyFinancials?: QuarterlyFinancialsData;
   rationaleAndKeyRatingDrivers?: string;
   ratingSensitivities?: RatingSensitivitiesData;
-  detailedDescriptionOfKeyRatingDrivers?: string;
+  detailedDescriptionOfKeyRatingDrivers?: {
+    keyStrengths: string;
+    keyWeaknesses: string;
+  };
 }
 
 export interface RatingNote {

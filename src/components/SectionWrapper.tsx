@@ -1721,9 +1721,10 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { ratingSensitivities: data });
   }
 
-  const handleDetailedDescriptionOfKeyRatingDriversUpdate = (content: string) => {
-    setDetailedDescriptionOfKeyRatingDrivers(content);
-    onUpdateSection(section.id, { detailedDescriptionOfKeyRatingDrivers: content });
+  const handleDetailedDescriptionOfKeyRatingDriversUpdate = (field: 'keyStrengths' | 'keyWeaknesses', content: string) => {
+    const updatedValue = { ...detailedDescriptionOfKeyRatingDrivers, [field]: content };
+    setDetailedDescriptionOfKeyRatingDrivers(updatedValue);
+    onUpdateSection(section.id, { detailedDescriptionOfKeyRatingDrivers: updatedValue });
   };
 
 
@@ -1923,15 +1924,27 @@ export default function SectionWrapper({
         )}
 
         { isDetailedDriversSection && sectionVisible && (
-            <div className="space-y-2">
-                <Label htmlFor={`detailed-drivers-${section.id}`} className="text-base">Detailed description of the key rating drivers</Label>
-                <Textarea 
-                    id={`detailed-drivers-${section.id}`}
-                    value={detailedDescriptionOfKeyRatingDrivers || ''}
-                    onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate(e.target.value)}
-                    rows={10}
-                    placeholder="Enter detailed description..."
-                />
+             <div className="space-y-4">
+                <div>
+                    <Label htmlFor={`detailed-drivers-strengths-${section.id}`} className="text-base font-semibold">Key Strengths</Label>
+                    <Textarea 
+                        id={`detailed-drivers-strengths-${section.id}`}
+                        value={detailedDescriptionOfKeyRatingDrivers?.keyStrengths || ''}
+                        onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyStrengths', e.target.value)}
+                        rows={8}
+                        placeholder="Enter detailed description of key strengths..."
+                    />
+                </div>
+                <div>
+                    <Label htmlFor={`detailed-drivers-weaknesses-${section.id}`} className="text-base font-semibold">Key Weaknesses</Label>
+                    <Textarea 
+                        id={`detailed-drivers-weaknesses-${section.id}`}
+                        value={detailedDescriptionOfKeyRatingDrivers?.keyWeaknesses || ''}
+                        onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyWeaknesses', e.target.value)}
+                        rows={8}
+                        placeholder="Enter detailed description of key weaknesses..."
+                    />
+                </div>
             </div>
         )}
         

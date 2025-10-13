@@ -744,7 +744,10 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: [],
-        detailedDescriptionOfKeyRatingDrivers: 'Initial detailed description...'
+        detailedDescriptionOfKeyRatingDrivers: {
+            keyStrengths: 'Initial key strengths...',
+            keyWeaknesses: 'Initial key weaknesses...'
+        }
       }
     },
   },
