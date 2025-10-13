@@ -291,6 +291,7 @@ export interface SectionData {
   financials?: FinancialsPastProjectedData;
   interimResults?: InterimResultsData;
   assumptionsForCashFlow?: string;
+  sensitivityAnalysis?: string;
 }
 
 export interface RatingNote {

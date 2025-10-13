@@ -114,13 +114,6 @@ const templates: Template[] = [
         tooltipKey: 'linked.ratings',
       },
       {
-        id: 's2',
-        title: 'Financial Summary',
-        hasTable: true,
-        allowAddRow: true,
-        instructions: 'All figures in millions. Data sourced from annual reports. Add manual rows for adjustments.',
-      },
-      {
         id: 's_financials_past_projected',
         title: '7.1 Financials (Past/Projected)',
         hasTable: true,
@@ -135,6 +128,19 @@ const templates: Template[] = [
         title: '8. Assumptions for Cash Flow',
         hasTable: false,
         tooltipKey: 'cashflow.assumptions',
+      },
+      {
+        id: 's_sensitivity_analysis',
+        title: '9. Sensitivity Analysis',
+        hasTable: false,
+        tooltipKey: 'sensitivity.analysis',
+      },
+      {
+        id: 's2',
+        title: 'Financial Summary',
+        hasTable: true,
+        allowAddRow: true,
+        instructions: 'All figures in millions. Data sourced from annual reports. Add manual rows for adjustments.',
       },
       {
         id: 's3',
@@ -303,6 +309,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'cashflow.assumptions',
     text: 'Detail the assumptions made for cash flow projections. This section is critical for Infrastructure projects.'
+  },
+  {
+    key: 'sensitivity.analysis',
+    text: 'Detail the sensitivity analysis for cash flow projections. This section is critical for Infrastructure projects.'
   }
 ];
 
@@ -605,6 +615,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>Initial assumptions for the cash flow models are documented here.</p>',
+        attachments: [],
+      },
+      s_sensitivity_analysis: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>Sensitivity analysis details can be added here.</p>',
         attachments: [],
       },
       s2: {

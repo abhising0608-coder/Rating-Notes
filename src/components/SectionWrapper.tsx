@@ -1508,6 +1508,10 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
   };
 
+  const handleSensitivityAnalysisUpdate = (content: string) => {
+    onUpdateSection(section.id, { sensitivityAnalysis: content });
+  };
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1522,6 +1526,7 @@ export default function SectionWrapper({
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
   const isInterimResultsSection = section.id === 's_interim_results';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
+  const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
 
 
   return (
@@ -1631,6 +1636,15 @@ export default function SectionWrapper({
             />
         )}
 
+        { isSensitivityAnalysisSection && sectionVisible && (
+            <Textarea 
+                value={sectionData.sensitivityAnalysis}
+                onChange={(e) => handleSensitivityAnalysisUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter sensitivity analysis details..."
+            />
+        )}
+
         { !isCoverPage && 
           !isKeyUpdatesSection && 
           !isAnalyticalApproachSection && 
@@ -1640,6 +1654,7 @@ export default function SectionWrapper({
           !isFinancialsPastProjectedSection &&
           !isInterimResultsSection &&
           !isAssumptionsForCashFlowSection &&
+          !isSensitivityAnalysisSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
