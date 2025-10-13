@@ -241,6 +241,8 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     highlightZeros: false,
     applicableCriteria: ['cr_001', 'cr_002'],
     description: 'FY22-24 rating note.',
+    version: '1.0',
+    rcmDate: '2024-08-15',
     sections: {
       s1: {
         applicable: 'Applicable',

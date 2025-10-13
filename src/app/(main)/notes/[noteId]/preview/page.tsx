@@ -50,13 +50,14 @@ function NotePreviewPage() {
                 </Button>
             </div>
             <div className="max-w-4xl mx-auto p-8 print:p-0" id="printable-area">
-                <header className="mb-8 text-center">
-                    <h1 className="text-4xl font-bold font-headline">{note.company.name}</h1>
-                    <p className="text-lg text-gray-600">{note.template.name}</p>
-                    <p className="text-sm text-gray-500">Date: {new Date(note.createdAt).toLocaleDateString()}</p>
+                <header className="mb-8 print:fixed print:top-0 print:left-0 print:right-0 print:p-4 print:border-b">
+                    <div className="flex justify-between text-sm">
+                        <span>Company: {note.company.name}</span>
+                        <span>Date: {new Date(note.createdAt).toLocaleDateString()}</span>
+                    </div>
                 </header>
 
-                <main className="space-y-8">
+                <main className="space-y-8 mt-16">
                     {note.template.sections.map(section => {
                         const sectionData = note.sections[section.id];
                         if (sectionData.applicable !== 'Applicable') {
@@ -108,8 +109,18 @@ function NotePreviewPage() {
                         )
                     })}
                 </main>
-                 <footer className="text-center mt-12 text-xs text-gray-400">
-                    <p>{note.company.name} | Page 1</p>
+                 <footer className="text-center mt-12 text-xs text-gray-400 print:fixed print:bottom-0 print:left-0 print:right-0 print:p-4 print:border-t">
+                    <div className="flex justify-between text-xs">
+                        <span className="page-number"></span>
+                        <div>
+                             Go to: {note.template.sections.map(sec => (
+                                <a key={sec.id} href={`#${sec.key}`} className="mx-1 underline">
+                                    {sec.title}
+                                </a>
+                            ))}
+                        </div>
+                        <span>Version: {note.version}</span>
+                    </div>
                 </footer>
             </div>
         </div>

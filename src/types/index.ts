@@ -98,6 +98,8 @@ export interface RatingNote {
   createdAt: string;
   company: Company;
   template: Template;
+  version?: string;
+  rcmDate?: string;
 }
 
 export interface FinancialData {
