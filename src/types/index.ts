@@ -290,6 +290,7 @@ export interface SectionData {
   linkedRatings?: LinkedRatingsData[];
   financials?: FinancialsPastProjectedData;
   interimResults?: InterimResultsData;
+  assumptionsForCashFlow?: string;
 }
 
 export interface RatingNote {

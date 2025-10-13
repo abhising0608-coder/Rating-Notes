@@ -131,6 +131,12 @@ const templates: Template[] = [
         hasTable: false,
       },
       {
+        id: 's_cash_flow_assumptions',
+        title: '8. Assumptions for Cash Flow',
+        hasTable: false,
+        tooltipKey: 'cashflow.assumptions',
+      },
+      {
         id: 's3',
         title: 'Risk Assessment',
         hasTable: true,
@@ -293,6 +299,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'linked.ratings',
     text: 'This section is to be inserted in case ABC Ltd has extended guarantees/other forms of implicit/explicit support to other companies. In case there are no such linked ratings, this section is to be skipped.'
+  },
+  {
+    key: 'cashflow.assumptions',
+    text: 'Detail the assumptions made for cash flow projections. This section is critical for Infrastructure projects.'
   }
 ];
 
@@ -590,6 +600,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         interimResults: interimResultsData,
+      },
+      s_cash_flow_assumptions: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>Initial assumptions for the cash flow models are documented here.</p>',
+        attachments: [],
       },
       s2: {
         applicable: 'Applicable',

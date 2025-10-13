@@ -1504,6 +1504,10 @@ export default function SectionWrapper({
       onUpdateSection(section.id, { interimResults: data });
   }
 
+  const handleAssumptionsForCashFlowUpdate = (content: string) => {
+    onUpdateSection(section.id, { assumptionsForCashFlow: content });
+  };
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1517,6 +1521,7 @@ export default function SectionWrapper({
   const isLinkedRatingsSection = section.id === 's_linked_ratings';
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
   const isInterimResultsSection = section.id === 's_interim_results';
+  const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
 
 
   return (
@@ -1617,6 +1622,15 @@ export default function SectionWrapper({
             />
         )}
         
+        { isAssumptionsForCashFlowSection && sectionVisible && (
+            <Textarea 
+                value={sectionData.assumptionsForCashFlow}
+                onChange={(e) => handleAssumptionsForCashFlowUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter assumptions for cash flow..."
+            />
+        )}
+
         { !isCoverPage && 
           !isKeyUpdatesSection && 
           !isAnalyticalApproachSection && 
@@ -1625,6 +1639,7 @@ export default function SectionWrapper({
           !isCEChecklistSection && 
           !isFinancialsPastProjectedSection &&
           !isInterimResultsSection &&
+          !isAssumptionsForCashFlowSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
