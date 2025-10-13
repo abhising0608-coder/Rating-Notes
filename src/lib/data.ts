@@ -142,6 +142,12 @@ const templates: Template[] = [
         tooltipKey: 'gst.calculation',
       },
       {
+        id: 's_projections_assumptions',
+        title: '11. Assumptions for Projections',
+        hasTable: false,
+        tooltipKey: 'projections.assumptions',
+      },
+      {
         id: 's2',
         title: 'Financial Summary',
         hasTable: true,
@@ -323,6 +329,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'gst.calculation',
     text: 'Provide details about GST calculation methodology. This section is relevant for Infrastructure projects.'
+  },
+  {
+    key: 'projections.assumptions',
+    text: 'Provide details about the assumptions made for the projections.'
   }
 ];
 
@@ -637,6 +647,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         applicable: 'Applicable',
         tableRows: [],
         comments: '<p>GST calculation details can be added here.</p>',
+        attachments: [],
+      },
+      s_projections_assumptions: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>Assumptions for projections can be detailed here.</p>',
         attachments: [],
       },
       s2: {

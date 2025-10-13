@@ -1516,6 +1516,10 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { gstCalculation: content });
   };
 
+  const handleAssumptionsForProjectionsUpdate = (content: string) => {
+    onUpdateSection(section.id, { assumptionsForProjections: content });
+  };
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1532,6 +1536,7 @@ export default function SectionWrapper({
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
+  const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
 
 
   return (
@@ -1658,6 +1663,15 @@ export default function SectionWrapper({
                 placeholder="Enter GST calculation details..."
             />
         )}
+        
+        { isAssumptionsForProjectionsSection && sectionVisible && (
+            <Textarea 
+                value={sectionData.assumptionsForProjections}
+                onChange={(e) => handleAssumptionsForProjectionsUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter assumptions for projections..."
+            />
+        )}
 
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -1670,6 +1684,7 @@ export default function SectionWrapper({
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
+          !isAssumptionsForProjectionsSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
