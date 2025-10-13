@@ -10,6 +10,8 @@ import type {
   Criteria,
   BankFacilitiesData,
   AnalystDetails,
+  WorkflowInstrument,
+  RatingRecommendation
 } from '@/types';
 
 const companies: Company[] = [
@@ -403,5 +405,40 @@ export const getAnalystDetails = async (noteId: string): Promise<AnalystDetails 
     if (noteId === '1') {
         return analystDetailsData;
     }
+    return null;
+}
+
+const workflowData: WorkflowInstrument[] = [
+  { instrument: "Instrument 1", category: "Long Term Instruments", LT: "CARE AA+; Stable", ST: "", LTST: "" },
+  { instrument: "Instrument 2", category: "LT/ST Instrument", LT: "CARE AAA; Stable", ST: "CARE A1+", LTST: "" },
+  { instrument: "Instrument 3", category: "Short Term Instruments", LT: "", ST: "CARE A1+", LTST: "" },
+  { instrument: "Instrument 4", category: "Bank Facilities", LT: "CARE A+", ST: "", LTST: "" },
+  { instrument: "Instrument 5", category: "Long Term Instruments", LT: "CARE AA+; Stable", ST: "", LTST: "" },
+  { instrument: "Instrument 6", category: "Bank Facilities", LT: "CARE A-", ST: "", LTST: "" }
+];
+
+const getConcatenatedRatings = (data: WorkflowInstrument[], column: "LT" | "ST") => {
+  const relevant = data
+    .filter(item => ["Bank Facilities","Long Term Instruments","LT/ST Instrument","Medium Term Instruments"].includes(item.category))
+    .map(item => item[column])
+    .filter(Boolean);
+  const uniqueRatings = [...new Set(relevant)];
+  return uniqueRatings.join(", ");
+};
+
+export const getRatingRecommendation = async (noteId: string): Promise<RatingRecommendation | null> => {
+    console.log(`Fetching rating recommendation data for note: ${noteId}`);
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    if (noteId === '1') {
+        return {
+          LT: getConcatenatedRatings(workflowData, "LT"),
+          ST: getConcatenatedRatings(workflowData, "ST"),
+          unsupported: workflowData.find(d => d.instrument === 'Instrument 2')?.LT || '',
+          pendingSteps: workflowData.find(d => d.instrument === 'Instrument 3')?.ST || '',
+        };
+    }
+
     return null;
 }

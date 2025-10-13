@@ -84,6 +84,21 @@ export interface AnalystDetails {
   qcHead: string;
 }
 
+export interface WorkflowInstrument {
+  instrument: string;
+  category: string;
+  LT: string;
+  ST: string;
+  LTST?: string;
+}
+
+export interface RatingRecommendation {
+    LT: string;
+    ST: string;
+    unsupported: string;
+    pendingSteps: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -95,6 +110,7 @@ export interface SectionData {
   };
   bankFacilities?: BankFacilitiesData;
   analystDetails?: AnalystDetails;
+  ratingRecommendation?: RatingRecommendation;
 }
 
 export interface RatingNote {

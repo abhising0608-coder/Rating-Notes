@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,8 +17,14 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation } from '@/lib/data';
 import { Separator } from './ui/separator';
+import {
+  Tooltip as ShadcnTooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
     <div className="space-y-3">
@@ -116,6 +122,61 @@ const AnalystDetailsSection = ({ details }: { details: AnalystDetails }) => (
     </div>
 );
 
+const RatingRecommendationSection = ({ ratings }: { ratings: RatingRecommendation }) => (
+    <div className="space-y-3">
+        <h3 className="font-semibold text-lg font-headline">Rating Recommendation</h3>
+        <div className="border rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+                <thead className="bg-muted/50">
+                    <tr className="divide-x">
+                        <th className="p-2 text-left font-medium">Rating Team Recommendation</th>
+                        <th className="p-2 text-left font-medium">Long Term Rating</th>
+                        <th className="p-2 text-left font-medium">Short Term Rating</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y">
+                    <tr className="hover:bg-muted/50 divide-x">
+                        <td className="p-2">Ratings</td>
+                        <td className="p-2">
+                             <TooltipProvider>
+                                <ShadcnTooltip>
+                                    <TooltipTrigger asChild>
+                                        <span>{ratings.LT}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>This rating is fetched from workflow and concatenated if multiple instruments exist.</p>
+                                    </TooltipContent>
+                                </ShadcnTooltip>
+                            </TooltipProvider>
+                        </td>
+                        <td className="p-2">
+                             <TooltipProvider>
+                                <ShadcnTooltip>
+                                    <TooltipTrigger asChild>
+                                        <span>{ratings.ST}</span>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>This rating is fetched from workflow and concatenated if multiple instruments exist.</p>
+                                    </TooltipContent>
+                                </ShadcnTooltip>
+                            </TooltipProvider>
+                        </td>
+                    </tr>
+                    <tr className="hover:bg-muted/50 divide-x">
+                        <td className="p-2">Unsupported Ratings if any</td>
+                        <td className="p-2">{ratings.unsupported}</td>
+                        <td className="p-2">{ratings.unsupported}</td>
+                    </tr>
+                    <tr className="hover:bg-muted/50 divide-x">
+                        <td className="p-2">Rating in absence of pending steps/documents</td>
+                        <td className="p-2">{ratings.pendingSteps}</td>
+                        <td className="p-2">{ratings.pendingSteps}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+);
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -136,6 +197,8 @@ export default function SectionWrapper({
   const [disclosureData, setDisclosureData] = useState(sectionData.disclosure);
   const [bankFacilitiesData, setBankFacilitiesData] = useState(sectionData.bankFacilities);
   const [analystDetails, setAnalystDetails] = useState(sectionData.analystDetails);
+  const [ratingRecommendation, setRatingRecommendation] = useState(sectionData.ratingRecommendation);
+
 
   useEffect(() => {
     if (section.id === 's1') { // Cover page section
@@ -160,10 +223,18 @@ export default function SectionWrapper({
                     setAnalystDetails(data);
                     onUpdateSection(section.id, { analystDetails: data });
                 }
-            })
+            });
+        }
+        if (!ratingRecommendation) {
+            getRatingRecommendation(note.id).then(data => {
+                if(data) {
+                    setRatingRecommendation(data);
+                    onUpdateSection(section.id, { ratingRecommendation: data });
+                }
+            });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -230,7 +301,9 @@ export default function SectionWrapper({
             {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
             {analystDetails && <Separator />}
             {analystDetails && <AnalystDetailsSection details={analystDetails} />}
-            {disclosureData && bankFacilitiesData && <Separator />}
+            {ratingRecommendation && <Separator />}
+            {ratingRecommendation && <RatingRecommendationSection ratings={ratingRecommendation} />}
+            {bankFacilitiesData && <Separator />}
             {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
           </div>
         )}
