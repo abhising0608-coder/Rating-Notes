@@ -158,6 +158,12 @@ const templates: Template[] = [
         title: '12. Breakup of Non-interest Income',
         hasTable: true,
         allowAddRow: true
+      },
+      {
+        id: 's_stressed_assets',
+        title: '13. Details of Stressed Assets',
+        hasTable: true,
+        allowAddRow: true
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -674,6 +680,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         assumptionsForProjections: 'Assumptions for projections...'
       },
       s_non_interest_income: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_stressed_assets: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',

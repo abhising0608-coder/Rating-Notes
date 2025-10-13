@@ -1613,6 +1613,7 @@ export default function SectionWrapper({
   const isGstCalculationSection = section.id === 's_gst_calculation';
   const isAssumptionsForProjectionsSection = section.id === 's_projections_assumptions';
   const isNonInterestIncomeSection = section.id === 's_non_interest_income';
+  const isStressedAssetsSection = section.id === 's_stressed_assets';
 
 
   return (
@@ -1772,6 +1773,7 @@ export default function SectionWrapper({
           !isGstCalculationSection &&
           !isAssumptionsForProjectionsSection &&
           !isNonInterestIncomeSection &&
+          !isStressedAssetsSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
@@ -1792,6 +1794,21 @@ export default function SectionWrapper({
            <TableSection
             initialRows={tableRows}
             headers={['Particulars', 'Y-1', 'Y']}
+            allowAddRow={true}
+            instructions={section.instructions}
+            sectionKey={section.key}
+            companyName={note.company.name}
+            onRefresh={async () => tableRows}
+            onAddRow={handleRowAdd}
+            onUpdateRow={handleRowUpdate}
+            onRemoveRow={handleRowRemove}
+          />
+        )}
+
+        { isStressedAssetsSection && sectionVisible && (
+           <TableSection
+            initialRows={tableRows}
+            headers={['Asset Name', 'Original Value', 'Current Value', 'Status']}
             allowAddRow={true}
             instructions={section.instructions}
             sectionKey={section.key}
