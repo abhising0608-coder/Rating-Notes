@@ -17,6 +17,7 @@ import type {
   RichTextContent,
   KeyUpdatesContent,
   AnalyticalApproachData,
+  ModelSummaryRow,
 } from '@/types';
 
 const companies: Company[] = [
@@ -83,6 +84,11 @@ const templates: Template[] = [
        {
         id: 's_analytical_approach',
         title: '2. Analytical Approach',
+        hasTable: false,
+      },
+       {
+        id: 's_model_summary',
+        title: '3. Model Summary',
         hasTable: false,
       },
       {
@@ -343,6 +349,19 @@ const analyticalApproachData: AnalyticalApproachData = {
   annexureAttachments: [],
 };
 
+const modelSummaryData: ModelSummaryRow[] = [
+    { id: 'ms-1', heading: "Management Risk", ratingModel: "AA", ratingTeam: "", remarks: "" },
+    { id: 'ms-2', heading: "Operational Risk", ratingModel: "A+", ratingTeam: "", remarks: "" },
+    { id: 'ms-3', heading: "Financial Risk", ratingModel: "A", ratingTeam: "", remarks: "" },
+    { id: 'ms-4', heading: "Industry Risk", ratingModel: "AA-", ratingTeam: "", remarks: "" },
+    { id: 'ms-5', heading: "Project Risk", ratingModel: "A+", ratingTeam: "", remarks: "" },
+    { id: 'ms-6', heading: "Notch up/down considered", ratingModel: "NA", ratingTeam: "", remarks: "" },
+    { id: 'ms-7', heading: "Correction for constitution", ratingModel: "NA", ratingTeam: "", remarks: "" },
+    { id: 'ms-8', heading: "Final Standalone Rating", ratingModel: "AA", ratingTeam: "", remarks: "" },
+    { id: 'ms-9', heading: "Final Rating after Notching", ratingModel: "AA", ratingTeam: "", remarks: "" },
+    { id: 'ms-10', heading: "Final Rating Recommendation", ratingModel: "AA", ratingTeam: "", remarks: "" }
+];
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -397,6 +416,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         analyticalApproach: analyticalApproachData
+      },
+       s_model_summary: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        modelSummary: modelSummaryData,
       },
       s2: {
         applicable: 'Applicable',
@@ -611,5 +637,15 @@ export const getAnalyticalApproachData = async (noteId: string): Promise<Analyti
         return analyticalApproachData;
     }
 
+    return null;
+}
+
+
+export const getModelSummaryData = async (noteId: string): Promise<ModelSummaryRow[] | null> => {
+    console.log(`Fetching model summary data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return modelSummaryData;
+    }
     return null;
 }

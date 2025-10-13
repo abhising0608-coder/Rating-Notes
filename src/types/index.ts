@@ -169,6 +169,14 @@ export interface AnalyticalApproachData {
   annexureAttachments: Attachment[];
 }
 
+export interface ModelSummaryRow {
+  id: string;
+  heading: string;
+  ratingModel: string;
+  ratingTeam: string;
+  remarks: string;
+  isManual?: boolean;
+}
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -186,6 +194,7 @@ export interface SectionData {
   summaryHygieneChecks?: SummaryHygieneChecksData;
   keyUpdatesContent?: KeyUpdatesContent;
   analyticalApproach?: AnalyticalApproachData;
+  modelSummary?: ModelSummaryRow[];
 }
 
 export interface RatingNote {

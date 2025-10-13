@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -27,11 +27,14 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Plus, Trash2, RefreshCw, Upload } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Upload, Loader2, MessageSquare } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
 import SummaryHygieneChecks from './SummaryHygieneChecks';
 import { Textarea } from './ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
+import { cn } from '@/lib/utils';
+import { buttonVariants } from './ui/button';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -560,6 +563,128 @@ const AnalyticalApproachSection = ({
 };
 
 
+const ModelSummarySection = ({ initialData, onUpdate, onRefresh }: { initialData: ModelSummaryRow[], onUpdate: (data: ModelSummaryRow[]) => void, onRefresh: () => void }) => {
+  const [rows, setRows] = useState(initialData);
+  const [popupRemarks, setPopupRemarks] = useState("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [activeRowId, setActiveRowId] = useState<string | null>(null);
+
+  const handleUpdate = (rowId: string, field: keyof ModelSummaryRow, value: string) => {
+    const updatedRows = rows.map(row => (row.id === rowId ? { ...row, [field]: value } : row));
+    setRows(updatedRows);
+    onUpdate(updatedRows);
+  };
+  
+  const openRemarksPopup = (rowId: string) => {
+    const row = rows.find(r => r.id === rowId);
+    if(row) {
+      setPopupRemarks(row.remarks);
+      setActiveRowId(rowId);
+      setIsPopupOpen(true);
+    }
+  };
+
+  const saveRemarksPopup = () => {
+    if(activeRowId !== null){
+      handleUpdate(activeRowId, "remarks", popupRemarks);
+    }
+    setIsPopupOpen(false);
+    setActiveRowId(null);
+  };
+
+  const addRow = (afterRowId: string) => {
+    const newRow: ModelSummaryRow = { id: `manual-${Date.now()}`, heading: "", ratingModel: "N/A", ratingTeam: "", remarks: "", isManual: true };
+    const index = rows.findIndex(r => r.id === afterRowId);
+    const updatedRows = [...rows];
+    updatedRows.splice(index + 1, 0, newRow);
+    setRows(updatedRows);
+    onUpdate(updatedRows);
+  };
+
+  const deleteRow = (rowId: string) => {
+    const updatedRows = rows.filter(r => r.id !== rowId);
+    setRows(updatedRows);
+    onUpdate(updatedRows);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <a href="#" className="text-primary underline font-medium">Rating Model</a>
+        <Button variant="outline" size="sm" onClick={onRefresh}><RefreshCw className="mr-2 h-4 w-4"/>Refresh</Button>
+      </div>
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[25%]">Heading</TableHead>
+              <TableHead>Rating as per CoRF / Model</TableHead>
+              <TableHead>Rating Team Assessment</TableHead>
+              <TableHead>Remarks by Rating Team</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell>
+                  {row.isManual ? (
+                     <Input
+                        type="text"
+                        value={row.heading}
+                        onChange={(e) => handleUpdate(row.id, "heading", e.target.value)}
+                        className="h-8"
+                      />
+                  ) : (
+                    <span className="font-medium">{row.heading}</span>
+                  )}
+                </TableCell>
+                <TableCell>{row.ratingModel}</TableCell>
+                <TableCell>
+                  <Input type="text" value={row.ratingTeam} onChange={(e) => handleUpdate(row.id, "ratingTeam", e.target.value)} className="h-8"/>
+                </TableCell>
+                <TableCell>
+                   <Button variant="ghost" onClick={() => openRemarksPopup(row.id)} className="w-full justify-start text-left font-normal h-8 px-2">
+                        <MessageSquare className="mr-2 h-4 w-4"/>
+                        {row.remarks ? <span className="truncate">{row.remarks}</span> : <span className="text-muted-foreground">Add Remarks</span>}
+                   </Button>
+                </TableCell>
+                <TableCell className="text-right">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => addRow(row.id)}>
+                        <Plus className="h-4 w-4" />
+                    </Button>
+                    {row.isManual && <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => deleteRow(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+       <Dialog open={isPopupOpen} onOpenChange={setIsPopupOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enter Remarks</DialogTitle>
+            <DialogDescription>
+              Provide detailed remarks for the selected item. This content will be visible in the final report.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea 
+            value={popupRemarks} 
+            onChange={(e) => setPopupRemarks(e.target.value)} 
+            rows={6}
+            className="my-4"
+            />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPopupOpen(false)}>Cancel</Button>
+            <Button onClick={saveRemarksPopup}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+};
+
 type SectionWrapperProps = {
   section: TemplateSection;
   note: RatingNote;
@@ -587,6 +712,7 @@ export default function SectionWrapper({
   const [summaryHygieneChecks, setSummaryHygieneChecks] = useState(sectionData.summaryHygieneChecks);
   const [keyUpdatesContent, setKeyUpdatesContent] = useState(sectionData.keyUpdatesContent);
   const [analyticalApproach, setAnalyticalApproach] = useState(sectionData.analyticalApproach);
+  const [modelSummary, setModelSummary] = useState(sectionData.modelSummary);
 
 
   useEffect(() => {
@@ -659,7 +785,17 @@ export default function SectionWrapper({
             })
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_model_summary') {
+      if(!modelSummary) {
+        getModelSummaryData(note.id).then(data => {
+          if (data) {
+            setModelSummary(data);
+            onUpdateSection(section.id, { modelSummary: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -724,12 +860,23 @@ export default function SectionWrapper({
     return (data as any)[field] || '';
   }
 
+  const handleModelSummaryUpdate = (data: ModelSummaryRow[]) => {
+    setModelSummary(data);
+    onUpdateSection(section.id, { modelSummary: data });
+  }
+
+  const handleModelSummaryRefresh = () => {
+    // Simulate data refresh
+    console.log("Refreshing model summary...");
+  }
+
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
   const isCoverPage = section.id === 's1';
   const isKeyUpdatesSection = section.id === 's_key_updates';
   const isAnalyticalApproachSection = section.id === 's_analytical_approach';
+  const isModelSummarySection = section.id === 's_model_summary';
 
   return (
     <Card id={section.key}>
@@ -786,8 +933,16 @@ export default function SectionWrapper({
             onUpdate={handleAnalyticalApproachUpdate}
           />
         )}
+
+        {isModelSummarySection && sectionVisible && modelSummary && (
+          <ModelSummarySection 
+            initialData={modelSummary}
+            onUpdate={handleModelSummaryUpdate}
+            onRefresh={handleModelSummaryRefresh}
+          />
+        )}
         
-        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && section.hasTable && sectionVisible && (
+        {!isCoverPage && !isKeyUpdatesSection && !isAnalyticalApproachSection && !isModelSummarySection && section.hasTable && sectionVisible && (
           <TableSection
             initialRows={tableRows}
             headers={tableHeaders}
