@@ -442,21 +442,17 @@ const ceChecklistData: CEChecklistData = {
 const linkedRatingsData: LinkedRatingsData[] = [
     {
       id: 'lr-1',
-      companyName: "Reliance Retail",
-      lastRatingCommitteeDate: "2025-10-10",
-      amountRated: "1000000000",
-      rating: "AA+",
-      instrumentDetails: "Term Loan / Bond",
-      guarantor: "Reliance Industries"
+      'Name of Company': "Reliance Retail",
+      'Date': "2025-10-10",
+      'Amount Rated': "1000000000",
+      'Rating': "AA+",
     },
     {
       id: 'lr-2',
-      companyName: "Reliance Jio",
-      lastRatingCommitteeDate: "2025-09-25",
-      amountRated: "500000000",
-      rating: "AAA",
-      instrumentDetails: "Long-term Debt",
-      guarantor: "Reliance Industries"
+      'Name of Company': "Reliance Jio",
+      'Date': "2025-09-25",
+      'Amount Rated': "500000000",
+      'Rating': "AAA",
     }
 ];
 
@@ -583,12 +579,8 @@ export const getRatingNoteById = async (id: string): Promise<RatingNote | undefi
 
 export const getFinancialData = async (companyId: string, tableId: string): Promise<FinancialData | undefined> => {
   if (tableId === 's_linked_ratings') {
-    return {
-      companyId: companyId,
-      year: new Date().getFullYear(),
-      tableId: tableId,
-      rows: linkedRatingsData.filter(lr => lr.guarantor === 'Reliance Industries') // Example filter
-    }
+    // This part is now handled by getLinkedRatingsData
+    return undefined;
   }
   return financialData.find(fd => fd.companyId === companyId && fd.tableId === tableId);
 }
@@ -799,8 +791,7 @@ export const getCEChecklistData = async (noteId: string): Promise<CEChecklistDat
 export const getLinkedRatingsData = async(guarantor: string): Promise<LinkedRatingsData[]> => {
     console.log(`Fetching linked ratings data for guarantor: ${guarantor}`);
     await new Promise(resolve => setTimeout(resolve, 300));
-    if(guarantor === 'Reliance Industries'){
-        return linkedRatingsData;
-    }
-    return [];
+    // In a real app, you'd filter by the guarantor.
+    // For this mock, we just return all data.
+    return linkedRatingsData;
 }

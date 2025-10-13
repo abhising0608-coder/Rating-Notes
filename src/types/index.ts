@@ -246,12 +246,10 @@ export interface CEChecklistData {
 }
 
 export interface LinkedRatingsData extends TableRowData {
-    companyName: string;
-    lastRatingCommitteeDate: string;
-    amountRated: string;
-    rating: string;
-    instrumentDetails: string;
-    guarantor: string;
+    'Name of Company': string;
+    'Date': string;
+    'Amount Rated': string;
+    'Rating': string;
 }
 
 export interface SectionData {
@@ -293,7 +291,6 @@ export interface RatingNote {
   scale: string;
   decimalPrecision: number;
   zeroRowPolicy: 'Delete' | 'No Deletion';
-  zeroColumnPolicy: 'Delete' | 'No Deletion';
   highlightZeros: boolean;
   applicableCriteria: string[];
   description: string;

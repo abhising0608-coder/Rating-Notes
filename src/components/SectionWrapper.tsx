@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -987,7 +987,7 @@ const CEChecklistSection = ({ initialData, onUpdate }: { initialData: CEChecklis
                                 </TableCell>
                                  <TableCell>
                                     <Textarea value={row['Analyst Comments']} onChange={e => handleCombinedTableUpdate(row.id, 'Analyst Comments', e.target.value)} />
-                                </TableCell>
+                                 </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
@@ -1141,8 +1141,10 @@ export default function SectionWrapper({
             // Initially, we might not have a guarantor, so we can't fetch.
             // This might be fetched based on a guarantor selected elsewhere.
             // For now, initializing with empty array.
-            setLinkedRatings([]);
-            onUpdateSection(section.id, { linkedRatings: [] });
+            getLinkedRatingsData('').then(data => {
+              setLinkedRatings(data);
+              onUpdateSection(section.id, { linkedRatings: data as any });
+            })
         }
     }
   }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, note.companyId, note.id, onUpdateSection]);
@@ -1328,8 +1330,8 @@ export default function SectionWrapper({
           section.hasTable && 
           sectionVisible && (
           <TableSection
-            initialRows={tableRows}
-            headers={isLinkedRatingsSection && linkedRatings?.length ? Object.keys(linkedRatings[0]).filter(k => k !== 'id') : tableHeaders}
+            initialRows={isLinkedRatingsSection ? (linkedRatings || []) : tableRows}
+            headers={isLinkedRatingsSection ? Object.keys(linkedRatings?.[0] || {}).filter(k => k !== 'id') : tableHeaders}
             allowAddRow={section.allowAddRow ?? false}
             instructions={section.instructions}
             sectionKey={section.key}
