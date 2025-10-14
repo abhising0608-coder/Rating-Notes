@@ -12,11 +12,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
 import type { Company, PeerCompany } from '@/types';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Check as CheckIcon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 
 export default function PeerComparisonPage() {
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
@@ -155,9 +156,80 @@ export default function PeerComparisonPage() {
                     <AccordionItem value="item-2">
                         <AccordionTrigger>Query Builder to Search the Companies in the DB</AccordionTrigger>
                         <AccordionContent>
-                          <div className="p-4 text-center text-muted-foreground">
-                            Query Builder functionality will be implemented here.
-                          </div>
+                           <div className="space-y-6">
+                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+                                <Table>
+                                  <TableBody>
+                                    <TableRow>
+                                      <TableCell className="font-medium w-1/3">Sector</TableCell>
+                                      <TableCell>
+                                        <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                      </TableCell>
+                                    </TableRow>
+                                     <TableRow>
+                                      <TableCell className="font-medium">Industry</TableCell>
+                                      <TableCell>
+                                        <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                      </TableCell>
+                                    </TableRow>
+                                     <TableRow>
+                                      <TableCell className="font-medium">Basic Industry</TableCell>
+                                      <TableCell>
+                                        <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>
+                                </Table>
+                                <Table>
+                                  <TableBody>
+                                    <TableRow>
+                                      <TableCell className="font-medium w-1/3">Ratings</TableCell>
+                                      <TableCell>
+                                         <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                      </TableCell>
+                                    </TableRow>
+                                  </TableBody>
+                                </Table>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <h4 className="font-medium">Peer Comparison Parameters</h4>
+                                <div className="border rounded-lg">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="w-[25%]">Parameter</TableHead>
+                                                <TableHead>Min Range</TableHead>
+                                                <TableHead>Max Range</TableHead>
+                                                <TableHead>Operations</TableHead>
+                                                <TableHead>Actions</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            <TableRow>
+                                                <TableCell>
+                                                    <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                                </TableCell>
+                                                <TableCell><Input placeholder="Min" /></TableCell>
+                                                <TableCell><Input placeholder="Max" /></TableCell>
+                                                <TableCell>
+                                                    <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                                </TableCell>
+                                                <TableCell className="flex gap-2">
+                                                    <Button variant="ghost" size="icon"><CheckIcon className="h-5 w-5 text-green-600" /></Button>
+                                                    <Button variant="ghost" size="icon"><RefreshCw className="h-4 w-4" /></Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
+
+                             <div className="flex justify-end gap-2">
+                                <Button>Run Query</Button>
+                                <Button variant="outline">Reset</Button>
+                            </div>
+                           </div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-3">
