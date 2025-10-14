@@ -253,6 +253,22 @@ export interface LinkedRatingsData extends TableRowData {
     'Rating': string;
 }
 
+export interface BoardMemberData {
+    id: string;
+    name: string;
+    designation: string;
+    yearsOfExperience: string;
+    executiveStatus: string;
+    functions: string;
+    age: string;
+    qualification: string;
+}
+
+export interface BoardCompositionData {
+    boardOfDirectors: BoardMemberData[];
+    keyManagementPersonnel: BoardMemberData[];
+}
+
 export interface FinancialsPastProjectedData {
     mainTable: TableRowData[];
     referenceTable: TableRowData[];
@@ -352,6 +368,7 @@ export interface SectionData {
   parentGovSupport?: ParentGovSupportData;
   ceChecklist?: CEChecklistData;
   linkedRatings?: LinkedRatingsData[];
+  boardComposition?: BoardCompositionData;
   financials?: FinancialsPastProjectedData;
   interimResults?: InterimResultsData;
   assumptionsForCashFlow?: string;

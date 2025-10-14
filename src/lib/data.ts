@@ -30,6 +30,7 @@ import type {
   AnyOtherInformationData,
   ConsolidatedEntity,
   PeerCompany,
+  BoardCompositionData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -125,6 +126,12 @@ const templates: Template[] = [
         hasTable: true,
         allowAddRow: true,
         tooltipKey: 'linked.ratings',
+      },
+      {
+        id: 's_board_composition',
+        title: '7. Board of Directors / Partners',
+        hasTable: false,
+        tooltipKey: 'board.composition'
       },
       {
         id: 's_financials_past_projected',
@@ -381,6 +388,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'linked.ratings',
     text: 'This section is to be inserted in case ABC Ltd has extended guarantees/other forms of implicit/explicit support to other companies. In case there are no such linked ratings, this section is to be skipped.'
+  },
+  {
+    key: 'board.composition',
+    text: 'Highlight changes if any since last rating action.'
   },
   {
     key: 'cashflow.assumptions',
@@ -670,6 +681,16 @@ const prefetchedPeersData: PeerCompany[] = [
     { id: 'comp-7', companyName: 'Cipla', industryType: 'PQR', industry: 'STU', rating: 'BB+' }
 ];
 
+const boardCompositionData: BoardCompositionData = {
+    boardOfDirectors: [
+        { id: 'bod-1', name: 'Mr. Ratan Tata', designation: 'Chairman Emeritus', yearsOfExperience: '50+', executiveStatus: 'Non-Executive', functions: 'Guidance', age: '86', qualification: 'B.S. Architecture' },
+        { id: 'bod-2', name: 'Mr. N. Chandrasekaran', designation: 'Chairman', yearsOfExperience: '30+', executiveStatus: 'Executive', functions: 'Group Leadership', age: '60', qualification: 'MCA' }
+    ],
+    keyManagementPersonnel: [
+        { id: 'kmp-1', name: 'Mr. John Doe', designation: 'CEO', yearsOfExperience: '25+', executiveStatus: 'Executive', functions: 'Overall Management', age: '55', qualification: 'MBA' }
+    ]
+}
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -760,6 +781,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         linkedRatings: linkedRatingsData,
+      },
+      s_board_composition: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        boardComposition: boardCompositionData
       },
        s_financials_past_projected: {
         applicable: 'Applicable',
@@ -1239,4 +1267,13 @@ export const getPrefetchedPeers = async (noteId: string): Promise<PeerCompany[]>
         return prefetchedPeersData;
     }
     return [];
+}
+
+export const getBoardCompositionData = async (noteId: string): Promise<BoardCompositionData | null> => {
+    console.log(`Fetching board composition data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return boardCompositionData;
+    }
+    return null;
 }

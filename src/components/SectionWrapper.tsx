@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -37,6 +37,7 @@ import { cn } from '@/lib/utils';
 import { buttonVariants } from './ui/button';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { format } from 'date-fns';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -1699,6 +1700,44 @@ const ConsolidatedEntitiesSection = ({ initialData, onUpdate, onRefresh }: { ini
   );
 };
 
+const BoardCompositionSection = ({ initialData, onUpdate, onRefresh, tooltipKey }: { initialData: BoardCompositionData, onUpdate: (data: BoardCompositionData) => void, onRefresh: () => void, tooltipKey?: string }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (table: 'boardOfDirectors' | 'keyManagementPersonnel', rowId: string, field: string, value: string) => {
+        const updatedTable = data[table].map(row => 
+            row.id === rowId ? { ...row, [field]: value } : row
+        );
+        const updatedData = { ...data, [table]: updatedTable };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+    
+    return (
+        <div className="space-y-6">
+            <Accordion type="multiple" defaultValue={['bod']} className="w-full">
+                <AccordionItem value="bod">
+                    <AccordionTrigger className="font-semibold text-lg">
+                        Board of Directors / Partners
+                        {tooltipKey && <Tooltip tooltipKey={tooltipKey} />}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <p className="text-muted-foreground">Board of Directors table will be shown here.</p>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="kmp">
+                     <AccordionTrigger className="font-semibold text-lg">
+                        Senior Management / Key Management Personnel
+                        {tooltipKey && <Tooltip tooltipKey="kmp.composition" />}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                         <p className="text-muted-foreground">Key Management Personnel table will be shown here.</p>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        </div>
+    );
+};
+
 
 
 type SectionWrapperProps = {
@@ -1743,6 +1782,7 @@ export default function SectionWrapper({
   const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
+  const [boardComposition, setBoardComposition] = useState(sectionData.boardComposition);
 
 
 
@@ -1867,6 +1907,16 @@ export default function SectionWrapper({
             })
         }
     }
+    if (section.id === 's_board_composition') {
+        if (!boardComposition) {
+            getBoardCompositionData(note.id).then(data => {
+                if (data) {
+                    setBoardComposition(data);
+                    onUpdateSection(section.id, { boardComposition: data });
+                }
+            });
+        }
+    }
     if (section.id === 's_financials_past_projected') {
         if(!financials) {
             getFinancialsPastProjectedData(note.id).then(data => {
@@ -1944,7 +1994,7 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, boardComposition, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -2164,6 +2214,20 @@ export default function SectionWrapper({
     });
   }
 
+  const handleBoardCompositionUpdate = (data: BoardCompositionData) => {
+      setBoardComposition(data);
+      onUpdateSection(section.id, { boardComposition: data });
+  };
+
+  const handleBoardCompositionRefresh = () => {
+    getBoardCompositionData(note.id).then(data => {
+        if(data) {
+            setBoardComposition(data);
+            onUpdateSection(section.id, { boardComposition: data });
+        }
+    })
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -2176,6 +2240,7 @@ export default function SectionWrapper({
   const isParentGovSupportSection = section.id === 's_parent_gov_support';
   const isCEChecklistSection = section.id === 's_ce_checklist';
   const isLinkedRatingsSection = section.id === 's_linked_ratings';
+  const isBoardCompositionSection = section.id === 's_board_composition';
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
   const isInterimResultsSection = section.id === 's_interim_results';
   const isQuarterlyFinancialsSection = section.id === 's_quarterly_financials';
@@ -2290,6 +2355,15 @@ export default function SectionWrapper({
             initialData={ceChecklist}
             onUpdate={handleCEChecklistUpdate}
           />
+        )}
+
+        {isBoardCompositionSection && sectionVisible && boardComposition && (
+            <BoardCompositionSection
+                initialData={boardComposition}
+                onUpdate={handleBoardCompositionUpdate}
+                onRefresh={handleBoardCompositionRefresh}
+                tooltipKey={section.tooltipKey}
+            />
         )}
 
         {isFinancialsPastProjectedSection && sectionVisible && financials && (
@@ -2447,7 +2521,8 @@ export default function SectionWrapper({
           !isAnalyticalApproachDisplaySection &&
           !isModelSummarySection && 
           !isParentGovSupportSection && 
-          !isCEChecklistSection && 
+          !isCEChecklistSection &&
+          !isBoardCompositionSection &&
           !isFinancialsPastProjectedSection &&
           !isInterimResultsSection &&
           !isQuarterlyFinancialsSection &&
