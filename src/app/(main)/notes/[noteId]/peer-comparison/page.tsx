@@ -129,7 +129,9 @@ export default function PeerComparisonPage() {
                     <AccordionItem value="item-2">
                         <AccordionTrigger>Query Builder to Search the Companies in the DB</AccordionTrigger>
                         <AccordionContent>
-                        Placeholder for query builder functionality.
+                          <div className="p-4 text-center text-muted-foreground">
+                            Query Builder functionality will be implemented here.
+                          </div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-3">
