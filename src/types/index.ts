@@ -346,6 +346,15 @@ export interface PeerCompany {
   rating: string;
 }
 
+export interface GoodwillAssessmentData {
+  tableRows: {
+    id: string;
+    srNo: number;
+    particulars: string;
+    remarks: string;
+  }[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -390,6 +399,7 @@ export interface SectionData {
   statusOfNonCooperation?: StatusOfNonCooperationData;
   anyOtherInformation?: AnyOtherInformationData;
   consolidatedEntities?: ConsolidatedEntity[];
+  goodwillAssessment?: GoodwillAssessmentData;
 }
 
 export interface RatingNote {

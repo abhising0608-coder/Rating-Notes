@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, BoardMemberData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, BoardMemberData, GoodwillAssessmentData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1815,6 +1815,51 @@ const BoardCompositionSection = ({ initialData, onUpdate, onRefresh, tooltipKey 
     );
 };
 
+const GoodwillAssessmentSection = ({ initialData, onUpdate }: { initialData: GoodwillAssessmentData, onUpdate: (data: GoodwillAssessmentData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleRemarkChange = (rowId: string, remarks: string) => {
+        const updatedTableRows = data.tableRows.map(row => 
+            row.id === rowId ? { ...row, remarks } : row
+        );
+        const updatedData = { ...data, tableRows: updatedTableRows };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="border rounded-lg overflow-hidden">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[5%]">Sr No</TableHead>
+                            <TableHead className="w-[45%]">Particulars</TableHead>
+                            <TableHead className="w-[50%]">Remarks</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {data.tableRows.map(row => (
+                            <TableRow key={row.id}>
+                                <TableCell>{row.srNo}</TableCell>
+                                <TableCell className="font-medium">{row.particulars}</TableCell>
+                                <TableCell>
+                                    <Input
+                                        type="text"
+                                        value={row.remarks}
+                                        onChange={(e) => handleRemarkChange(row.id, e.target.value)}
+                                        className="h-8"
+                                        placeholder="Enter remarks..."
+                                    />
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </div>
+        </div>
+    );
+};
 
 
 type SectionWrapperProps = {
@@ -1860,6 +1905,7 @@ export default function SectionWrapper({
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
   const [boardComposition, setBoardComposition] = useState(sectionData.boardComposition);
+  const [goodwillAssessment, setGoodwillAssessment] = useState(sectionData.goodwillAssessment);
 
 
 
@@ -2071,7 +2117,17 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, boardComposition, note.companyId, note.id, onUpdateSection]);
+     if (section.id === 's_goodwill_assessment') {
+      if (!goodwillAssessment) {
+        getGoodwillAssessmentData(note.id).then(data => {
+          if (data) {
+            setGoodwillAssessment(data);
+            onUpdateSection(section.id, { goodwillAssessment: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, boardComposition, goodwillAssessment, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -2305,6 +2361,11 @@ export default function SectionWrapper({
     })
   }
 
+  const handleGoodwillAssessmentUpdate = (data: GoodwillAssessmentData) => {
+    setGoodwillAssessment(data);
+    onUpdateSection(section.id, { goodwillAssessment: data });
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -2336,6 +2397,7 @@ export default function SectionWrapper({
   const isStatusOfNonCooperationSection = section.id === 's_non_cooperation_status';
   const isAnyOtherInformationSection = section.id === 's_any_other_info';
   const isConsolidatedEntitiesSection = section.id === 's_consolidated_entities';
+  const isGoodwillAssessmentSection = section.id === 's_goodwill_assessment';
 
 
   return (
@@ -2590,6 +2652,13 @@ export default function SectionWrapper({
                 onRefresh={handleConsolidatedEntitiesRefresh}
             />
         )}
+
+        { isGoodwillAssessmentSection && sectionVisible && goodwillAssessment && (
+            <GoodwillAssessmentSection
+                initialData={goodwillAssessment}
+                onUpdate={handleGoodwillAssessmentUpdate}
+            />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -2617,6 +2686,7 @@ export default function SectionWrapper({
           !isStatusOfNonCooperationSection &&
           !isAnyOtherInformationSection &&
           !isConsolidatedEntitiesSection &&
+          !isGoodwillAssessmentSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

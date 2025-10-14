@@ -31,6 +31,7 @@ import type {
   ConsolidatedEntity,
   PeerCompany,
   BoardCompositionData,
+  GoodwillAssessmentData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -230,6 +231,11 @@ const templates: Template[] = [
       {
         id: 's_consolidated_entities',
         title: 'Annexure: List of Entities Consolidated',
+        hasTable: false,
+      },
+      {
+        id: 's_goodwill_assessment',
+        title: 'Assessment of Goodwill Impairment (if any)',
         hasTable: false,
       }
     ],
@@ -695,6 +701,16 @@ const boardCompositionData: BoardCompositionData = {
     ]
 }
 
+const goodwillAssessmentData: GoodwillAssessmentData = {
+    tableRows: [
+        { id: 'gw-1', srNo: 1, particulars: 'Valuation of Goodwill', remarks: '' },
+        { id: 'gw-2', srNo: 2, particulars: 'Details sought from company/ auditor for goodwill impairment test i.e., supporting documents, if any', remarks: '' },
+        { id: 'gw-3', srNo: 3, particulars: 'Interaction with Auditors on the above', remarks: '' },
+        { id: 'gw-4', srNo: 4, particulars: 'Management\'s view on impairment of Goodwill', remarks: '' },
+        { id: 'gw-5', srNo: 5, particulars: 'Few reasons for no provisioning of Goodwill impairment', remarks: '' },
+    ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -917,6 +933,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
       },
       s_consolidated_entities: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_goodwill_assessment: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1278,6 +1300,15 @@ export const getBoardCompositionData = async (noteId: string): Promise<BoardComp
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return boardCompositionData;
+    }
+    return null;
+}
+
+export const getGoodwillAssessmentData = async (noteId: string): Promise<GoodwillAssessmentData | null> => {
+    console.log(`Fetching goodwill assessment data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return goodwillAssessmentData;
     }
     return null;
 }
