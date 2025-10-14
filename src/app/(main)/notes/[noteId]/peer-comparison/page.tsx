@@ -15,6 +15,8 @@ import type { Company, PeerCompany } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 export default function PeerComparisonPage() {
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
@@ -22,6 +24,7 @@ export default function PeerComparisonPage() {
   const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
   const [prefetchedPeers, setPrefetchedPeers] = useState<PeerCompany[]>([]);
   const [selectedPrefetched, setSelectedPrefetched] = useState<string[]>([]);
+  const [prefetchEnabled, setPrefetchEnabled] = useState('yes');
 
   useEffect(() => {
     getCompanies().then(setAllCompanies);
@@ -54,6 +57,14 @@ export default function PeerComparisonPage() {
     );
   };
   
+  const handleToggleAllPrefetched = (checked: boolean) => {
+    if (checked) {
+      setSelectedPrefetched(prefetchedPeers.map(p => p.id));
+    } else {
+      setSelectedPrefetched([]);
+    }
+  };
+
   const addSelectedPeersToComparison = () => {
     const peersToAdd = prefetchedPeers.filter(peer => selectedPrefetched.includes(peer.id));
     
@@ -88,41 +99,56 @@ export default function PeerComparisonPage() {
                         <AccordionTrigger>Pre-fetched Companies from Last Rating Note</AccordionTrigger>
                         <AccordionContent>
                            <div className="space-y-4">
-                               <div className="border rounded-lg overflow-hidden">
-                                   <Table>
-                                       <TableHeader>
-                                           <TableRow>
-                                                <TableHead className="w-[50px]">Select</TableHead>
-                                                <TableHead>Company name</TableHead>
-                                                <TableHead>Industry Type</TableHead>
-                                                <TableHead>Industry</TableHead>
-                                                <TableHead>Rating (if available)</TableHead>
-                                           </TableRow>
-                                       </TableHeader>
-                                       <TableBody>
-                                           {prefetchedPeers.map(peer => (
-                                               <TableRow key={peer.id}>
-                                                   <TableCell>
-                                                       <Checkbox
-                                                            checked={selectedPrefetched.includes(peer.id)}
-                                                            onCheckedChange={() => handleTogglePrefetched(peer.id)}
-                                                            aria-label={`Select ${peer.companyName}`}
-                                                       />
-                                                   </TableCell>
-                                                   <TableCell>{peer.companyName}</TableCell>
-                                                   <TableCell>{peer.industryType}</TableCell>
-                                                   <TableCell>{peer.industry}</TableCell>
-                                                   <TableCell>{peer.rating}</TableCell>
-                                               </TableRow>
-                                           ))}
-                                       </TableBody>
-                                   </Table>
-                               </div>
-                               <div className="flex justify-end">
-                                   <Button onClick={addSelectedPeersToComparison} disabled={selectedPrefetched.length === 0}>
-                                       Add Selected to Comparison
-                                   </Button>
-                               </div>
+                                <RadioGroup value={prefetchEnabled} onValueChange={setPrefetchEnabled} className="flex items-center gap-4">
+                                  <Label className="font-medium">Prefetch Companies from Last Year Rating Note</Label>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="yes" id="prefetch-yes" />
+                                    <Label htmlFor="prefetch-yes">Yes</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="no" id="prefetch-no" />
+                                    <Label htmlFor="prefetch-no">No</Label>
+                                  </div>
+                                </RadioGroup>
+                               {prefetchEnabled === 'yes' && (
+                                   <>
+                                       <div className="border rounded-lg overflow-hidden">
+                                           <Table>
+                                               <TableHeader>
+                                                   <TableRow>
+                                                        <TableHead className="w-[50px]">
+                                                           <Checkbox
+                                                                checked={selectedPrefetched.length > 0 && selectedPrefetched.length === prefetchedPeers.length}
+                                                                onCheckedChange={handleToggleAllPrefetched}
+                                                                aria-label="Select all pre-fetched companies"
+                                                            />
+                                                        </TableHead>
+                                                        <TableHead>Company Name</TableHead>
+                                                   </TableRow>
+                                               </TableHeader>
+                                               <TableBody>
+                                                   {prefetchedPeers.map(peer => (
+                                                       <TableRow key={peer.id}>
+                                                           <TableCell>
+                                                               <Checkbox
+                                                                    checked={selectedPrefetched.includes(peer.id)}
+                                                                    onCheckedChange={() => handleTogglePrefetched(peer.id)}
+                                                                    aria-label={`Select ${peer.companyName}`}
+                                                               />
+                                                           </TableCell>
+                                                           <TableCell>{peer.companyName}</TableCell>
+                                                       </TableRow>
+                                                   ))}
+                                               </TableBody>
+                                           </Table>
+                                       </div>
+                                       <div className="flex justify-end">
+                                           <Button onClick={addSelectedPeersToComparison} disabled={selectedPrefetched.length === 0}>
+                                               Add for Comparison
+                                           </Button>
+                                       </div>
+                                   </>
+                               )}
                            </div>
                         </AccordionContent>
                     </AccordionItem>
