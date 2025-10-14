@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1566,6 +1566,65 @@ const StatusOfNonCooperationSection = ({ initialData, onRefresh }: { initialData
   );
 };
 
+const AnyOtherInformationSection = ({ initialData, onRefresh }: { initialData?: AnyOtherInformationData, onRefresh: () => Promise<AnyOtherInformationData | null> }) => {
+  const [data, setData] = useState(initialData);
+  const [isRefreshing, startRefreshTransition] = useTransition();
+
+  useEffect(() => {
+    if (!initialData) {
+      handleRefresh();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialData]);
+
+  const handleRefresh = () => {
+    startRefreshTransition(async () => {
+      const refreshedData = await onRefresh();
+      setData(refreshedData ?? undefined);
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-end">
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Refresh
+        </Button>
+      </div>
+
+      {!data ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : data.directors && data.directors.length > 0 ? (
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead>Director Type</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Interest Entity</TableHead>
+                <TableHead>Position</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.directors.map((director, index) => (
+                <TableRow key={index}>
+                  <TableCell>{director.directorType}</TableCell>
+                  <TableCell>{director.name}</TableCell>
+                  <TableCell>{director.interestEntity}</TableCell>
+                  <TableCell>{director.position}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <p className="p-4 text-center text-muted-foreground italic">Not Applicable</p>
+      )}
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1607,6 +1666,7 @@ export default function SectionWrapper({
   const [liquidity, setLiquidity] = useState(sectionData.liquidity);
   const [esgRisks, setEsgRisks] = useState(sectionData.esgRisks);
   const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
+  const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
 
 
 
@@ -1788,7 +1848,17 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_any_other_info') {
+      if (!anyOtherInformation) {
+        getAnyOtherInformationData(note.companyId).then(data => {
+          if (data) {
+            setAnyOtherInformation(data);
+            onUpdateSection(section.id, { anyOtherInformation: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1985,6 +2055,15 @@ export default function SectionWrapper({
     return refreshedData;
   }
 
+  const handleAnyOtherInformationRefresh = async (): Promise<AnyOtherInformationData | null> => {
+    const refreshedData = await getAnyOtherInformationData(note.companyId, true);
+    if(refreshedData){
+        setAnyOtherInformation(refreshedData);
+        onUpdateSection(section.id, { anyOtherInformation: refreshedData });
+    }
+    return refreshedData;
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -2013,6 +2092,7 @@ export default function SectionWrapper({
   const isLiquiditySection = section.id === 's_liquidity';
   const isEsgRisksSection = section.id === 's_esg_risks';
   const isStatusOfNonCooperationSection = section.id === 's_non_cooperation_status';
+  const isAnyOtherInformationSection = section.id === 's_any_other_info';
 
 
   return (
@@ -2243,6 +2323,13 @@ export default function SectionWrapper({
             onRefresh={handleStatusOfNonCooperationRefresh}
           />
         )}
+
+        { isAnyOtherInformationSection && sectionVisible && (
+          <AnyOtherInformationSection
+            initialData={anyOtherInformation}
+            onRefresh={handleAnyOtherInformationRefresh}
+          />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -2267,6 +2354,7 @@ export default function SectionWrapper({
           !isLiquiditySection &&
           !isEsgRisksSection &&
           !isStatusOfNonCooperationSection &&
+          !isAnyOtherInformationSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

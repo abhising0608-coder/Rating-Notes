@@ -303,6 +303,15 @@ export interface StatusOfNonCooperationData {
   }[];
 }
 
+export interface AnyOtherInformationData {
+  directors: {
+    directorType: string;
+    name: string;
+    interestEntity: string;
+    position: string;
+  }[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -344,6 +353,7 @@ export interface SectionData {
   esgRisks?: string;
   aboutCompany?: AboutCompanyData;
   statusOfNonCooperation?: StatusOfNonCooperationData;
+  anyOtherInformation?: AnyOtherInformationData;
 }
 
 export interface RatingNote {

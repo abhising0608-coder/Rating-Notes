@@ -27,6 +27,7 @@ import type {
   LiquidityData,
   AboutCompanyData,
   StatusOfNonCooperationData,
+  AnyOtherInformationData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -210,6 +211,12 @@ const templates: Template[] = [
         title: 'Status of Non-Cooperation with Previous CRA',
         hasTable: false,
         tooltipKey: 'noncooperation.status',
+      },
+      {
+        id: 's_any_other_info',
+        title: 'Any Other Information',
+        hasTable: false,
+        tooltipKey: 'any.other.info',
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -391,6 +398,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'noncooperation.status',
     text: 'If previous CRA has rated the company under non-cooperation, display respective press release reference as per CART data.'
+  },
+  {
+    key: 'any.other.info',
+    text: 'This section auto-fetches Disclosure of Interest details from the CoC Portal. If no data is available, system shows ‘Not Applicable.’'
   }
 ];
 
@@ -632,6 +643,13 @@ const statusOfNonCooperationData: StatusOfNonCooperationData = {
   ]
 };
 
+const anyOtherInformationData: AnyOtherInformationData = {
+  directors: [
+    { directorType: "Independent", name: "Mr. Amit Sharma", interestEntity: "ABC Fintech Ltd.", position: "Independent Director" },
+    { directorType: "Non-Executive", name: "Ms. Priya Menon", interestEntity: "XYZ Bank Ltd.", position: "Non-Executive Director" }
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -835,6 +853,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         esgRisks: 'Initial ESG risks...'
       },
       s_non_cooperation_status: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_any_other_info: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1138,6 +1162,27 @@ export const getStatusOfNonCooperation = async (companyId: string, forceRefresh 
           status: 'Cooperating',
           records: []
       };
+  }
+
+  return null;
+};
+
+export const getAnyOtherInformationData = async (companyId: string, forceRefresh = false): Promise<AnyOtherInformationData | null> => {
+  console.log(`Fetching any other information data for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  if (companyId === '1') {
+    if (forceRefresh) {
+      const refreshedData = { ...anyOtherInformationData };
+      // Simulate a change
+      refreshedData.directors[0].name = "Mr. Amit Sharma (Refreshed)";
+      return refreshedData;
+    }
+    return anyOtherInformationData;
+  }
+  
+  if (companyId === '2') {
+    return { directors: [] };
   }
 
   return null;
