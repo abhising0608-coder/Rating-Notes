@@ -328,24 +328,18 @@ export default function PeerComparisonPage() {
                     <AccordionItem value="item-3">
                         <AccordionTrigger>Manual Search of Companies</AccordionTrigger>
                         <AccordionContent>
-                          <div className="space-y-4">
-                            <Input 
-                              placeholder="Type to search for a company..."
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                            {searchResults.length > 0 && (
-                              <ul className="border rounded-md max-h-60 overflow-y-auto">
-                                {searchResults.map(company => (
-                                  <li key={company.id} className="flex items-center justify-between p-2 border-b last:border-b-0">
-                                    <span>{company.name}</span>
-                                    <Button size="sm" variant="ghost" onClick={() => addCompany(company)}>
-                                      <Plus className="mr-2 h-4 w-4"/> Add
-                                    </Button>
-                                  </li>
+                          <div className="flex items-center gap-4">
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select Company" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {allCompanies.map(company => (
+                                    <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
                                 ))}
-                              </ul>
-                            )}
+                              </SelectContent>
+                            </Select>
+                            <Button>Add for Comparison</Button>
                           </div>
                         </AccordionContent>
                     </AccordionItem>
