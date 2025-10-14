@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -2061,6 +2061,109 @@ const RatioAnalysisSection = ({
   );
 };
 
+const PastRatingSensitivitiesSection = ({ initialData, onUpdate, onRefresh }: { initialData: PastRatingSensitivitiesData, onUpdate: (data: PastRatingSensitivitiesData) => void, onRefresh: () => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (type: 'positiveFactors' | 'negativeFactors', rowId: string, field: 'Remarks / Updates' | 'Status', value: string) => {
+        const updatedData = {
+            ...data,
+            [type]: data[type].map(row => row.id === rowId ? { ...row, [field]: value } : row)
+        };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleAddRow = (type: 'positiveFactors' | 'negativeFactors') => {
+        const newRow: TableRowData = {
+            id: `manual-${type}-${Date.now()}`,
+            'Factor Description': '',
+            'Remarks / Updates': '',
+            'Status': 'Ongoing',
+            isManual: true,
+        };
+        const updatedData = { ...data, [type]: [...data[type], newRow] };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleRemoveRow = (type: 'positiveFactors' | 'negativeFactors', rowId: string) => {
+        const updatedData = { ...data, [type]: data[type].filter(row => row.id !== rowId) };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+    
+    const handleManualFactorChange = (type: 'positiveFactors' | 'negativeFactors', rowId: string, value: string) => {
+       const updatedData = {
+            ...data,
+            [type]: data[type].map(row => row.id === rowId ? { ...row, 'Factor Description': value } : row)
+        };
+        setData(updatedData);
+        onUpdate(updatedData);
+    }
+
+    const SensitivityTable = ({ title, factors, type }: { title: string, factors: TableRowData[], type: 'positiveFactors' | 'negativeFactors' }) => (
+        <div>
+            <div className="flex justify-between items-center mb-2">
+                <h4 className="font-semibold">{title}</h4>
+                <Button variant="outline" size="sm" onClick={() => handleAddRow(type)}><Plus className="mr-2 h-4 w-4"/>Add Row</Button>
+            </div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Factor Description</TableHead>
+                        <TableHead>Remarks / Updates</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {factors.map(row => (
+                        <TableRow key={row.id}>
+                            <TableCell>
+                                {row.isManual ? (
+                                    <Input value={row['Factor Description']} onChange={(e) => handleManualFactorChange(type, row.id, e.target.value)} />
+                                ) : (
+                                    row['Factor Description']
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                <Input value={row['Remarks / Updates']} onChange={(e) => handleUpdate(type, row.id, 'Remarks / Updates', e.target.value)} />
+                            </TableCell>
+                            <TableCell>
+                                <Select value={row['Status']} onValueChange={(v) => handleUpdate(type, row.id, 'Status', v)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Addressed">Addressed</SelectItem>
+                                        <SelectItem value="Ongoing">Ongoing</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </TableCell>
+                            <TableCell>
+                                {row.isManual && (
+                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(type, row.id)}>
+                                        <Trash2 className="h-4 w-4 text-destructive"/>
+                                    </Button>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={onRefresh}><RefreshCw className="mr-2 h-4 w-4"/>Refresh</Button>
+            </div>
+            <SensitivityTable title="Positive Factors / Strengths" factors={data.positiveFactors} type="positiveFactors" />
+            <SensitivityTable title="Negative Factors / Weaknesses" factors={data.negativeFactors} type="negativeFactors" />
+        </div>
+    );
+};
+
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2118,6 +2221,8 @@ export default function SectionWrapper({
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
   const [previousRCMMinutes, setPreviousRCMMinutes] = useState(sectionData.previousRCMMinutes);
   const [addressedQCObservations, setAddressedQCObservations] = useState(sectionData.addressedQCObservations);
+  const [pastRatingSensitivities, setPastRatingSensitivities] = useState(sectionData.pastRatingSensitivities);
+
 
 
 
@@ -2348,6 +2453,16 @@ export default function SectionWrapper({
                 if (data) {
                     setAddressedQCObservations(data);
                     onUpdateSection(section.id, { addressedQCObservations: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_past_rating_sensitivities') {
+        if (!pastRatingSensitivities) {
+            getPastRatingSensitivities(note.companyId).then(data => {
+                if (data) {
+                    setPastRatingSensitivities(data);
+                    onUpdateSection(section.id, { pastRatingSensitivities: data });
                 }
             });
         }
@@ -2632,6 +2747,19 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { addressedQCObservations: data });
   };
 
+  const handlePastRatingSensitivitiesUpdate = (data: PastRatingSensitivitiesData) => {
+      setPastRatingSensitivities(data);
+      onUpdateSection(section.id, { pastRatingSensitivities: data });
+  }
+
+  const handlePastRatingSensitivitiesRefresh = () => {
+    getPastRatingSensitivities(note.companyId, true).then(data => {
+        if(data) {
+            setPastRatingSensitivities(data);
+            onUpdateSection(section.id, { pastRatingSensitivities: data });
+        }
+    })
+  }
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
@@ -2752,6 +2880,7 @@ export default function SectionWrapper({
   const isRatioAnalysisSection = section.id === 's_ratio_analysis';
   const isPreviousRCMMinutesSection = section.id === 's_rcm_minutes';
   const isAddressedQCObservationsSection = section.id === 's_qc_observations';
+  const isPastRatingSensitivitiesSection = section.id === 's_past_rating_sensitivities';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2968,6 +3097,14 @@ export default function SectionWrapper({
             />
         )}
 
+        {isPastRatingSensitivitiesSection && sectionVisible && pastRatingSensitivities && (
+            <PastRatingSensitivitiesSection
+                initialData={pastRatingSensitivities}
+                onUpdate={handlePastRatingSensitivitiesUpdate}
+                onRefresh={handlePastRatingSensitivitiesRefresh}
+            />
+        )}
+
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
@@ -3132,6 +3269,7 @@ export default function SectionWrapper({
           !isRatioAnalysisSection &&
           !isPreviousRCMMinutesSection &&
           !isAddressedQCObservationsSection &&
+          !isPastRatingSensitivitiesSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&

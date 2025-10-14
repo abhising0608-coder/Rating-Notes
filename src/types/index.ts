@@ -398,6 +398,11 @@ export interface AddressedQCObservationData {
   isManual?: boolean;
 }
 
+export interface PastRatingSensitivitiesData {
+    positiveFactors: TableRowData[];
+    negativeFactors: TableRowData[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -451,6 +456,7 @@ export interface SectionData {
   ratioAnalysis?: RatioAnalysisData;
   previousRCMMinutes?: PreviousRCMMinutesData;
   addressedQCObservations?: AddressedQCObservationData[];
+  pastRatingSensitivities?: PastRatingSensitivitiesData;
 }
 
 export interface RatingNote {

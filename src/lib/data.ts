@@ -40,6 +40,7 @@ import type {
   PreviousRCMMinutesData,
   RCMMinute,
   AddressedQCObservationData,
+  PastRatingSensitivitiesData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -188,6 +189,11 @@ const templates: Template[] = [
         title: 'Addressed QC Observations',
         hasTable: true,
         allowAddRow: true,
+      },
+      {
+        id: 's_past_rating_sensitivities',
+        title: 'Status of Past Rating Sensitivities of CARE',
+        hasTable: false,
       },
       {
         id: 's_cash_flow_assumptions',
@@ -820,6 +826,15 @@ const addressedQCObservationsData: AddressedQCObservationData[] = [
     { id: 'qc-obs-1', 'Sr. No.': '1', 'QC Observation': '', 'Comments of Rating Team': '' }
 ];
 
+const pastRatingSensitivitiesData: PastRatingSensitivitiesData = {
+    positiveFactors: [
+        { id: 'prs-pos-1', 'Factor Description': 'Sustained revenue growth above 20%', 'Remarks / Updates': '', 'Status': 'Ongoing', isManual: false },
+    ],
+    negativeFactors: [
+        { id: 'prs-neg-1', 'Factor Description': 'Decline in operating margin below 15%', 'Remarks / Updates': '', 'Status': 'Addressed', isManual: false },
+    ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -975,6 +990,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
       },
       s_qc_observations: {
         applicable: 'Not Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_past_rating_sensitivities: {
+        applicable: 'Applicable',
         tableRows: [],
         comments: '',
         attachments: [],
@@ -1529,4 +1550,19 @@ export const getAddressedQCObservations = async (noteId: string): Promise<Addres
     return addressedQCObservationsData;
   }
   return [];
+}
+
+export const getPastRatingSensitivities = async (companyId: string, forceRefresh = false): Promise<PastRatingSensitivitiesData | null> => {
+    console.log(`Fetching past rating sensitivities for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (companyId === '1') {
+        if (forceRefresh) {
+            return {
+                ...pastRatingSensitivitiesData,
+                positiveFactors: [...pastRatingSensitivitiesData.positiveFactors, { id: 'prs-pos-refresh', 'Factor Description': 'New refreshed positive factor', 'Remarks / Updates': '', 'Status': 'Ongoing', isManual: true }]
+            };
+        }
+        return pastRatingSensitivitiesData;
+    }
+    return null;
 }
