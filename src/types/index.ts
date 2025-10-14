@@ -357,6 +357,14 @@ export interface OtherAgencyRating {
   category: string;
 }
 
+export interface RatingSensitivity {
+  id: string;
+  sensitivity: string;
+  care: string;
+  cra1: string;
+  cra2: string;
+}
+
 export interface GoodwillAssessmentData {
   tableRows: {
     id: string;

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -38,6 +38,13 @@ export default function PeerComparisonPage() {
     { id: 'oar-1', companyName: 'Sample Industries Ltd', agency: 'CRISIL', prDate: '2024-07-01', presentRating: 'AA+', presentRatingOutlook: 'Stable', lastRatingAction: 'Upgraded', category: 'Long Term' },
     { id: 'oar-2', companyName: 'Sample Industries Ltd', agency: 'ICRA', prDate: '2024-06-15', presentRating: 'AA', presentRatingOutlook: 'Stable', lastRatingAction: 'Affirmed', category: 'Long Term' },
     { id: 'oar-3', companyName: 'Tech Solutions Inc.', agency: 'CRISIL', prDate: '2024-05-20', presentRating: 'A1+', presentRatingOutlook: 'Positive', lastRatingAction: 'Assigned', category: 'Short Term' },
+  ]);
+
+  const [ratingSensitivities, setRatingSensitivities] = useState<RatingSensitivity[]>([
+    { id: 'rs-1', sensitivity: 'Improvement in operating margin', care: 'Positive', cra1: 'Positive', cra2: 'Stable' },
+    { id: 'rs-2', sensitivity: 'Decline in revenue growth', care: 'Negative', cra1: 'Negative', cra2: 'Negative' },
+    { id: 'rs-3', sensitivity: 'Successful project commissioning', care: 'Positive', cra1: 'Positive', cra2: 'Positive' },
+    { id: 'rs-4', sensitivity: 'Increase in debt levels', care: 'Negative', cra1: 'Stable', cra2: 'Negative' },
   ]);
 
 
@@ -178,7 +185,7 @@ export default function PeerComparisonPage() {
                 <CardTitle>Peer Comparison</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5']} className="w-full">
+                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger className="font-semibold">Pre-fetched Companies from Last Rating Note</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
@@ -428,6 +435,33 @@ export default function PeerComparisonPage() {
                                 <TableCell>{rating.presentRatingOutlook}</TableCell>
                                 <TableCell>{rating.lastRatingAction}</TableCell>
                                 <TableCell>{rating.category}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-6">
+                    <AccordionTrigger className="font-semibold">Rating sensitivities considered at the time of last rating</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                      <div className="border rounded-lg overflow-hidden">
+                        <Table>
+                           <TableHeader>
+                            <TableRow>
+                              <TableHead>Rating sensitivities considered at the time of last rating</TableHead>
+                              <TableHead>CARE</TableHead>
+                              <TableHead>CRA 1</TableHead>
+                              <TableHead>CRA 2</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {ratingSensitivities.map((item) => (
+                              <TableRow key={item.id}>
+                                <TableCell>{item.sensitivity}</TableCell>
+                                <TableCell>{item.care}</TableCell>
+                                <TableCell>{item.cra1}</TableCell>
+                                <TableCell>{item.cra2}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
