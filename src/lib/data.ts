@@ -25,6 +25,7 @@ import type {
   InterimResultsData,
   QuarterlyFinancialsData,
   LiquidityData,
+  AboutCompanyData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -82,6 +83,11 @@ const templates: Template[] = [
         title: 'Cover Page',
         hasTable: false,
         tooltipKey: 'cover.disclosureOfInterest'
+      },
+      {
+        id: 's_about_company',
+        title: 'About the company and industry',
+        hasTable: false
       },
       {
         id: 's_key_updates',
@@ -587,6 +593,25 @@ const liquidityData: LiquidityData = {
   comment: 'Liquidity position remains adequate backed by steady cash flows from operations.'
 };
 
+const aboutCompanyData: AboutCompanyData = {
+  tag1_1: 'Tag 1.1: Company incorporated in 1995, engaged in textile manufacturing...',
+  industryClassification: {
+    fetchedRows: [
+      { id: 'ir1', 'Macro-economic Indicator': 'GDP Growth', 'Sector': 'Manufacturing', 'Industry': 'Textiles', 'Basic Industry': 'Fabric', 'NSE mapping': 'NSE_TEXT' }
+    ],
+    manualRows: []
+  },
+  briefFinancials: {
+    fetchedRows: [
+      { id: 'bf1', 'Particulars': 'Total operating income', 'March 31, 2023 (A)': 1200, 'March 31, 2024 (A)': 1350 },
+      { id: 'bf2', 'Particulars': 'PBILDT', 'March 31, 2023 (A)': 200, 'March 31, 2024 (A)': 230 },
+      { id: 'bf3', 'Particulars': 'Overall gearing (times)', 'March 31, 2023 (A)': -0.5, 'March 31, 2024 (A)': 0.8, mappedAttributeId: '1089' }
+    ],
+    manualRows: [],
+    manualColumns: []
+  }
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -628,6 +653,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         qcSpecialists: qcSpecialistsData,
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
         summaryHygieneChecks: hygieneChecksData,
+      },
+      s_about_company: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        aboutCompany: aboutCompanyData,
       },
       s_key_updates: {
         applicable: 'Applicable',
@@ -940,26 +972,20 @@ export const getSummaryHygieneChecksData = async (noteId: string): Promise<Summa
     return null;
 }
 
-export const getAboutCompanyData = async (companyId: string, forceRefresh = false): Promise<RichTextContent> => {
+export const getAboutCompanyData = async (companyId: string, forceRefresh = false): Promise<AboutCompanyData | null> => {
   console.log(`Fetching about company data for company: ${companyId}`);
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  if(forceRefresh) {
-      // Simulate fetching slightly different data on refresh
-      return {
-        aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market. (Refreshed)",
-        aboutCompanyComments: "",
-        aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support. (Refreshed)",
-        aboutGroupComments: ""
-      };
+  if (companyId === '1') {
+    if(forceRefresh) {
+        return {
+          ...aboutCompanyData,
+          tag1_1: aboutCompanyData.tag1_1 + " (Refreshed).",
+        };
+    }
+    return aboutCompanyData;
   }
-
-  return {
-    aboutCompanyText: "Sample Industries Ltd. is a leading manufacturer in the chemicals industry, specializing in specialty chemicals and solvents. Established in 2005, the company has grown to become a key player in the domestic market.",
-    aboutCompanyComments: "Initial comments on company overview.",
-    aboutGroupText: "Sample Industries Ltd. is part of the larger 'Sample Group', which has interests in pharmaceuticals and logistics. The group provides strategic oversight and financial support.",
-    aboutGroupComments: ""
-  };
+  return null;
 }
 
 

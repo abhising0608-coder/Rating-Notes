@@ -282,6 +282,19 @@ export interface LiquidityData {
   comment: string;
 }
 
+export interface AboutCompanyData {
+  tag1_1: string;
+  industryClassification: {
+    fetchedRows: TableRowData[];
+    manualRows: TableRowData[];
+  };
+  briefFinancials: {
+    fetchedRows: TableRowData[];
+    manualRows: TableRowData[];
+    manualColumns: string[];
+  };
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -321,6 +334,7 @@ export interface SectionData {
   };
   liquidity?: LiquidityData;
   esgRisks?: string;
+  aboutCompany?: AboutCompanyData;
 }
 
 export interface RatingNote {

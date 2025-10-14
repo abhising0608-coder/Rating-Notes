@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData } from '@/types';
 import {
   Card,
   CardContent,
@@ -377,6 +377,69 @@ const RichTextField = ({
       </div>
     </div>
   );
+};
+
+const AboutCompanySection = ({ initialData, onUpdate, onRefresh, companyName, analyticalApproach }: { initialData: AboutCompanyData, onUpdate: (data: AboutCompanyData) => void, onRefresh: (approach: 'Standalone' | 'Consolidated' | 'Combined') => void, companyName: string, analyticalApproach: 'Standalone' | 'Consolidated' | 'Combined' }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (field: keyof AboutCompanyData, value: any) => {
+        const updatedData = { ...data, [field]: value };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const handleIndustryClassRowChange = (updatedRow: TableRowData) => {
+        const updatedManualRows = data.industryClassification.manualRows.map(row => row.id === updatedRow.id ? updatedRow : row);
+        handleUpdate('industryClassification', { ...data.industryClassification, manualRows: updatedManualRows });
+    };
+
+    const handleBriefFinancialsRowChange = (updatedRow: TableRowData) => {
+        const updatedManualRows = data.briefFinancials.manualRows.map(row => row.id === updatedRow.id ? updatedRow : row);
+        handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: updatedManualRows });
+    };
+    
+    return (
+        <div className="space-y-6">
+            <div>
+                <h3 className="font-semibold text-lg font-headline">Tag 1.1</h3>
+                <p className="text-sm text-muted-foreground p-3 bg-muted rounded-md">{data.tag1_1}</p>
+            </div>
+            
+            <Separator />
+
+            <div>
+                <h3 className="font-semibold text-lg font-headline mb-2">Industry Classification</h3>
+                <TableSection 
+                    initialRows={[...data.industryClassification.fetchedRows, ...data.industryClassification.manualRows]}
+                    headers={['Macro-economic Indicator', 'Sector', 'Industry', 'Basic Industry', 'NSE mapping']}
+                    onRefresh={async () => { onRefresh(analyticalApproach); return data.industryClassification.fetchedRows; }}
+                    onAddRow={(newRow) => handleUpdate('industryClassification', { ...data.industryClassification, manualRows: [...data.industryClassification.manualRows, newRow] })}
+                    onUpdateRow={handleIndustryClassRowChange}
+                    onRemoveRow={(rowId) => handleUpdate('industryClassification', { ...data.industryClassification, manualRows: data.industryClassification.manualRows.filter(r => r.id !== rowId) })}
+                    allowAddRow={true}
+                    sectionKey="about_company_industry"
+                    companyName={companyName}
+                />
+            </div>
+
+            <Separator />
+            
+             <div>
+                <h3 className="font-semibold text-lg font-headline mb-2">Brief Financials (₹ crore)</h3>
+                <TableSection 
+                    initialRows={[...data.briefFinancials.fetchedRows, ...data.briefFinancials.manualRows]}
+                    headers={['Particulars', 'March 31, 2023 (A)', 'March 31, 2024 (A)', ...data.briefFinancials.manualColumns]}
+                    onRefresh={async () => { onRefresh(analyticalApproach); return data.briefFinancials.fetchedRows; }}
+                    onAddRow={(newRow) => handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: [...data.briefFinancials.manualRows, newRow] })}
+                    onUpdateRow={handleBriefFinancialsRowChange}
+                    onRemoveRow={(rowId) => handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: data.briefFinancials.manualRows.filter(r => r.id !== rowId) })}
+                    allowAddRow={true}
+                    sectionKey="about_company_financials"
+                    companyName={companyName}
+                />
+            </div>
+        </div>
+    );
 };
 
 
@@ -1479,6 +1542,7 @@ export default function SectionWrapper({
     sectionData.careAndCrasText || "CARE and other CRAs (Click here for their history, sensitivities and key factors)"
   );
   const [summaryHygieneChecks, setSummaryHygieneChecks] = useState(sectionData.summaryHygieneChecks);
+  const [aboutCompany, setAboutCompany] = useState(sectionData.aboutCompany);
   const [keyUpdatesContent, setKeyUpdatesContent] = useState(sectionData.keyUpdatesContent);
   const [analyticalApproach, setAnalyticalApproach] = useState(sectionData.analyticalApproach);
   const [modelSummary, setModelSummary] = useState(sectionData.modelSummary);
@@ -1544,6 +1608,16 @@ export default function SectionWrapper({
                 }
             });
         }
+    }
+     if (section.id === 's_about_company') {
+      if(!aboutCompany) {
+        getAboutCompanyData(note.companyId).then(data => {
+          if (data) {
+            setAboutCompany(data);
+            onUpdateSection(section.id, { aboutCompany: data });
+          }
+        });
+      }
     }
     if (section.id === 's_key_updates') {
         if(!keyUpdatesContent) {
@@ -1653,7 +1727,7 @@ export default function SectionWrapper({
             });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, note.companyId, note.id, onUpdateSection]);
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1701,6 +1775,22 @@ export default function SectionWrapper({
   const handleHygieneChecksUpdate = (data: SummaryHygieneChecksData) => {
     setSummaryHygieneChecks(data);
     onUpdateSection(section.id, { summaryHygieneChecks: data });
+  }
+
+  const handleAboutCompanyUpdate = (data: AboutCompanyData) => {
+    setAboutCompany(data);
+    onUpdateSection(section.id, { aboutCompany: data });
+  }
+
+  const handleAboutCompanyRefresh = (approach: 'Standalone' | 'Consolidated' | 'Combined') => {
+    console.log(`Refreshing About Company data for approach: ${approach}`);
+    // Simulate re-fetching and updating data
+    getAboutCompanyData(note.companyId, true).then(data => {
+      if (data) {
+        setAboutCompany(data);
+        onUpdateSection(section.id, { aboutCompany: data });
+      }
+    });
   }
   
   const handleKeyUpdatesContentUpdate = (content: any) => {
@@ -1830,6 +1920,7 @@ export default function SectionWrapper({
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
 
   const isCoverPage = section.id === 's1';
+  const isAboutCompanySection = section.id === 's_about_company';
   const isKeyUpdatesSection = section.id === 's_key_updates';
   const isAnalyticalApproachSection = section.id === 's_analytical_approach';
   const isModelSummarySection = section.id === 's_model_summary';
@@ -1895,6 +1986,16 @@ export default function SectionWrapper({
             <Separator />
             <CareAndCrasSection text={careAndCrasText} onTextChange={handleCareAndCrasTextChange} />
           </div>
+        )}
+
+        {isAboutCompanySection && sectionVisible && aboutCompany && (
+            <AboutCompanySection
+                initialData={aboutCompany}
+                onUpdate={handleAboutCompanyUpdate}
+                onRefresh={handleAboutCompanyRefresh}
+                companyName={note.company.name}
+                analyticalApproach={note.financialApproach}
+            />
         )}
         
         {isKeyUpdatesSection && sectionVisible && keyUpdatesContent && (
@@ -2066,6 +2167,7 @@ export default function SectionWrapper({
         )}
         
         { !isCoverPage && 
+          !isAboutCompanySection &&
           !isKeyUpdatesSection && 
           !isAnalyticalApproachSection &&
           !isAnalyticalApproachDisplaySection &&
