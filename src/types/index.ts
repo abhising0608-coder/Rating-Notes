@@ -276,6 +276,11 @@ export interface RatingSensitivitiesData {
     negativeFactors: TableRowData[];
 }
 
+export interface LiquidityData {
+  selection: 'Superior' | 'Strong' | 'Adequate' | 'Stretched' | 'Poor' | '';
+  comment: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -313,6 +318,7 @@ export interface SectionData {
     keyStrengths: string;
     keyWeaknesses: string;
   };
+  liquidity?: LiquidityData;
 }
 
 export interface RatingNote {

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1382,6 +1382,77 @@ const AnalyticalApproachDisplaySection = ({ analyticalApproach }: { analyticalAp
     );
 };
 
+const LiquiditySection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+}: {
+  initialData: LiquidityData;
+  onUpdate: (data: LiquidityData) => void;
+  onRefresh: () => Promise<LiquidityData | null>;
+}) => {
+  const [data, setData] = useState(initialData);
+  const [isRefreshing, startRefreshTransition] = useTransition();
+
+  const handleUpdate = (field: keyof LiquidityData, value: any) => {
+    const updatedData = { ...data, [field]: value };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+  
+  const handleRefresh = () => {
+    startRefreshTransition(async () => {
+      const refreshedData = await onRefresh();
+      if(refreshedData) {
+        handleUpdate('comment', refreshedData.comment);
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="w-1/3">
+          <Label>Liquidity Assessment</Label>
+          <Select
+            value={data.selection}
+            onValueChange={(v) => handleUpdate('selection', v as LiquidityData['selection'])}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Assessment" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Superior">Superior</SelectItem>
+              <SelectItem value="Strong">Strong</SelectItem>
+              <SelectItem value="Adequate">Adequate</SelectItem>
+              <SelectItem value="Stretched">Stretched</SelectItem>
+              <SelectItem value="Poor">Poor</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          {isRefreshing ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="mr-2 h-4 w-4" />
+          )}
+          Refresh Comment
+        </Button>
+      </div>
+
+      <div>
+        <Label>Comments from Rule-Based Output</Label>
+        <Textarea
+          value={data.comment}
+          onChange={(e) => handleUpdate('comment', e.target.value)}
+          rows={6}
+          placeholder="Liquidity comments..."
+        />
+      </div>
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1419,6 +1490,7 @@ export default function SectionWrapper({
   const [quarterlyFinancials, setQuarterlyFinancials] = useState(sectionData.quarterlyFinancials);
   const [ratingSensitivities, setRatingSensitivities] = useState(sectionData.ratingSensitivities);
   const [detailedDescriptionOfKeyRatingDrivers, setDetailedDescriptionOfKeyRatingDrivers] = useState(sectionData.detailedDescriptionOfKeyRatingDrivers);
+  const [liquidity, setLiquidity] = useState(sectionData.liquidity);
 
 
 
@@ -1570,7 +1642,17 @@ export default function SectionWrapper({
             onUpdateSection(section.id, { ratingSensitivities: initialData });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_liquidity') {
+        if (!liquidity) {
+            getLiquidityData(note.companyId).then(data => {
+                if (data) {
+                    setLiquidity(data);
+                    onUpdateSection(section.id, { liquidity: data });
+                }
+            });
+        }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1727,6 +1809,16 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { detailedDescriptionOfKeyRatingDrivers: updatedValue });
   };
 
+  const handleLiquidityUpdate = (data: LiquidityData) => {
+      setLiquidity(data);
+      onUpdateSection(section.id, { liquidity: data });
+  }
+  
+  const handleLiquidityRefresh = async (): Promise<LiquidityData | null> => {
+      const refreshedData = await getLiquidityData(note.companyId, true);
+      return refreshedData;
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1751,6 +1843,7 @@ export default function SectionWrapper({
   const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
   const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
+  const isLiquiditySection = section.id === 's_liquidity';
 
 
   return (
@@ -1922,6 +2015,14 @@ export default function SectionWrapper({
                 onUpdate={handleRatingSensitivitiesUpdate}
             />
         )}
+        
+        {isLiquiditySection && sectionVisible && liquidity && (
+            <LiquiditySection
+                initialData={liquidity}
+                onUpdate={handleLiquidityUpdate}
+                onRefresh={handleLiquidityRefresh}
+            />
+        )}
 
         { isDetailedDriversSection && sectionVisible && (
              <div className="space-y-4">
@@ -1967,6 +2068,7 @@ export default function SectionWrapper({
           !isRationaleDriversSection &&
           !isRatingSensitivitiesSection &&
           !isDetailedDriversSection &&
+          !isLiquiditySection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

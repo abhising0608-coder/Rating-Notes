@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getRatingNoteById } from '@/lib/data';
-import type { RatingNote, TableRowData } from '@/types';
+import { getRatingNoteById, getLiquidityData } from '@/lib/data';
+import type { RatingNote, TableRowData, LiquidityData } from '@/types';
 import { updateNoteSection, refreshTable } from '@/lib/actions';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,11 @@ export default async function NotePage({ params }: { params: { noteId: string } 
   const handleRefreshTable = async (tableId: string): Promise<TableRowData[]> => {
     'use server';
     return refreshTable(tableId, note.companyId);
+  }
+
+  const handleRefreshLiquidity = async (): Promise<LiquidityData | null> => {
+    'use server';
+    return getLiquidityData(note.companyId, true);
   }
 
   return (

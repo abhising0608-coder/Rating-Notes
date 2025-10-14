@@ -24,6 +24,7 @@ import type {
   FinancialsPastProjectedData,
   InterimResultsData,
   QuarterlyFinancialsData,
+  LiquidityData,
 } from '@/types';
 
 const companies: Company[] = [
@@ -184,6 +185,11 @@ const templates: Template[] = [
       {
         id: 's_detailed_drivers',
         title: 'Detailed description of the key rating drivers',
+        hasTable: false,
+      },
+      {
+        id: 's_liquidity',
+        title: 'Liquidity',
         hasTable: false,
       }
     ],
@@ -571,6 +577,11 @@ const quarterlyFinancialsData: QuarterlyFinancialsData = {
     comments: "Quarterly financials for the Banking sector."
 };
 
+const liquidityData: LiquidityData = {
+  selection: 'Adequate',
+  comment: 'Liquidity position remains adequate backed by steady cash flows from operations.'
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -747,6 +758,16 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         detailedDescriptionOfKeyRatingDrivers: {
             keyStrengths: 'Initial key strengths...',
             keyWeaknesses: 'Initial key weaknesses...'
+        }
+      },
+      s_liquidity: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        liquidity: {
+          selection: 'Adequate',
+          comment: 'Initial comment from mock data.'
         }
       }
     },
@@ -1015,6 +1036,21 @@ export const getQuarterlyFinancialsData = async(noteId: string): Promise<Quarter
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') { // Assuming it's for a banking sector note
         return quarterlyFinancialsData;
+    }
+    return null;
+}
+
+export const getLiquidityData = async(companyId: string, forceRefresh = false): Promise<LiquidityData | null> => {
+    console.log(`Fetching liquidity data for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (companyId === '1') {
+        if(forceRefresh) {
+            return {
+                ...liquidityData,
+                comment: liquidityData.comment + ' (Refreshed at ' + new Date().toLocaleTimeString() + ')'
+            };
+        }
+        return liquidityData;
     }
     return null;
 }
