@@ -26,11 +26,20 @@ export default function PeerComparisonPage() {
   const [prefetchedPeers, setPrefetchedPeers] = useState<PeerCompany[]>([]);
   const [selectedPrefetched, setSelectedPrefetched] = useState<string[]>([]);
   const [prefetchEnabled, setPrefetchEnabled] = useState('yes');
+  
+  // Mock data for query results, assuming these come from running the query
+  const [queryResultPeers, setQueryResultPeers] = useState<PeerCompany[]>([]);
+  const [selectedQueryResults, setSelectedQueryResults] = useState<string[]>([]);
+
 
   useEffect(() => {
     getCompanies().then(setAllCompanies);
     // Assuming noteId '1' for fetching peers. In a real app, this would be dynamic.
-    getPrefetchedPeers('1').then(setPrefetchedPeers);
+    getPrefetchedPeers('1').then(peers => {
+      setPrefetchedPeers(peers);
+      // Also using prefetched peers as mock query results for now
+      setQueryResultPeers(peers);
+    });
   }, []);
 
   const searchResults = useMemo(() => {
@@ -87,6 +96,42 @@ export default function PeerComparisonPage() {
     
     // Clear selection after adding
     setSelectedPrefetched([]);
+  };
+
+  const handleToggleQueryResult = (companyId: string) => {
+    setSelectedQueryResults(prev => 
+      prev.includes(companyId) 
+        ? prev.filter(id => id !== companyId)
+        : [...prev, companyId]
+    );
+  };
+  
+  const handleToggleAllQueryResults = (checked: boolean) => {
+    if (checked) {
+      setSelectedQueryResults(queryResultPeers.map(p => p.id));
+    } else {
+      setSelectedQueryResults([]);
+    }
+  };
+
+  const addSelectedQueryResultsToComparison = () => {
+    const peersToAdd = queryResultPeers.filter(peer => selectedQueryResults.includes(peer.id));
+    
+    const companiesToAdd: Company[] = peersToAdd.map(peer => ({
+      id: peer.id,
+      name: peer.companyName,
+      nseIndustry: peer.industry,
+      subIndustry: peer.industryType,
+      registeredOffice: ''
+    }));
+
+    setSelectedCompanies(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const newCompanies = companiesToAdd.filter(c => !existingIds.has(c.id));
+        return [...prev, ...newCompanies];
+    });
+    
+    setSelectedQueryResults([]);
   };
 
   return (
@@ -229,6 +274,45 @@ export default function PeerComparisonPage() {
                                 <Button>Run Query</Button>
                                 <Button variant="outline">Reset</Button>
                             </div>
+                            
+                             <div className="mt-6 space-y-4">
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className="w-[50px]">
+                                          <Checkbox
+                                            checked={selectedQueryResults.length > 0 && selectedQueryResults.length === queryResultPeers.length}
+                                            onCheckedChange={handleToggleAllQueryResults}
+                                            aria-label="Select all query results"
+                                          />
+                                        </TableHead>
+                                        <TableHead>Company Name</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {queryResultPeers.map(peer => (
+                                        <TableRow key={peer.id}>
+                                          <TableCell>
+                                            <Checkbox
+                                              checked={selectedQueryResults.includes(peer.id)}
+                                              onCheckedChange={() => handleToggleQueryResult(peer.id)}
+                                              aria-label={`Select ${peer.companyName}`}
+                                            />
+                                          </TableCell>
+                                          <TableCell>{peer.companyName}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                                <div className="flex justify-end">
+                                  <Button onClick={addSelectedQueryResultsToComparison} disabled={selectedQueryResults.length === 0}>
+                                    Add for Comparison
+                                  </Button>
+                                </div>
+                              </div>
+
                            </div>
                         </AccordionContent>
                     </AccordionItem>
