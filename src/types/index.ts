@@ -376,6 +376,20 @@ export interface RatioAnalysisData {
   tableRows: TableRowData[];
 }
 
+export interface RCMMinute {
+  id: string;
+  rcmDate: string;
+  ratingCommitteeReference: string;
+  keyDiscussionPoints: string;
+  preparedBy: string;
+  fullContent: string;
+}
+
+export interface PreviousRCMMinutesData {
+  availableMinutes: RCMMinute[];
+  selectedMinuteIds: string[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -427,6 +441,7 @@ export interface SectionData {
   profitAndLoss?: ProfitAndLossData;
   cashFlow?: CashFlowData;
   ratioAnalysis?: RatioAnalysisData;
+  previousRCMMinutes?: PreviousRCMMinutesData;
 }
 
 export interface RatingNote {

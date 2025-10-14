@@ -37,6 +37,8 @@ import type {
   ProfitAndLossData,
   CashFlowData,
   RatioAnalysisData,
+  PreviousRCMMinutesData,
+  RCMMinute,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -173,6 +175,12 @@ const templates: Template[] = [
         id: 's_ratio_analysis',
         title: '7.7 Ratio Analysis',
         hasTable: false,
+      },
+      {
+        id: 's_rcm_minutes',
+        title: 'Previous RCM Minutes',
+        hasTable: false,
+        tooltipKey: 'rcm.minutes'
       },
       {
         id: 's_cash_flow_assumptions',
@@ -466,6 +474,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'instrument.details',
     text: 'If more than one tranche of instrument exists, give them in separate columns like series I, Series II etc.'
+  },
+  {
+    key: 'rcm.minutes',
+    text: 'A review for enhancement or reclassification for facilities etc. normally would not have had a detailed discussion and hence the earlier RCs minutes would have to be selected.'
   }
 ];
 
@@ -791,6 +803,12 @@ const ratioAnalysisData: RatioAnalysisData = {
   ]
 };
 
+const previousRCMMinutesData: RCMMinute[] = [
+  { id: 'rcm-1', rcmDate: '2024-06-15', ratingCommitteeReference: 'RCM/2024/Q2/001', keyDiscussionPoints: 'Discussed revenue growth and margin pressure.', preparedBy: 'Analyst A', fullContent: 'Full text content of the RCM minute from June 15, 2024...' },
+  { id: 'rcm-2', rcmDate: '2024-03-20', ratingCommitteeReference: 'RCM/2024/Q1/015', keyDiscussionPoints: 'Reviewed capital expenditure plans.', preparedBy: 'Analyst B', fullContent: 'Full text content of the RCM minute from March 20, 2024...' },
+  { id: 'rcm-3', rcmDate: '2023-12-10', ratingCommitteeReference: 'RCM/2023/Q4/089', keyDiscussionPoints: 'Annual performance review.', preparedBy: 'Analyst A', fullContent: 'Full text content of the RCM minute from December 10, 2023...' },
+];
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -933,6 +951,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         cashFlow: cashFlowData,
       },
       s_ratio_analysis: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_rcm_minutes: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1470,4 +1494,13 @@ export const getRatioAnalysisData = async(noteId: string): Promise<RatioAnalysis
         return ratioAnalysisData;
     }
     return null;
+}
+
+export const getPreviousRCMMinutes = async (companyId: string): Promise<RCMMinute[] | null> => {
+  console.log(`Fetching previous RCM minutes for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  if (companyId === '1') {
+      return previousRCMMinutesData;
+  }
+  return [];
 }

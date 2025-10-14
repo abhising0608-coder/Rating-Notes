@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -38,6 +38,7 @@ import { buttonVariants } from './ui/button';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
+import PreviousRCMMinutesSection from './PreviousRCMMinutesSection';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -2115,6 +2116,7 @@ export default function SectionWrapper({
   const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
+  const [previousRCMMinutes, setPreviousRCMMinutes] = useState(sectionData.previousRCMMinutes);
 
 
 
@@ -2234,7 +2236,7 @@ export default function SectionWrapper({
             // This might be fetched based on a guarantor selected elsewhere.
             // For now, initializing with empty array.
             getLinkedRatingsData('').then(data => {
-              setLinkedRatings(data);
+              setLinkedRatings(data as any);
               onUpdateSection(section.id, { linkedRatings: data as any });
             })
         }
@@ -2324,6 +2326,18 @@ export default function SectionWrapper({
                     setRatioAnalysis(data);
                     onUpdateSection(section.id, { ratioAnalysis: data });
                 }
+            });
+        }
+    }
+    if (section.id === 's_rcm_minutes') {
+        if (!previousRCMMinutes) {
+            getPreviousRCMMinutes(note.companyId).then(minutes => {
+                const data = {
+                    availableMinutes: minutes || [],
+                    selectedMinuteIds: [],
+                };
+                setPreviousRCMMinutes(data);
+                onUpdateSection(section.id, { previousRCMMinutes: data });
             });
         }
     }
@@ -2597,6 +2611,11 @@ export default function SectionWrapper({
     return updatedRows;
   }
 
+  const handlePreviousRCMMinutesUpdate = (data: PreviousRCMMinutesData) => {
+    setPreviousRCMMinutes(data);
+    onUpdateSection(section.id, { previousRCMMinutes: data });
+  }
+
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
@@ -2715,6 +2734,7 @@ export default function SectionWrapper({
   const isProfitAndLossSection = section.id === 's_profit_loss';
   const isCashFlowStatementSection = section.id === 's_cash_flow_statement';
   const isRatioAnalysisSection = section.id === 's_ratio_analysis';
+  const isPreviousRCMMinutesSection = section.id === 's_rcm_minutes';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2909,6 +2929,13 @@ export default function SectionWrapper({
             companyName={note.company.name}
           />
         )}
+        
+        {isPreviousRCMMinutesSection && sectionVisible && previousRCMMinutes && (
+          <PreviousRCMMinutesSection
+            initialData={previousRCMMinutes}
+            onUpdate={handlePreviousRCMMinutesUpdate}
+          />
+        )}
 
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
@@ -3072,6 +3099,7 @@ export default function SectionWrapper({
           !isProfitAndLossSection &&
           !isCashFlowStatementSection &&
           !isRatioAnalysisSection &&
+          !isPreviousRCMMinutesSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
