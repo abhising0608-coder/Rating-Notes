@@ -237,6 +237,13 @@ const templates: Template[] = [
         id: 's_goodwill_assessment',
         title: 'Assessment of Goodwill Impairment (if any)',
         hasTable: false,
+      },
+      {
+        id: 's_instrument_details',
+        title: 'Details of Instruments',
+        hasTable: true,
+        allowAddRow: true,
+        tooltipKey: 'instrument.details',
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -430,6 +437,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'kmp.composition',
     text: 'Comment on changes in senior management and KMP over the years.'
+  },
+  {
+    key: 'instrument.details',
+    text: 'If more than one tranche of instrument exists, give them in separate columns like series I, Series II etc.'
   }
 ];
 
@@ -939,6 +950,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
       },
       s_goodwill_assessment: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_instrument_details: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',

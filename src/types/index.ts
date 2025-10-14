@@ -400,6 +400,7 @@ export interface SectionData {
   anyOtherInformation?: AnyOtherInformationData;
   consolidatedEntities?: ConsolidatedEntity[];
   goodwillAssessment?: GoodwillAssessmentData;
+  instrumentDetails?: TableRowData[];
 }
 
 export interface RatingNote {

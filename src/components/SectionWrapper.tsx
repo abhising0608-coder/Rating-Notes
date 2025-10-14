@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, BoardMemberData, GoodwillAssessmentData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData } from '@/types';
 import {
   Card,
   CardContent,
@@ -2127,7 +2127,8 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, boardComposition, goodwillAssessment, note.companyId, note.id, onUpdateSection]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section.id, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -2398,6 +2399,7 @@ export default function SectionWrapper({
   const isAnyOtherInformationSection = section.id === 's_any_other_info';
   const isConsolidatedEntitiesSection = section.id === 's_consolidated_entities';
   const isGoodwillAssessmentSection = section.id === 's_goodwill_assessment';
+  const isInstrumentDetailsSection = section.id === 's_instrument_details';
 
 
   return (
@@ -2659,6 +2661,21 @@ export default function SectionWrapper({
                 onUpdate={handleGoodwillAssessmentUpdate}
             />
         )}
+
+        { isInstrumentDetailsSection && sectionVisible && (
+            <TableSection
+                initialRows={tableRows}
+                headers={['Instrument', 'Amount', 'Rating']}
+                allowAddRow={true}
+                instructions={section.instructions}
+                sectionKey={section.key}
+                companyName={note.company.name}
+                onRefresh={async () => []} // No refresh for manual table
+                onAddRow={handleRowAdd}
+                onUpdateRow={handleRowUpdate}
+                onRemoveRow={handleRowRemove}
+            />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -2687,6 +2704,7 @@ export default function SectionWrapper({
           !isAnyOtherInformationSection &&
           !isConsolidatedEntitiesSection &&
           !isGoodwillAssessmentSection &&
+          !isInstrumentDetailsSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
