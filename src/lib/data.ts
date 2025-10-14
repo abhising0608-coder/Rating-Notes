@@ -39,6 +39,7 @@ import type {
   RatioAnalysisData,
   PreviousRCMMinutesData,
   RCMMinute,
+  AddressedQCObservationData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -181,6 +182,12 @@ const templates: Template[] = [
         title: 'Previous RCM Minutes',
         hasTable: false,
         tooltipKey: 'rcm.minutes'
+      },
+      {
+        id: 's_qc_observations',
+        title: 'Addressed QC Observations',
+        hasTable: true,
+        allowAddRow: true,
       },
       {
         id: 's_cash_flow_assumptions',
@@ -809,6 +816,10 @@ const previousRCMMinutesData: RCMMinute[] = [
   { id: 'rcm-3', rcmDate: '2023-12-10', ratingCommitteeReference: 'RCM/2023/Q4/089', keyDiscussionPoints: 'Annual performance review.', preparedBy: 'Analyst A', fullContent: 'Full text content of the RCM minute from December 10, 2023...' },
 ];
 
+const addressedQCObservationsData: AddressedQCObservationData[] = [
+    { id: 'qc-obs-1', 'Sr. No.': '1', 'QC Observation': '', 'Comments of Rating Team': '' }
+];
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -958,6 +969,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
       },
       s_rcm_minutes: {
         applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_qc_observations: {
+        applicable: 'Not Applicable',
         tableRows: [],
         comments: '',
         attachments: [],
@@ -1501,6 +1518,15 @@ export const getPreviousRCMMinutes = async (companyId: string): Promise<RCMMinut
   await new Promise(resolve => setTimeout(resolve, 300));
   if (companyId === '1') {
       return previousRCMMinutesData;
+  }
+  return [];
+}
+
+export const getAddressedQCObservations = async (noteId: string): Promise<AddressedQCObservationData[] | null> => {
+  console.log(`Fetching addressed QC observations for note: ${noteId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  if (noteId === '1') {
+    return addressedQCObservationsData;
   }
   return [];
 }

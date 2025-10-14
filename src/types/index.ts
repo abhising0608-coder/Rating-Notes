@@ -390,6 +390,14 @@ export interface PreviousRCMMinutesData {
   selectedMinuteIds: string[];
 }
 
+export interface AddressedQCObservationData {
+  id: string;
+  'Sr. No.': string;
+  'QC Observation': string;
+  'Comments of Rating Team': string;
+  isManual?: boolean;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -442,6 +450,7 @@ export interface SectionData {
   cashFlow?: CashFlowData;
   ratioAnalysis?: RatioAnalysisData;
   previousRCMMinutes?: PreviousRCMMinutesData;
+  addressedQCObservations?: AddressedQCObservationData[];
 }
 
 export interface RatingNote {

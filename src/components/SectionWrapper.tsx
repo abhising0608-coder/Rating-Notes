@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -2117,6 +2117,7 @@ export default function SectionWrapper({
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
   const [previousRCMMinutes, setPreviousRCMMinutes] = useState(sectionData.previousRCMMinutes);
+  const [addressedQCObservations, setAddressedQCObservations] = useState(sectionData.addressedQCObservations);
 
 
 
@@ -2338,6 +2339,16 @@ export default function SectionWrapper({
                 };
                 setPreviousRCMMinutes(data);
                 onUpdateSection(section.id, { previousRCMMinutes: data });
+            });
+        }
+    }
+    if (section.id === 's_qc_observations') {
+        if (!addressedQCObservations) {
+            getAddressedQCObservations(note.id).then(data => {
+                if (data) {
+                    setAddressedQCObservations(data);
+                    onUpdateSection(section.id, { addressedQCObservations: data });
+                }
             });
         }
     }
@@ -2616,6 +2627,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { previousRCMMinutes: data });
   }
 
+  const handleAddressedQCObservationsUpdate = (data: AddressedQCObservationData[]) => {
+    setAddressedQCObservations(data);
+    onUpdateSection(section.id, { addressedQCObservations: data });
+  };
+
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
@@ -2735,6 +2751,7 @@ export default function SectionWrapper({
   const isCashFlowStatementSection = section.id === 's_cash_flow_statement';
   const isRatioAnalysisSection = section.id === 's_ratio_analysis';
   const isPreviousRCMMinutesSection = section.id === 's_rcm_minutes';
+  const isAddressedQCObservationsSection = section.id === 's_qc_observations';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2937,6 +2954,20 @@ export default function SectionWrapper({
           />
         )}
 
+        {isAddressedQCObservationsSection && sectionVisible && addressedQCObservations && (
+            <TableSection
+                initialRows={addressedQCObservations}
+                headers={['Sr. No.', 'QC Observation', 'Comments of Rating Team']}
+                allowAddRow={true}
+                onRefresh={async () => addressedQCObservations}
+                onAddRow={(row) => handleAddressedQCObservationsUpdate([...addressedQCObservations, row as AddressedQCObservationData])}
+                onUpdateRow={(updatedRow) => handleAddressedQCObservationsUpdate(addressedQCObservations.map(r => r.id === updatedRow.id ? updatedRow as AddressedQCObservationData : r))}
+                onRemoveRow={(rowId) => handleAddressedQCObservationsUpdate(addressedQCObservations.filter(r => r.id !== rowId))}
+                sectionKey="qc_observations"
+                companyName={note.company.name}
+            />
+        )}
+
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
@@ -3100,6 +3131,7 @@ export default function SectionWrapper({
           !isCashFlowStatementSection &&
           !isRatioAnalysisSection &&
           !isPreviousRCMMinutesSection &&
+          !isAddressedQCObservationsSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
