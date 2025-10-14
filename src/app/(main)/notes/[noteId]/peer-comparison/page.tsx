@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import NoteNavigation from '@/components/NoteNavigation';
@@ -14,17 +12,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import { MultiSelect, MultiSelectOption } from '@/components/ui/multi-select';
 
 
 export default function PeerComparisonPage() {
@@ -44,12 +38,15 @@ export default function PeerComparisonPage() {
   useEffect(() => {
     getCompanies().then(companies => {
         setAllCompanies(companies);
-        // Add some initial companies to the selected list for demonstration
-        setSelectedCompanies(companies.slice(0, 2));
+        // Add the company being rated to the list by default
+        if (companies.length > 0) {
+            setSelectedCompanies([companies[0]]); 
+        }
     });
     getPrefetchedPeers('1').then(peers => {
       setPrefetchedPeers(peers);
-      const mockQueryResults = peers.filter(p => ['Torrent Pharma', 'Sun Pharma', 'Divis Labs', 'Cipla'].includes(p.companyName));
+      // Use a slice of prefetched as mock query results
+      const mockQueryResults = peers.slice(0, 4);
       setQueryResultPeers(mockQueryResults);
     });
   }, []);
@@ -160,6 +157,12 @@ export default function PeerComparisonPage() {
     setSelectedQueryResults([]);
   };
 
+  const getCompanyRating = (company: Company): string => {
+      if (company.id.startsWith('manual-')) return 'N/A';
+      const peer = prefetchedPeers.find(p => p.id === company.id) || queryResultPeers.find(p => p.id === company.id);
+      return peer?.rating || 'A+'; // Default mock rating
+  }
+
   return (
     <div className="flex-1 flex flex-col">
        <NoteNavigation />
@@ -204,7 +207,7 @@ export default function PeerComparisonPage() {
                             </Table>
                           </div>
                           <div className="flex justify-end">
-                            <Button onClick={addSelectedPeersToComparison}>Add Selected for Comparison</Button>
+                            <Button onClick={addSelectedPeersToComparison} disabled={selectedPrefetched.length === 0}>Add Selected for Comparison</Button>
                           </div>
                         </>
                       )}
@@ -303,7 +306,7 @@ export default function PeerComparisonPage() {
                                       </TableRow>
                                   </TableHeader>
                                   <TableBody>
-                                      {queryResultPeers.slice(0,4).map(peer => (
+                                      {queryResultPeers.map(peer => (
                                            <TableRow key={peer.id}>
                                               <TableCell><Checkbox checked={selectedQueryResults.includes(peer.id)} onCheckedChange={() => handleToggleQueryResult(peer.id)}/></TableCell>
                                               <TableCell>{peer.companyName}</TableCell>
@@ -318,7 +321,7 @@ export default function PeerComparisonPage() {
                               </Table>
                           </div>
                           <div className="flex justify-end">
-                              <Button onClick={addSelectedQueryResultsToComparison}>Add Selected for Comparison</Button>
+                              <Button onClick={addSelectedQueryResultsToComparison} disabled={selectedQueryResults.length === 0}>Add Selected for Comparison</Button>
                           </div>
                       </div>
                     </AccordionContent>
@@ -331,7 +334,7 @@ export default function PeerComparisonPage() {
                           <Label>Select Company</Label>
                           <MultiSelect options={manualSearchOptions} selected={manualSelection} onChange={setManualSelection} placeholder="Search and select companies..." />
                         </div>
-                        <Button onClick={addManualSelectionToComparison}>Add for Comparison</Button>
+                        <Button onClick={addManualSelectionToComparison} disabled={manualSelection.length === 0}>Add for Comparison</Button>
                       </div>
                        <div className="flex items-end gap-4">
                         <div className="flex-grow">
@@ -349,7 +352,7 @@ export default function PeerComparisonPage() {
                    <AccordionItem value="item-4">
                     <AccordionTrigger className="font-semibold">List of Selected Companies for Peer Comparison</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
-                       <h4 className="font-semibold">Select Companies for Peer Comparison</h4>
+                       <h4 className="font-semibold">Selected Companies for Peer Comparison</h4>
                        <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
@@ -377,26 +380,12 @@ export default function PeerComparisonPage() {
                                 </TableCell>
                                 <TableCell>{company.subIndustry}</TableCell>
                                 <TableCell>{company.nseIndustry}</TableCell>
-                                <TableCell>{/* Mock rating */ company.id.startsWith('manual-') ? 'N/A' : 'A+'}</TableCell>
+                                <TableCell>{getCompanyRating(company)}</TableCell>
                                 <TableCell className="flex items-center gap-1">
                                   <Button variant="ghost" size="icon"><RefreshCw className="h-4 w-4" /></Button>
                                   <Button variant="ghost" size="icon" onClick={() => removeCompany(company.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                 </TableCell>
                               </TableRow>
-                            ))}
-                             {queryResultPeers.slice(0,3).map(peer => (
-                                <TableRow key={peer.id}>
-                                    <TableCell><Checkbox /></TableCell>
-                                    <TableCell>{peer.companyName}</TableCell>
-                                    <TableCell><Select><SelectTrigger className="w-[100px]"><SelectValue placeholder="Select" /></SelectTrigger></Select></TableCell>
-                                    <TableCell><Select><SelectTrigger className="w-[150px]"><SelectValue placeholder="Select" /></SelectTrigger></Select></TableCell>
-                                    <TableCell>{peer.industryType}</TableCell>
-                                    <TableCell>{peer.industry}</TableCell>
-                                    <TableCell>{peer.rating}</TableCell>
-                                    <TableCell className="flex items-center gap-1">
-                                      <Button variant="ghost" size="icon"><RefreshCw className="h-4 w-4" /></Button>
-                                    </TableCell>
-                                </TableRow>
                             ))}
                           </TableBody>
                         </Table>
@@ -418,3 +407,5 @@ export default function PeerComparisonPage() {
     </div>
   );
 }
+
+    
