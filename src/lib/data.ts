@@ -29,6 +29,7 @@ import type {
   StatusOfNonCooperationData,
   AnyOtherInformationData,
   ConsolidatedEntity,
+  PeerCompany,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -662,6 +663,13 @@ const consolidatedEntitiesData: ConsolidatedEntity[] = [
     { id: 'ce-3', srNo: 3, companyName: 'Joint Venture X', extentOfConsolidation: '', rationale: '' },
 ];
 
+const prefetchedPeersData: PeerCompany[] = [
+    { id: 'comp-4', companyName: 'Torrent Pharma', industryType: 'ABC', industry: 'XYZ', rating: 'AA+' },
+    { id: 'comp-5', companyName: 'Sun Pharma', industryType: 'DEF', industry: 'GHI', rating: 'A' },
+    { id: 'comp-6', companyName: 'Divis Labs', industryType: 'JKL', industry: 'MNO', rating: 'B' },
+    { id: 'comp-7', companyName: 'Cipla', industryType: 'PQR', industry: 'STU', rating: 'BB+' }
+];
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -1222,3 +1230,13 @@ export const getConsolidatedEntities = async (companyId: string, forceRefresh = 
 
   return null;
 };
+
+export const getPrefetchedPeers = async (noteId: string): Promise<PeerCompany[]> => {
+    console.log(`Fetching pre-fetched peers for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // In a real app, this would use the noteId to find the previous year's note.
+    if (noteId === '1') {
+        return prefetchedPeersData;
+    }
+    return [];
+}

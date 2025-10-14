@@ -322,6 +322,14 @@ export interface ConsolidatedEntity {
   rationale: string;
 }
 
+export interface PeerCompany {
+  id: string;
+  companyName: string;
+  industryType: string;
+  industry: string;
+  rating: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';

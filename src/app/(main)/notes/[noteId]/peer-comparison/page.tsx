@@ -10,17 +10,23 @@ import NoteNavigation from '@/components/NoteNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { getCompanies } from '@/lib/data';
-import type { Company } from '@/types';
+import { getCompanies, getPrefetchedPeers } from '@/lib/data';
+import type { Company, PeerCompany } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function PeerComparisonPage() {
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
+  const [prefetchedPeers, setPrefetchedPeers] = useState<PeerCompany[]>([]);
+  const [selectedPrefetched, setSelectedPrefetched] = useState<string[]>([]);
 
   useEffect(() => {
     getCompanies().then(setAllCompanies);
+    // Assuming noteId '1' for fetching peers. In a real app, this would be dynamic.
+    getPrefetchedPeers('1').then(setPrefetchedPeers);
   }, []);
 
   const searchResults = useMemo(() => {
@@ -40,17 +46,84 @@ export default function PeerComparisonPage() {
     setSelectedCompanies(prev => prev.filter(c => c.id !== companyId));
   };
   
+  const handleTogglePrefetched = (companyId: string) => {
+    setSelectedPrefetched(prev => 
+      prev.includes(companyId) 
+        ? prev.filter(id => id !== companyId)
+        : [...prev, companyId]
+    );
+  };
+  
+  const addSelectedPeersToComparison = () => {
+    const peersToAdd = prefetchedPeers.filter(peer => selectedPrefetched.includes(peer.id));
+    
+    // In a real app, you might need to fetch full Company objects
+    // For this mock, we'll create Company-like objects from the PeerCompany data.
+    const companiesToAdd: Company[] = peersToAdd.map(peer => ({
+      id: peer.id,
+      name: peer.companyName,
+      nseIndustry: peer.industry,
+      subIndustry: peer.industryType,
+      registeredOffice: ''
+    }));
+
+    setSelectedCompanies(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const newCompanies = companiesToAdd.filter(c => !existingIds.has(c.id));
+        return [...prev, ...newCompanies];
+    });
+    
+    // Clear selection after adding
+    setSelectedPrefetched([]);
+  };
+
   return (
     <div className="flex-1 flex flex-col">
        <NoteNavigation />
        <main className="flex-1 p-8 bg-background">
          <Card>
             <CardContent className="p-6">
-                <Accordion type="single" collapsible className="w-full" defaultValue="item-3">
+                <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Pre-fetched Companies from Last Rating Note</AccordionTrigger>
                         <AccordionContent>
-                        Placeholder for pre-fetched companies.
+                           <div className="space-y-4">
+                               <div className="border rounded-lg overflow-hidden">
+                                   <Table>
+                                       <TableHeader>
+                                           <TableRow>
+                                                <TableHead className="w-[50px]">Select</TableHead>
+                                                <TableHead>Company name</TableHead>
+                                                <TableHead>Industry Type</TableHead>
+                                                <TableHead>Industry</TableHead>
+                                                <TableHead>Rating (if available)</TableHead>
+                                           </TableRow>
+                                       </TableHeader>
+                                       <TableBody>
+                                           {prefetchedPeers.map(peer => (
+                                               <TableRow key={peer.id}>
+                                                   <TableCell>
+                                                       <Checkbox
+                                                            checked={selectedPrefetched.includes(peer.id)}
+                                                            onCheckedChange={() => handleTogglePrefetched(peer.id)}
+                                                            aria-label={`Select ${peer.companyName}`}
+                                                       />
+                                                   </TableCell>
+                                                   <TableCell>{peer.companyName}</TableCell>
+                                                   <TableCell>{peer.industryType}</TableCell>
+                                                   <TableCell>{peer.industry}</TableCell>
+                                                   <TableCell>{peer.rating}</TableCell>
+                                               </TableRow>
+                                           ))}
+                                       </TableBody>
+                                   </Table>
+                               </div>
+                               <div className="flex justify-end">
+                                   <Button onClick={addSelectedPeersToComparison} disabled={selectedPrefetched.length === 0}>
+                                       Add Selected to Comparison
+                                   </Button>
+                               </div>
+                           </div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="item-2">
