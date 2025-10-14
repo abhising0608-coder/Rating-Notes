@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import {
@@ -18,42 +19,41 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 export default function PeerComparisonPage() {
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
   const [prefetchedPeers, setPrefetchedPeers] = useState<PeerCompany[]>([]);
   const [selectedPrefetched, setSelectedPrefetched] = useState<string[]>([]);
   const [prefetchEnabled, setPrefetchEnabled] = useState('yes');
   
-  // Mock data for query results, assuming these come from running the query
   const [queryResultPeers, setQueryResultPeers] = useState<PeerCompany[]>([]);
   const [selectedQueryResults, setSelectedQueryResults] = useState<string[]>([]);
+  const [manualSelection, setManualSelection] = useState<string[]>([]);
 
 
   useEffect(() => {
     getCompanies().then(setAllCompanies);
-    // Assuming noteId '1' for fetching peers. In a real app, this would be dynamic.
     getPrefetchedPeers('1').then(peers => {
       setPrefetchedPeers(peers);
-      // Also using prefetched peers as mock query results for now
       const mockQueryResults = peers.filter(p => ['Torrent Pharma', 'Sun Pharma', 'Divis Labs', 'Cipla'].includes(p.companyName));
       setQueryResultPeers(mockQueryResults);
     });
   }, []);
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery) return [];
-    return allCompanies.filter(company =>
-      company.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !selectedCompanies.some(sc => sc.id === company.id)
-    );
-  }, [searchQuery, allCompanies, selectedCompanies]);
+  const manualSearchOptions = useMemo(() => {
+    return allCompanies.map(c => ({ value: c.id, label: c.name }));
+  }, [allCompanies]);
 
-  const addCompany = (company: Company) => {
-    setSelectedCompanies(prev => [...prev, company]);
-    setSearchQuery('');
+  const addManualSelectionToComparison = () => {
+    const companiesToAdd = allCompanies.filter(c => manualSelection.includes(c.id));
+     setSelectedCompanies(prev => {
+        const existingIds = new Set(prev.map(c => c.id));
+        const newCompanies = companiesToAdd.filter(c => !existingIds.has(c.id));
+        return [...prev, ...newCompanies];
+    });
+    setManualSelection([]);
   };
 
   const removeCompany = (companyId: string) => {
@@ -79,8 +79,6 @@ export default function PeerComparisonPage() {
   const addSelectedPeersToComparison = () => {
     const peersToAdd = prefetchedPeers.filter(peer => selectedPrefetched.includes(peer.id));
     
-    // In a real app, you might need to fetch full Company objects
-    // For this mock, we'll create Company-like objects from the PeerCompany data.
     const companiesToAdd: Company[] = peersToAdd.map(peer => ({
       id: peer.id,
       name: peer.companyName,
@@ -95,7 +93,6 @@ export default function PeerComparisonPage() {
         return [...prev, ...newCompanies];
     });
     
-    // Clear selection after adding
     setSelectedPrefetched([]);
   };
 
@@ -329,17 +326,18 @@ export default function PeerComparisonPage() {
                         <AccordionTrigger>Manual Search of Companies</AccordionTrigger>
                         <AccordionContent>
                           <div className="flex items-center gap-4">
-                            <Select>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select Company" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {allCompanies.map(company => (
-                                    <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <Button>Add for Comparison</Button>
+                             <div className="w-full max-w-sm">
+                                <Label>Select Companies</Label>
+                                <MultiSelect
+                                    options={manualSearchOptions}
+                                    selected={manualSelection}
+                                    onChange={setManualSelection}
+                                    className="mt-1"
+                                />
+                             </div>
+                            <Button onClick={addManualSelectionToComparison} disabled={manualSelection.length === 0} className="self-end">
+                                Add for Comparison
+                            </Button>
                           </div>
                         </AccordionContent>
                     </AccordionItem>
@@ -373,5 +371,7 @@ export default function PeerComparisonPage() {
     </div>
   );
 }
+
+    
 
     
