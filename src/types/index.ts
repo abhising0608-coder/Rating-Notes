@@ -295,6 +295,14 @@ export interface AboutCompanyData {
   };
 }
 
+export interface StatusOfNonCooperationData {
+  status: 'Non-Cooperation' | 'Cooperating' | 'N/A';
+  records: {
+    craName: string;
+    lastRatingDate: string;
+  }[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -335,6 +343,7 @@ export interface SectionData {
   liquidity?: LiquidityData;
   esgRisks?: string;
   aboutCompany?: AboutCompanyData;
+  statusOfNonCooperation?: StatusOfNonCooperationData;
 }
 
 export interface RatingNote {

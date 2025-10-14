@@ -26,7 +26,9 @@ import type {
   QuarterlyFinancialsData,
   LiquidityData,
   AboutCompanyData,
+  StatusOfNonCooperationData,
 } from '@/types';
+import { format } from 'date-fns';
 
 const companies: Company[] = [
   {
@@ -202,6 +204,12 @@ const templates: Template[] = [
         id: 's_esg_risks',
         title: 'Environmental, Social and Governance (ESG) Risks',
         hasTable: false,
+      },
+      {
+        id: 's_non_cooperation_status',
+        title: 'Status of Non-Cooperation with Previous CRA',
+        hasTable: false,
+        tooltipKey: 'noncooperation.status',
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -379,6 +387,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'rationale.drivers',
     text: 'Reason for upgrade / downgrade / reaffirmation / credit watch / outlook to be mentioned here. Please note: In case RC decided rating is different, this should be suitably changed while putting in the PR.'
+  },
+  {
+    key: 'noncooperation.status',
+    text: 'If previous CRA has rated the company under non-cooperation, display respective press release reference as per CART data.'
   }
 ];
 
@@ -612,6 +624,14 @@ const aboutCompanyData: AboutCompanyData = {
   }
 };
 
+const statusOfNonCooperationData: StatusOfNonCooperationData = {
+  status: 'Non-Cooperation',
+  records: [
+    { craName: "ICRA Limited", lastRatingDate: "2025-03-10" },
+    { craName: "India Ratings", lastRatingDate: "2024-11-15" }
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -813,6 +833,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '<p>Initial ESG risks can be detailed here.</p>',
         attachments: [],
         esgRisks: 'Initial ESG risks...'
+      },
+      s_non_cooperation_status: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
       }
     },
   },
@@ -1092,3 +1118,27 @@ export const getLiquidityData = async(companyId: string, forceRefresh = false): 
     }
     return null;
 }
+
+export const getStatusOfNonCooperation = async (companyId: string, forceRefresh = false): Promise<StatusOfNonCooperationData | null> => {
+  console.log(`Fetching status of non-cooperation for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  if (companyId === '1') {
+    if (forceRefresh) {
+      // Simulate potential changes in data on refresh
+      const refreshedData = { ...statusOfNonCooperationData };
+      refreshedData.records[0].lastRatingDate = format(new Date(), 'yyyy-MM-dd');
+      return refreshedData;
+    }
+    return statusOfNonCooperationData;
+  }
+  
+  if (companyId === '2') { // Add a case for a cooperating company
+      return {
+          status: 'Cooperating',
+          records: []
+      };
+  }
+
+  return null;
+};

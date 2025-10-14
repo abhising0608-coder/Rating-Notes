@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -36,6 +36,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { cn } from '@/lib/utils';
 import { buttonVariants } from './ui/button';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { format } from 'date-fns';
 
 
 const DisclosureSection = ({ disclosure, tooltipKey, sector }: { disclosure: any, tooltipKey?: string, sector: string }) => (
@@ -1516,6 +1517,55 @@ const LiquiditySection = ({
   );
 };
 
+const StatusOfNonCooperationSection = ({ initialData, onRefresh }: { initialData?: StatusOfNonCooperationData, onRefresh: () => Promise<StatusOfNonCooperationData | null> }) => {
+  const [data, setData] = useState(initialData);
+  const [isRefreshing, startRefreshTransition] = useTransition();
+
+  useEffect(() => {
+    if (!initialData) {
+      handleRefresh();
+    }
+  }, [initialData]);
+
+  const handleRefresh = () => {
+    startRefreshTransition(async () => {
+      const refreshedData = await onRefresh();
+      setData(refreshedData ?? undefined);
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-end">
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          {isRefreshing ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="mr-2 h-4 w-4" />
+          )}
+          Refresh
+        </Button>
+      </div>
+
+      {!data ? (
+        <p className="text-muted-foreground">Loading...</p>
+      ) : data.status === 'Non-Cooperation' && data.records.length > 0 ? (
+        <div className="space-y-3">
+          {data.records.map((record, index) => (
+            <div key={index} className="p-3 bg-muted/50 border rounded-md text-sm">
+              <p>
+                <span className="font-semibold">{record.craName}</span> has reviewed the ratings on the basis of best available information under ‘Issuer Not-Cooperating’ category vide press release dated {format(new Date(record.lastRatingDate), 'MMMM dd, yyyy')}.
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="p-3 bg-muted/50 border rounded-md text-sm text-muted-foreground">Not Applicable</p>
+      )}
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1556,6 +1606,7 @@ export default function SectionWrapper({
   const [detailedDescriptionOfKeyRatingDrivers, setDetailedDescriptionOfKeyRatingDrivers] = useState(sectionData.detailedDescriptionOfKeyRatingDrivers);
   const [liquidity, setLiquidity] = useState(sectionData.liquidity);
   const [esgRisks, setEsgRisks] = useState(sectionData.esgRisks);
+  const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
 
 
 
@@ -1727,7 +1778,17 @@ export default function SectionWrapper({
             });
         }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, note.companyId, note.id, onUpdateSection]);
+     if (section.id === 's_non_cooperation_status') {
+      if (!statusOfNonCooperation) {
+        getStatusOfNonCooperation(note.companyId).then(data => {
+          if (data) {
+            setStatusOfNonCooperation(data);
+            onUpdateSection(section.id, { statusOfNonCooperation: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -1915,6 +1976,15 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { esgRisks: content });
   }
 
+  const handleStatusOfNonCooperationRefresh = async (): Promise<StatusOfNonCooperationData | null> => {
+    const refreshedData = await getStatusOfNonCooperation(note.companyId, true);
+    if(refreshedData){
+        setStatusOfNonCooperation(refreshedData);
+        onUpdateSection(section.id, { statusOfNonCooperation: refreshedData });
+    }
+    return refreshedData;
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1942,6 +2012,7 @@ export default function SectionWrapper({
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
   const isLiquiditySection = section.id === 's_liquidity';
   const isEsgRisksSection = section.id === 's_esg_risks';
+  const isStatusOfNonCooperationSection = section.id === 's_non_cooperation_status';
 
 
   return (
@@ -2165,6 +2236,13 @@ export default function SectionWrapper({
                 placeholder="Enter ESG-related risks, governance issues, or disclosures..."
             />
         )}
+
+        { isStatusOfNonCooperationSection && sectionVisible && (
+          <StatusOfNonCooperationSection 
+            initialData={statusOfNonCooperation}
+            onRefresh={handleStatusOfNonCooperationRefresh}
+          />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -2188,6 +2266,7 @@ export default function SectionWrapper({
           !isDetailedDriversSection &&
           !isLiquiditySection &&
           !isEsgRisksSection &&
+          !isStatusOfNonCooperationSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
