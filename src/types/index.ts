@@ -18,6 +18,7 @@ export interface Criteria {
   title: string;
   description: string;
   sectorMapping: string[];
+  pdfUrl: string;
 }
 
 export interface TemplateSection {

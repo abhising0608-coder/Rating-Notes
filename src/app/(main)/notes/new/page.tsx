@@ -85,7 +85,7 @@ export default function NewNotePage() {
     // In a real app, this would save the config to Firestore and create the note
     console.log('Final Rating Note Configuration:', config);
     // Navigate to the newly created note's page.
-    router.push(`/notes/new-note-id-placeholder`);
+    router.push(`/notes/1`);
   };
   
   const isStep1Valid = useMemo(() => !!config.company && !!config.template, [config.company, config.template]);

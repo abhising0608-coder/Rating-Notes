@@ -59,10 +59,10 @@ const users: User[] = [
 ];
 
 const criteria: Criteria[] = [
-    { id: 'cr_001', title: 'Capital Adequacy and Leverage', description: 'Evaluate company leverage ratio and solvency metrics.', sectorMapping: ['Manufacturing', 'BFSI', 'Agnostic'] },
-    { id: 'cr_002', title: 'Liquidity Position', description: 'Assess short-term liquidity and cash flow health.', sectorMapping: ['Manufacturing', 'Agnostic'] },
-    { id: 'cr_003', title: 'Client Concentration Risk', description: 'Analyze revenue dependency on top clients.', sectorMapping: ['Technology'] },
-    { id: 'cr_004', title: 'Regulatory Compliance', description: 'Check adherence to industry-specific regulations.', sectorMapping: ['BFSI'] },
+    { id: 'cr_001', title: 'Capital Adequacy and Leverage', description: 'Evaluate company leverage ratio and solvency metrics.', sectorMapping: ['Manufacturing', 'BFSI', 'Agnostic'], pdfUrl: "https://www.careratings.com/upload/criteria/new%20cr/Capital%20Adequacy%20and%20Leverage.pdf" },
+    { id: 'cr_002', title: 'Liquidity Position', description: 'Assess short-term liquidity and cash flow health.', sectorMapping: ['Manufacturing', 'Agnostic'], pdfUrl: "https://www.careratings.com/upload/criteria/new%20cr/Liquidity%20Analysis%20of%20Non-financial%20Sector%20Entities.pdf" },
+    { id: 'cr_003', title: 'Client Concentration Risk', description: 'Analyze revenue dependency on top clients.', sectorMapping: ['Technology'], pdfUrl: "https://www.careratings.com/upload/criteria/new%20cr/Client%20Concentration%20Risk.pdf" },
+    { id: 'cr_004', title: 'Regulatory Compliance', description: 'Check adherence to industry-specific regulations.', sectorMapping: ['BFSI'], pdfUrl: "https://www.careratings.com/upload/criteria/new%20cr/Regulatory%20Compliance.pdf" },
 ];
 
 const templates: Template[] = [

@@ -10,6 +10,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Separator } from '../ui/separator';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
+import { Link } from 'lucide-react';
 
 type Step3Props = {
   config: NewNoteConfig;
@@ -35,9 +36,20 @@ export default function Step3_AddDetails({ config, onConfigChange }: Step3Props)
     getCompanies().then(setCompanies);
   }, []);
 
-  const applicableCriteria = allCriteria.filter(c => 
-    c.sectorMapping.includes(config.template?.sector || '') || c.sectorMapping.includes('Agnostic')
-  );
+  useEffect(() => {
+    if (allCriteria.length > 0 && config.template) {
+        const recommendedCriteria = allCriteria.filter(c => 
+            c.sectorMapping.includes(config.template?.sector || '') || c.sectorMapping.includes('Agnostic')
+        ).map(c => c.id);
+        
+        // This pre-selects the recommended criteria when the component loads or template changes.
+        // It won't override existing user selections unless the template is changed.
+        if (!config.applicableCriteria || config.applicableCriteria.length === 0) {
+            onConfigChange({ applicableCriteria: recommendedCriteria });
+        }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCriteria, config.template]);
 
   const handleCriteriaToggle = (criteriaId: string) => {
     const currentCriteria = config.applicableCriteria || [];
@@ -210,15 +222,23 @@ export default function Step3_AddDetails({ config, onConfigChange }: Step3Props)
         {/* Applicable Criteria Section */}
         <div className="space-y-4">
             <h3 className="text-lg font-semibold font-headline">Applicable Criteria</h3>
-            <div className="space-y-2 rounded-md border p-4">
-                {applicableCriteria.map(c => (
-                    <div key={c.id} className="flex items-center space-x-2">
+            <div className="space-y-3 rounded-md border p-4">
+                {allCriteria.map(c => (
+                    <div key={c.id} className="flex items-center space-x-3">
                          <Checkbox
                             id={`criteria-${c.id}`}
                             checked={(config.applicableCriteria || []).includes(c.id)}
                             onCheckedChange={() => handleCriteriaToggle(c.id)}
                          />
-                         <Label htmlFor={`criteria-${c.id}`} className="font-normal">{c.title}</Label>
+                         <a 
+                            href={c.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary hover:underline"
+                        >
+                            {c.title}
+                            <Link className="h-3 w-3" />
+                         </a>
                     </div>
                 ))}
             </div>
