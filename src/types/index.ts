@@ -364,6 +364,10 @@ export interface ContingentLiabilitiesData {
   tableRows: TableRowData[];
 }
 
+export interface ProfitAndLossData {
+  tableRows: TableRowData[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -412,6 +416,7 @@ export interface SectionData {
   instrumentDetails?: TableRowData[];
   balanceSheet?: BalanceSheetData;
   contingentLiabilities?: ContingentLiabilitiesData;
+  profitAndLoss?: ProfitAndLossData;
 }
 
 export interface RatingNote {

@@ -34,6 +34,7 @@ import type {
   GoodwillAssessmentData,
   BalanceSheetData,
   ContingentLiabilitiesData,
+  ProfitAndLossData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -154,6 +155,11 @@ const templates: Template[] = [
       {
         id: 's_balance_sheet',
         title: '7.4 Balance Sheet',
+        hasTable: false,
+      },
+      {
+        id: 's_profit_loss',
+        title: '7.5 Profit and Loss Statement',
         hasTable: false,
       },
       {
@@ -745,6 +751,16 @@ const contingentLiabilitiesData: ContingentLiabilitiesData = {
   ]
 };
 
+const profitAndLossData: ProfitAndLossData = {
+  tableRows: [
+    { id: 'pnl-1', 'Particulars': 'Revenue', '2023A': 1100, '2024P': 1200 },
+    { id: 'pnl-2', 'Particulars': 'Cost of Goods Sold', '2023A': 600, '2024P': 650 },
+    { id: 'pnl-3', 'Particulars': 'Gross Profit', '2023A': 500, '2024P': 550 },
+    { id: 'pnl-4', 'Particulars': 'Operating Expenses', '2023A': 200, '2024P': 220 },
+    { id: 'pnl-5', 'Particulars': 'Operating Income', '2023A': 300, '2024P': 330 },
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -865,6 +881,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         quarterlyFinancials: quarterlyFinancialsData,
       },
       s_balance_sheet: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_profit_loss: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1373,6 +1395,15 @@ export const getContingentLiabilitiesData = async(noteId: string): Promise<Conti
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return contingentLiabilitiesData;
+    }
+    return null;
+}
+
+export const getProfitAndLossData = async(noteId: string): Promise<ProfitAndLossData | null> => {
+    console.log(`Fetching P&L data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return profitAndLossData;
     }
     return null;
 }

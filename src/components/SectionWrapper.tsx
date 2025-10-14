@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1958,6 +1958,40 @@ const ContingentLiabilitiesSection = ({
   );
 };
 
+const ProfitAndLossSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName
+}: {
+  initialData: ProfitAndLossData;
+  onUpdate: (data: ProfitAndLossData) => void;
+  onRefresh: () => Promise<TableRowData[]>;
+  companyName: string;
+}) => {
+  const getTableHeaders = (rows: TableRowData[]) => {
+    if (rows.length === 0) return [];
+    return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-4">
+      <TableSection
+        initialRows={initialData.tableRows}
+        headers={getTableHeaders(initialData.tableRows)}
+        onRefresh={onRefresh}
+        onAddRow={() => {}} // Read-only
+        onUpdateRow={() => {}} // Read-only
+        onRemoveRow={() => {}} // Read-only
+        allowAddRow={false}
+        sectionKey="profit_and_loss"
+        companyName={companyName}
+        readOnly={true}
+      />
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2005,6 +2039,7 @@ export default function SectionWrapper({
   const [goodwillAssessment, setGoodwillAssessment] = useState(sectionData.goodwillAssessment);
   const [balanceSheet, setBalanceSheet] = useState(sectionData.balanceSheet);
   const [contingentLiabilities, setContingentLiabilities] = useState(sectionData.contingentLiabilities);
+  const [profitAndLoss, setProfitAndLoss] = useState(sectionData.profitAndLoss);
 
 
 
@@ -2186,6 +2221,16 @@ export default function SectionWrapper({
             }
         });
       }
+    }
+     if (section.id === 's_profit_loss') {
+        if (!profitAndLoss) {
+            getProfitAndLossData(note.id).then(data => {
+                if (data) {
+                    setProfitAndLoss(data);
+                    onUpdateSection(section.id, { profitAndLoss: data });
+                }
+            });
+        }
     }
     if(section.id === 's_rating_sensitivities') {
         if (!ratingSensitivities) {
@@ -2411,6 +2456,21 @@ export default function SectionWrapper({
       const refreshedData = await getContingentLiabilitiesData(note.id);
       return refreshedData;
   }
+  
+  const handleProfitAndLossUpdate = (data: ProfitAndLossData) => {
+    setProfitAndLoss(data);
+    onUpdateSection(section.id, { profitAndLoss: data });
+  }
+
+  const handleProfitAndLossRefresh = async (): Promise<TableRowData[]> => {
+    console.log('Refreshing P&L...');
+    const refreshedData = await getProfitAndLossData(note.id);
+    if (!refreshedData) return [];
+    
+    const updatedRows = refreshedData.tableRows.map(row => ({...row, '2024P': (row['2024P'] as number) + 10}));
+    handleProfitAndLossUpdate({ tableRows: updatedRows });
+    return updatedRows;
+  }
 
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
@@ -2527,6 +2587,7 @@ export default function SectionWrapper({
   const isInterimResultsSection = section.id === 's_interim_results';
   const isQuarterlyFinancialsSection = section.id === 's_quarterly_financials';
   const isBalanceSheetSection = section.id === 's_balance_sheet';
+  const isProfitAndLossSection = section.id === 's_profit_loss';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2694,6 +2755,16 @@ export default function SectionWrapper({
             )}
           </>
         )}
+        
+        {isProfitAndLossSection && sectionVisible && profitAndLoss && (
+          <ProfitAndLossSection
+            initialData={profitAndLoss}
+            onUpdate={handleProfitAndLossUpdate}
+            onRefresh={handleProfitAndLossRefresh}
+            companyName={note.company.name}
+          />
+        )}
+
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
@@ -2853,6 +2924,7 @@ export default function SectionWrapper({
           !isInterimResultsSection &&
           !isQuarterlyFinancialsSection &&
           !isBalanceSheetSection &&
+          !isProfitAndLossSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
