@@ -449,7 +449,7 @@ export default function PeerComparisonPage() {
                         <Table>
                            <TableHeader>
                             <TableRow>
-                              <TableHead>Rating sensitivities considered at the time of last rating</TableHead>
+                              <TableHead>Factors considered at the time of last rating</TableHead>
                               <TableHead>CARE</TableHead>
                               <TableHead>CRA 1</TableHead>
                               <TableHead>CRA 2</TableHead>
