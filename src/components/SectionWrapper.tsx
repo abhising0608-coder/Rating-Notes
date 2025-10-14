@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1992,6 +1992,40 @@ const ProfitAndLossSection = ({
   );
 };
 
+const CashFlowStatementSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName
+}: {
+  initialData: CashFlowData;
+  onUpdate: (data: CashFlowData) => void;
+  onRefresh: () => Promise<TableRowData[]>;
+  companyName: string;
+}) => {
+  const getTableHeaders = (rows: TableRowData[]) => {
+    if (rows.length === 0) return [];
+    return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-4">
+      <TableSection
+        initialRows={initialData.tableRows}
+        headers={getTableHeaders(initialData.tableRows)}
+        onRefresh={onRefresh}
+        onAddRow={() => {}} // Read-only
+        onUpdateRow={() => {}} // Read-only
+        onRemoveRow={() => {}} // Read-only
+        allowAddRow={false}
+        sectionKey="cash_flow_statement"
+        companyName={companyName}
+        readOnly={true}
+      />
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2025,9 +2059,20 @@ export default function SectionWrapper({
   const [parentGovSupport, setParentGovSupport] = useState(sectionData.parentGovSupport);
   const [ceChecklist, setCeChecklist] = useState(sectionData.ceChecklist);
   const [linkedRatings, setLinkedRatings] = useState(sectionData.linkedRatings);
+  const [boardComposition, setBoardComposition] = useState(sectionData.boardComposition);
   const [financials, setFinancials] = useState(sectionData.financials);
   const [interimResults, setInterimResults] = useState(sectionData.interimResults);
   const [quarterlyFinancials, setQuarterlyFinancials] = useState(sectionData.quarterlyFinancials);
+  const [balanceSheet, setBalanceSheet] = useState(sectionData.balanceSheet);
+  const [contingentLiabilities, setContingentLiabilities] = useState(sectionData.contingentLiabilities);
+  const [profitAndLoss, setProfitAndLoss] = useState(sectionData.profitAndLoss);
+  const [cashFlow, setCashFlow] = useState(sectionData.cashFlow);
+  const [goodwillAssessment, setGoodwillAssessment] = useState(sectionData.goodwillAssessment);
+  const [assumptionsForCashFlow, setAssumptionsForCashFlow] = useState(sectionData.assumptionsForCashFlow);
+  const [sensitivityAnalysis, setSensitivityAnalysis] = useState(sectionData.sensitivityAnalysis);
+  const [gstCalculation, setGstCalculation] = useState(sectionData.gstCalculation);
+  const [assumptionsForProjections, setAssumptionsForProjections] = useState(sectionData.assumptionsForProjections);
+  const [rationaleAndKeyRatingDrivers, setRationaleAndKeyRatingDrivers] = useState(sectionData.rationaleAndKeyRatingDrivers);
   const [ratingSensitivities, setRatingSensitivities] = useState(sectionData.ratingSensitivities);
   const [detailedDescriptionOfKeyRatingDrivers, setDetailedDescriptionOfKeyRatingDrivers] = useState(sectionData.detailedDescriptionOfKeyRatingDrivers);
   const [liquidity, setLiquidity] = useState(sectionData.liquidity);
@@ -2035,11 +2080,6 @@ export default function SectionWrapper({
   const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
-  const [boardComposition, setBoardComposition] = useState(sectionData.boardComposition);
-  const [goodwillAssessment, setGoodwillAssessment] = useState(sectionData.goodwillAssessment);
-  const [balanceSheet, setBalanceSheet] = useState(sectionData.balanceSheet);
-  const [contingentLiabilities, setContingentLiabilities] = useState(sectionData.contingentLiabilities);
-  const [profitAndLoss, setProfitAndLoss] = useState(sectionData.profitAndLoss);
 
 
 
@@ -2228,6 +2268,16 @@ export default function SectionWrapper({
                 if (data) {
                     setProfitAndLoss(data);
                     onUpdateSection(section.id, { profitAndLoss: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_cash_flow_statement') {
+        if (!cashFlow) {
+            getCashFlowData(note.id).then(data => {
+                if (data) {
+                    setCashFlow(data);
+                    onUpdateSection(section.id, { cashFlow: data });
                 }
             });
         }
@@ -2471,6 +2521,21 @@ export default function SectionWrapper({
     handleProfitAndLossUpdate({ tableRows: updatedRows });
     return updatedRows;
   }
+  
+  const handleCashFlowUpdate = (data: CashFlowData) => {
+    setCashFlow(data);
+    onUpdateSection(section.id, { cashFlow: data });
+  }
+
+  const handleCashFlowRefresh = async (): Promise<TableRowData[]> => {
+    console.log('Refreshing Cash Flow...');
+    const refreshedData = await getCashFlowData(note.id);
+    if (!refreshedData) return [];
+    
+    const updatedRows = refreshedData.tableRows.map(row => ({...row, '2024P': (row['2024P'] as number) + 10}));
+    handleCashFlowUpdate({ tableRows: updatedRows });
+    return updatedRows;
+  }
 
 
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
@@ -2588,6 +2653,7 @@ export default function SectionWrapper({
   const isQuarterlyFinancialsSection = section.id === 's_quarterly_financials';
   const isBalanceSheetSection = section.id === 's_balance_sheet';
   const isProfitAndLossSection = section.id === 's_profit_loss';
+  const isCashFlowStatementSection = section.id === 's_cash_flow_statement';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2765,6 +2831,15 @@ export default function SectionWrapper({
           />
         )}
 
+        {isCashFlowStatementSection && sectionVisible && cashFlow && (
+          <CashFlowStatementSection
+            initialData={cashFlow}
+            onUpdate={handleCashFlowUpdate}
+            onRefresh={handleCashFlowRefresh}
+            companyName={note.company.name}
+          />
+        )}
+
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
@@ -2925,6 +3000,7 @@ export default function SectionWrapper({
           !isQuarterlyFinancialsSection &&
           !isBalanceSheetSection &&
           !isProfitAndLossSection &&
+          !isCashFlowStatementSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&

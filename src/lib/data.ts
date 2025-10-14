@@ -35,6 +35,7 @@ import type {
   BalanceSheetData,
   ContingentLiabilitiesData,
   ProfitAndLossData,
+  CashFlowData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -160,6 +161,11 @@ const templates: Template[] = [
       {
         id: 's_profit_loss',
         title: '7.5 Profit and Loss Statement',
+        hasTable: false,
+      },
+      {
+        id: 's_cash_flow_statement',
+        title: '7.6 Cash Flow Statement',
         hasTable: false,
       },
       {
@@ -761,6 +767,15 @@ const profitAndLossData: ProfitAndLossData = {
   ]
 };
 
+const cashFlowData: CashFlowData = {
+  tableRows: [
+    { id: 'cf-1', 'Particulars': 'Cash Flow from Operations', '2023A': 350, '2024P': 380 },
+    { id: 'cf-2', 'Particulars': 'Cash Flow from Investing', '2023A': -150, '2024P': -180 },
+    { id: 'cf-3', 'Particulars': 'Cash Flow from Financing', '2023A': -100, '2024P': -120 },
+    { id: 'cf-4', 'Particulars': 'Net Change in Cash', '2023A': 100, '2024P': 80 },
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -885,8 +900,17 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: [],
+        balanceSheet: balanceSheetData,
+        contingentLiabilities: contingentLiabilitiesData
       },
       s_profit_loss: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        profitAndLoss: profitAndLossData,
+      },
+      s_cash_flow_statement: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1404,6 +1428,15 @@ export const getProfitAndLossData = async(noteId: string): Promise<ProfitAndLoss
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return profitAndLossData;
+    }
+    return null;
+}
+
+export const getCashFlowData = async(noteId: string): Promise<CashFlowData | null> => {
+    console.log(`Fetching cash flow data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return cashFlowData;
     }
     return null;
 }
