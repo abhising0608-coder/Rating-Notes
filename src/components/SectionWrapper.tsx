@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -2164,6 +2164,51 @@ const PastRatingSensitivitiesSection = ({ initialData, onUpdate, onRefresh }: { 
 };
 
 
+const ManagementDiscussionSection = ({ data }: { data: ManagementDiscussionData }) => {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="p-3 border rounded-md">
+          <p className="font-medium text-muted-foreground">Management personnel interacted</p>
+          <p>{data.managementPersonnel}</p>
+        </div>
+        <div className="p-3 border rounded-md">
+          <p className="font-medium text-muted-foreground">CARE team members</p>
+          <p>{data.careTeamMembers}</p>
+        </div>
+        <div className="p-3 border rounded-md">
+          <p className="font-medium text-muted-foreground">Date of meeting</p>
+          <p>{format(new Date(data.meetingDate), 'PPP')}</p>
+        </div>
+        <div className="p-3 border rounded-md">
+          <p className="font-medium text-muted-foreground">Mode of meeting</p>
+          <p>{data.meetingMode}</p>
+        </div>
+      </div>
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16">Sr. No.</TableHead>
+              <TableHead>Issues raised during discussion</TableHead>
+              <TableHead>Management's Response</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.discussionItems.map(item => (
+              <TableRow key={item.id}>
+                <TableCell>{item.srNo}</TableCell>
+                <TableCell>{item.issues}</TableCell>
+                <TableCell>{item.response}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  )
+}
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2222,6 +2267,7 @@ export default function SectionWrapper({
   const [previousRCMMinutes, setPreviousRCMMinutes] = useState(sectionData.previousRCMMinutes);
   const [addressedQCObservations, setAddressedQCObservations] = useState(sectionData.addressedQCObservations);
   const [pastRatingSensitivities, setPastRatingSensitivities] = useState(sectionData.pastRatingSensitivities);
+  const [managementDiscussion, setManagementDiscussion] = useState(sectionData.managementDiscussion);
 
 
 
@@ -2466,6 +2512,16 @@ export default function SectionWrapper({
                 }
             });
         }
+    }
+     if (section.id === 's_management_discussion') {
+      if (!managementDiscussion) {
+        getManagementDiscussionData(note.id).then(data => {
+          if (data) {
+            setManagementDiscussion(data);
+            onUpdateSection(section.id, { managementDiscussion: data });
+          }
+        });
+      }
     }
     if(section.id === 's_rating_sensitivities') {
         if (!ratingSensitivities) {
@@ -2881,6 +2937,7 @@ export default function SectionWrapper({
   const isPreviousRCMMinutesSection = section.id === 's_rcm_minutes';
   const isAddressedQCObservationsSection = section.id === 's_qc_observations';
   const isPastRatingSensitivitiesSection = section.id === 's_past_rating_sensitivities';
+  const isManagementDiscussionSection = section.id === 's_management_discussion';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -3105,6 +3162,10 @@ export default function SectionWrapper({
             />
         )}
 
+        {isManagementDiscussionSection && sectionVisible && managementDiscussion && (
+          <ManagementDiscussionSection data={managementDiscussion} />
+        )}
+
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
@@ -3270,6 +3331,7 @@ export default function SectionWrapper({
           !isPreviousRCMMinutesSection &&
           !isAddressedQCObservationsSection &&
           !isPastRatingSensitivitiesSection &&
+          !isManagementDiscussionSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
@@ -3332,7 +3394,7 @@ export default function SectionWrapper({
           />
         )}
 
-        { !isAnalyticalApproachDisplaySection && (
+        { !isAnalyticalApproachDisplaySection && !isManagementDiscussionSection && (
           <CommentsEditor 
             sectionId={section.id} 
             initialContent={sectionData.comments}

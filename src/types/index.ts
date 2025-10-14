@@ -422,6 +422,21 @@ export interface PastRatingSensitivitiesData {
     negativeFactors: TableRowData[];
 }
 
+export interface ManagementDiscussionItem {
+  id: string;
+  srNo: number;
+  issues: string;
+  response: string;
+}
+
+export interface ManagementDiscussionData {
+  managementPersonnel: string;
+  careTeamMembers: string;
+  meetingDate: string;
+  meetingMode: string;
+  discussionItems: ManagementDiscussionItem[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -476,6 +491,7 @@ export interface SectionData {
   previousRCMMinutes?: PreviousRCMMinutesData;
   addressedQCObservations?: AddressedQCObservationData[];
   pastRatingSensitivities?: PastRatingSensitivitiesData;
+  managementDiscussion?: ManagementDiscussionData;
 }
 
 export interface RatingNote {

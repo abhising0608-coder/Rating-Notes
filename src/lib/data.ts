@@ -41,6 +41,7 @@ import type {
   RCMMinute,
   AddressedQCObservationData,
   PastRatingSensitivitiesData,
+  ManagementDiscussionData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -193,6 +194,11 @@ const templates: Template[] = [
       {
         id: 's_past_rating_sensitivities',
         title: 'Status of Past Rating Sensitivities of CARE',
+        hasTable: false,
+      },
+      {
+        id: 's_management_discussion',
+        title: 'Discussion with Management',
         hasTable: false,
       },
       {
@@ -835,6 +841,17 @@ const pastRatingSensitivitiesData: PastRatingSensitivitiesData = {
     ]
 };
 
+const managementDiscussionData: ManagementDiscussionData = {
+  managementPersonnel: "Mr. John Doe (CFO), Ms. Jane Smith (CEO)",
+  careTeamMembers: "Rahul Sharma, Ananya Mehta",
+  meetingDate: "2024-07-15",
+  meetingMode: "Virtual",
+  discussionItems: [
+    { id: 'md-1', srNo: 1, issues: "Q2 revenue forecast", response: "Management is confident in meeting the target." },
+    { id: 'md-2', srNo: 2, issues: "Capex plan for FY25", response: "Plan is on track, new facility to be operational by Q4." },
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -995,6 +1012,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
       },
       s_past_rating_sensitivities: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_management_discussion: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1566,3 +1589,12 @@ export const getPastRatingSensitivities = async (companyId: string, forceRefresh
     }
     return null;
 }
+
+export const getManagementDiscussionData = async (noteId: string): Promise<ManagementDiscussionData | null> => {
+  console.log(`Fetching management discussion data for note: ${noteId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+  if (noteId === '1') {
+    return managementDiscussionData;
+  }
+  return null;
+};
