@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useEffect, useMemo } from 'react';
 import NoteNavigation from '@/components/NoteNavigation';
@@ -37,6 +38,8 @@ export default function PeerComparisonPage() {
   const [selectedQueryResults, setSelectedQueryResults] = useState<string[]>([]);
   const [manualSelection, setManualSelection] = useState<string[]>([]);
 
+  const [manualCompanyName, setManualCompanyName] = useState('');
+
 
   useEffect(() => {
     getCompanies().then(companies => {
@@ -64,6 +67,22 @@ export default function PeerComparisonPage() {
     });
     setManualSelection([]);
   };
+
+  const addManualCompany = () => {
+    if (!manualCompanyName.trim()) return;
+
+    const newCompany: Company = {
+        id: `manual-${Date.now()}`,
+        name: manualCompanyName.trim(),
+        nseIndustry: 'N/A (Manual)',
+        subIndustry: 'N/A (Manual)',
+        registeredOffice: 'N/A (Manual)',
+    };
+
+    setSelectedCompanies(prev => [...prev, newCompany]);
+    setManualCompanyName('');
+  };
+
 
   const removeCompany = (companyId: string) => {
     setSelectedCompanies(prev => prev.filter(c => c.id !== companyId));
@@ -314,6 +333,17 @@ export default function PeerComparisonPage() {
                         </div>
                         <Button onClick={addManualSelectionToComparison}>Add for Comparison</Button>
                       </div>
+                       <div className="flex items-end gap-4">
+                        <div className="flex-grow">
+                          <Label>Or, Add New Company Manually</Label>
+                          <Input
+                            placeholder="Enter company name to add manually"
+                            value={manualCompanyName}
+                            onChange={(e) => setManualCompanyName(e.target.value)}
+                          />
+                        </div>
+                        <Button onClick={addManualCompany}>Add</Button>
+                      </div>
                     </AccordionContent>
                   </AccordionItem>
                    <AccordionItem value="item-4">
@@ -347,7 +377,7 @@ export default function PeerComparisonPage() {
                                 </TableCell>
                                 <TableCell>{company.subIndustry}</TableCell>
                                 <TableCell>{company.nseIndustry}</TableCell>
-                                <TableCell>{/* Mock rating */ 'A+'}</TableCell>
+                                <TableCell>{/* Mock rating */ company.id.startsWith('manual-') ? 'N/A' : 'A+'}</TableCell>
                                 <TableCell className="flex items-center gap-1">
                                   <Button variant="ghost" size="icon"><RefreshCw className="h-4 w-4" /></Button>
                                   <Button variant="ghost" size="icon" onClick={() => removeCompany(company.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
