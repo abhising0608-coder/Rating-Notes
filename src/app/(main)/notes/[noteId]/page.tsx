@@ -38,9 +38,14 @@ export default async function NotePage({ params }: { params: { noteId: string } 
             <h1 className="text-3xl font-bold font-headline">{note.company.name}</h1>
             <p className="text-muted-foreground">{note.template.name}</p>
         </div>
-        <Link href={`/notes/${note.id}/preview`} passHref>
-          <Button>Preview</Button>
-        </Link>
+        <div className="flex items-center gap-2">
+           <Link href={`/notes/${note.id}/peer-comparison`} passHref>
+              <Button variant="outline">Peer Comparison</Button>
+            </Link>
+            <Link href={`/notes/${note.id}/preview`} passHref>
+              <Button>Preview</Button>
+            </Link>
+        </div>
       </div>
 
       <div className="space-y-8">
