@@ -191,6 +191,11 @@ const templates: Template[] = [
         id: 's_liquidity',
         title: 'Liquidity',
         hasTable: false,
+      },
+      {
+        id: 's_esg_risks',
+        title: 'Environmental, Social and Governance (ESG) Risks',
+        hasTable: false,
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -769,6 +774,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
           selection: 'Adequate',
           comment: 'Initial comment from mock data.'
         }
+      },
+      s_esg_risks: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '<p>Initial ESG risks can be detailed here.</p>',
+        attachments: [],
+        esgRisks: 'Initial ESG risks...'
       }
     },
   },

@@ -320,6 +320,7 @@ export interface SectionData {
     keyWeaknesses: string;
   };
   liquidity?: LiquidityData;
+  esgRisks?: string;
 }
 
 export interface RatingNote {

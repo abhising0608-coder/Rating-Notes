@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useTransition } from 'react';
 import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData } from '@/types';
 import {
   Card,
@@ -1491,6 +1491,7 @@ export default function SectionWrapper({
   const [ratingSensitivities, setRatingSensitivities] = useState(sectionData.ratingSensitivities);
   const [detailedDescriptionOfKeyRatingDrivers, setDetailedDescriptionOfKeyRatingDrivers] = useState(sectionData.detailedDescriptionOfKeyRatingDrivers);
   const [liquidity, setLiquidity] = useState(sectionData.liquidity);
+  const [esgRisks, setEsgRisks] = useState(sectionData.esgRisks);
 
 
 
@@ -1819,6 +1820,11 @@ export default function SectionWrapper({
       return refreshedData;
   }
 
+  const handleEsgRisksUpdate = (content: string) => {
+    setEsgRisks(content);
+    onUpdateSection(section.id, { esgRisks: content });
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -1844,6 +1850,7 @@ export default function SectionWrapper({
   const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
   const isLiquiditySection = section.id === 's_liquidity';
+  const isEsgRisksSection = section.id === 's_esg_risks';
 
 
   return (
@@ -2023,7 +2030,7 @@ export default function SectionWrapper({
                 onRefresh={handleLiquidityRefresh}
             />
         )}
-
+        
         { isDetailedDriversSection && sectionVisible && (
              <div className="space-y-4">
                 <div>
@@ -2048,6 +2055,15 @@ export default function SectionWrapper({
                 </div>
             </div>
         )}
+
+        { isEsgRisksSection && sectionVisible && (
+            <Textarea
+                value={esgRisks || ''}
+                onChange={(e) => handleEsgRisksUpdate(e.target.value)}
+                rows={10}
+                placeholder="Enter ESG-related risks, governance issues, or disclosures..."
+            />
+        )}
         
         { !isCoverPage && 
           !isKeyUpdatesSection && 
@@ -2069,6 +2085,7 @@ export default function SectionWrapper({
           !isRatingSensitivitiesSection &&
           !isDetailedDriversSection &&
           !isLiquiditySection &&
+          !isEsgRisksSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
