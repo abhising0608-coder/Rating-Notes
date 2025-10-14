@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, BoardMemberData } from '@/types';
 import {
   Card,
   CardContent,
@@ -1703,7 +1703,7 @@ const ConsolidatedEntitiesSection = ({ initialData, onUpdate, onRefresh }: { ini
 const BoardCompositionSection = ({ initialData, onUpdate, onRefresh, tooltipKey }: { initialData: BoardCompositionData, onUpdate: (data: BoardCompositionData) => void, onRefresh: () => void, tooltipKey?: string }) => {
     const [data, setData] = useState(initialData);
 
-    const handleUpdate = (table: 'boardOfDirectors' | 'keyManagementPersonnel', rowId: string, field: string, value: string) => {
+    const handleUpdate = (table: 'boardOfDirectors' | 'keyManagementPersonnel', rowId: string, field: keyof BoardMemberData, value: string) => {
         const updatedTable = data[table].map(row => 
             row.id === rowId ? { ...row, [field]: value } : row
         );
@@ -1711,9 +1711,76 @@ const BoardCompositionSection = ({ initialData, onUpdate, onRefresh, tooltipKey 
         setData(updatedData);
         onUpdate(updatedData);
     };
+
+    const handleAddRow = (table: 'boardOfDirectors' | 'keyManagementPersonnel') => {
+        const newRow: BoardMemberData = {
+            id: `manual-${table}-${Date.now()}`,
+            name: '',
+            designation: '',
+            yearsOfExperience: '',
+            briefProfile: '',
+            age: '',
+            qualification: '',
+            isManual: true,
+        };
+        const updatedTable = [...data[table], newRow];
+        const updatedData = { ...data, [table]: updatedTable };
+        setData(updatedData);
+        onUpdate(updatedData);
+    }
+
+    const handleRemoveRow = (table: 'boardOfDirectors' | 'keyManagementPersonnel', rowId: string) => {
+        const updatedTable = data[table].filter(row => row.id !== rowId);
+        const updatedData = { ...data, [table]: updatedTable };
+        setData(updatedData);
+        onUpdate(updatedData);
+    }
+    
+    const MemberTable = ({ title, members, tableKey, headers }: { title: string, members: BoardMemberData[], tableKey: 'boardOfDirectors' | 'keyManagementPersonnel', headers: (keyof BoardMemberData)[] }) => (
+        <div className="space-y-4">
+             <div className="flex justify-between items-center">
+                <h4 className="font-semibold">{title}</h4>
+                <Button variant="outline" size="sm" onClick={() => handleAddRow(tableKey)}><Plus className="mr-2 h-4 w-4" />Add Row</Button>
+            </div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        {headers.map(header => <TableHead key={header}>{header.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</TableHead>)}
+                        <TableHead>Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {members.map(member => (
+                        <TableRow key={member.id}>
+                            {headers.map(header => (
+                                <TableCell key={header}>
+                                    <Input
+                                        value={member[header]}
+                                        onChange={e => handleUpdate(tableKey, member.id, header, e.target.value)}
+                                        readOnly={!member.isManual}
+                                        className={cn("h-8", !member.isManual && "bg-muted/50 border-transparent")}
+                                    />
+                                </TableCell>
+                            ))}
+                            <TableCell>
+                                {member.isManual && (
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemoveRow(tableKey, member.id)}>
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
     
     return (
         <div className="space-y-6">
+            <div className="flex justify-end">
+                 <Button variant="outline" size="sm" onClick={onRefresh}><RefreshCw className="mr-2 h-4 w-4"/>Refresh</Button>
+            </div>
             <Accordion type="multiple" defaultValue={['bod']} className="w-full">
                 <AccordionItem value="bod">
                     <AccordionTrigger className="font-semibold text-lg">
@@ -1721,16 +1788,26 @@ const BoardCompositionSection = ({ initialData, onUpdate, onRefresh, tooltipKey 
                         {tooltipKey && <Tooltip tooltipKey={tooltipKey} />}
                     </AccordionTrigger>
                     <AccordionContent>
-                        <p className="text-muted-foreground">Board of Directors table will be shown here.</p>
+                        <MemberTable 
+                            title=""
+                            members={data.boardOfDirectors}
+                            tableKey="boardOfDirectors"
+                            headers={['name', 'designation', 'yearsOfExperience', 'briefProfile', 'age', 'qualification']}
+                        />
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="kmp">
                      <AccordionTrigger className="font-semibold text-lg">
                         Senior Management / Key Management Personnel
-                        {tooltipKey && <Tooltip tooltipKey="kmp.composition" />}
+                        <Tooltip tooltipKey="kmp.composition" />
                     </AccordionTrigger>
                     <AccordionContent>
-                         <p className="text-muted-foreground">Key Management Personnel table will be shown here.</p>
+                         <MemberTable 
+                            title=""
+                            members={data.keyManagementPersonnel}
+                            tableKey="keyManagementPersonnel"
+                            headers={['name', 'designation', 'yearsOfExperience', 'briefProfile', 'age', 'qualification']}
+                        />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

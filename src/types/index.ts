@@ -258,10 +258,10 @@ export interface BoardMemberData {
     name: string;
     designation: string;
     yearsOfExperience: string;
-    executiveStatus: string;
-    functions: string;
+    briefProfile: string;
     age: string;
     qualification: string;
+    isManual?: boolean;
 }
 
 export interface BoardCompositionData {

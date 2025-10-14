@@ -24,7 +24,11 @@ export default function Tooltip({ tooltipKey, sector }: TooltipProps) {
   }, [tooltipKey]);
 
   if (!tooltip) {
-    return null;
+    return (
+        <span className="cursor-help ml-1.5">
+            <Info className="h-4 w-4 text-muted-foreground/50 inline" />
+        </span>
+    );
   }
   
   const text = (sector && tooltip.sectorOverrides?.[sector]) || tooltip.text;

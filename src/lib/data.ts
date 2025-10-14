@@ -420,6 +420,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'any.other.info',
     text: 'This section auto-fetches Disclosure of Interest details from the CoC Portal. If no data is available, system shows ‘Not Applicable.’'
+  },
+  {
+    key: 'kmp.composition',
+    text: 'Comment on changes in senior management and KMP over the years.'
   }
 ];
 
@@ -683,11 +687,11 @@ const prefetchedPeersData: PeerCompany[] = [
 
 const boardCompositionData: BoardCompositionData = {
     boardOfDirectors: [
-        { id: 'bod-1', name: 'Mr. Ratan Tata', designation: 'Chairman Emeritus', yearsOfExperience: '50+', executiveStatus: 'Non-Executive', functions: 'Guidance', age: '86', qualification: 'B.S. Architecture' },
-        { id: 'bod-2', name: 'Mr. N. Chandrasekaran', designation: 'Chairman', yearsOfExperience: '30+', executiveStatus: 'Executive', functions: 'Group Leadership', age: '60', qualification: 'MCA' }
+        { id: 'bod-1', name: 'Mr. Ratan Tata', designation: 'Chairman Emeritus', yearsOfExperience: '50+', briefProfile: 'Chairman of Tata Group', age: '86', qualification: 'B.S. Architecture' },
+        { id: 'bod-2', name: 'Mr. N. Chandrasekaran', designation: 'Chairman', yearsOfExperience: '30+', briefProfile: 'Chairman of Tata Sons', age: '60', qualification: 'MCA' }
     ],
     keyManagementPersonnel: [
-        { id: 'kmp-1', name: 'Mr. John Doe', designation: 'CEO', yearsOfExperience: '25+', executiveStatus: 'Executive', functions: 'Overall Management', age: '55', qualification: 'MBA' }
+        { id: 'kmp-1', name: 'Mr. John Doe', designation: 'CEO', yearsOfExperience: '25+', briefProfile: 'CEO of the company', age: '55', qualification: 'MBA' }
     ]
 }
 
