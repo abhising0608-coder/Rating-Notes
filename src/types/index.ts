@@ -346,6 +346,17 @@ export interface PeerCompany {
   rating: string;
 }
 
+export interface OtherAgencyRating {
+  id: string;
+  companyName: string;
+  agency: string;
+  prDate: string;
+  presentRating: string;
+  presentRatingOutlook: string;
+  lastRatingAction: string;
+  category: string;
+}
+
 export interface GoodwillAssessmentData {
   tableRows: {
     id: string;

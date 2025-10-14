@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -33,6 +33,12 @@ export default function PeerComparisonPage() {
   const [manualSelection, setManualSelection] = useState<string[]>([]);
 
   const [manualCompanyName, setManualCompanyName] = useState('');
+
+  const [otherAgencyRatings, setOtherAgencyRatings] = useState<OtherAgencyRating[]>([
+    { id: 'oar-1', companyName: 'Sample Industries Ltd', agency: 'CRISIL', prDate: '2024-07-01', presentRating: 'AA+', presentRatingOutlook: 'Stable', lastRatingAction: 'Upgraded', category: 'Long Term' },
+    { id: 'oar-2', companyName: 'Sample Industries Ltd', agency: 'ICRA', prDate: '2024-06-15', presentRating: 'AA', presentRatingOutlook: 'Stable', lastRatingAction: 'Affirmed', category: 'Long Term' },
+    { id: 'oar-3', companyName: 'Tech Solutions Inc.', agency: 'CRISIL', prDate: '2024-05-20', presentRating: 'A1+', presentRatingOutlook: 'Positive', lastRatingAction: 'Assigned', category: 'Short Term' },
+  ]);
 
 
   useEffect(() => {
@@ -172,7 +178,7 @@ export default function PeerComparisonPage() {
                 <CardTitle>Peer Comparison</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4']} className="w-full">
+                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5']} className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger className="font-semibold">Pre-fetched Companies from Last Rating Note</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
@@ -396,6 +402,39 @@ export default function PeerComparisonPage() {
                       </div>
                     </AccordionContent>
                   </AccordionItem>
+                  <AccordionItem value="item-5">
+                    <AccordionTrigger className="font-semibold">Ratings of other agencies</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                      <div className="border rounded-lg overflow-hidden">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Company Name</TableHead>
+                              <TableHead>Agency</TableHead>
+                              <TableHead>PR date</TableHead>
+                              <TableHead>Present Rating</TableHead>
+                              <TableHead>Present Rating outlook</TableHead>
+                              <TableHead>Last rating action</TableHead>
+                              <TableHead>Category</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {otherAgencyRatings.map((rating) => (
+                              <TableRow key={rating.id}>
+                                <TableCell>{rating.companyName}</TableCell>
+                                <TableCell>{rating.agency}</TableCell>
+                                <TableCell>{rating.prDate}</TableCell>
+                                <TableCell>{rating.presentRating}</TableCell>
+                                <TableCell>{rating.presentRatingOutlook}</TableCell>
+                                <TableCell>{rating.lastRatingAction}</TableCell>
+                                <TableCell>{rating.category}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
                 </Accordion>
             </CardContent>
          </Card>
@@ -407,5 +446,3 @@ export default function PeerComparisonPage() {
     </div>
   );
 }
-
-    
