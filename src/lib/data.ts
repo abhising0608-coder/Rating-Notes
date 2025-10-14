@@ -36,6 +36,7 @@ import type {
   ContingentLiabilitiesData,
   ProfitAndLossData,
   CashFlowData,
+  RatioAnalysisData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -166,6 +167,11 @@ const templates: Template[] = [
       {
         id: 's_cash_flow_statement',
         title: '7.6 Cash Flow Statement',
+        hasTable: false,
+      },
+      {
+        id: 's_ratio_analysis',
+        title: '7.7 Ratio Analysis',
         hasTable: false,
       },
       {
@@ -776,6 +782,15 @@ const cashFlowData: CashFlowData = {
   ]
 };
 
+const ratioAnalysisData: RatioAnalysisData = {
+  tableRows: [
+    { id: 'ra-1', 'Category': 'Solvency Ratios (times)', 'Ratio Description': 'Debt Equity Ratio', '2023A': 0.8, '2024P': -0.75, mappedAttributeId: '1089' },
+    { id: 'ra-2', 'Category': 'Profitability Ratios (%)', 'Ratio Description': 'PBILDT Margin', '2023A': 25.5, '2024P': 26.1 },
+    { id: 'ra-3', 'Category': 'Profitability Ratios (%)', 'Ratio Description': 'PAT Margin', '2023A': 12.7, '2024P': 13.2 },
+    { id: 'ra-4', 'Category': 'Solvency Ratios (times)', 'Ratio Description': 'Overall Gearing Ratio', '2023A': 1.2, '2024P': 1.15, mappedAttributeId: '1090' },
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -911,6 +926,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         profitAndLoss: profitAndLossData,
       },
       s_cash_flow_statement: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        cashFlow: cashFlowData,
+      },
+      s_ratio_analysis: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1437,6 +1459,15 @@ export const getCashFlowData = async(noteId: string): Promise<CashFlowData | nul
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return cashFlowData;
+    }
+    return null;
+}
+
+export const getRatioAnalysisData = async(noteId: string): Promise<RatioAnalysisData | null> => {
+    console.log(`Fetching ratio analysis data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return ratioAnalysisData;
     }
     return null;
 }
