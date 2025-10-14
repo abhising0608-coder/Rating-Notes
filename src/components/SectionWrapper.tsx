@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1861,6 +1861,103 @@ const GoodwillAssessmentSection = ({ initialData, onUpdate }: { initialData: Goo
     );
 };
 
+const BalanceSheetSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName
+}: {
+  initialData: BalanceSheetData;
+  onUpdate: (data: BalanceSheetData) => void;
+  onRefresh: () => Promise<TableRowData[]>;
+  companyName: string;
+}) => {
+  const [data, setData] = useState(initialData);
+
+  const getTableHeaders = (rows: TableRowData[]) => {
+    if (rows.length === 0) return [];
+    return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-4">
+      <TableSection
+        initialRows={data.tableRows}
+        headers={getTableHeaders(data.tableRows)}
+        onRefresh={onRefresh}
+        onAddRow={() => {}} // Read-only
+        onUpdateRow={() => {}} // Read-only
+        onRemoveRow={() => {}} // Read-only
+        allowAddRow={false}
+        sectionKey="balance_sheet"
+        companyName={companyName}
+        readOnly={true}
+      />
+    </div>
+  );
+};
+
+const ContingentLiabilitiesSection = ({
+  initialData,
+  onUpdate,
+  onRefresh,
+  companyName
+}: {
+  initialData: ContingentLiabilitiesData;
+  onUpdate: (data: ContingentLiabilitiesData) => void;
+  onRefresh: () => Promise<ContingentLiabilitiesData | null>;
+  companyName: string;
+}) => {
+  const [data, setData] = useState(initialData);
+
+  const handleUpdate = (field: keyof ContingentLiabilitiesData, value: any) => {
+    const updatedData = { ...data, [field]: value };
+    setData(updatedData);
+    onUpdate(updatedData);
+  };
+  
+  const getTableHeaders = (rows: TableRowData[]) => {
+    if (rows.length === 0) return [];
+    return Object.keys(rows[0]).filter(k => !['id', 'isManual', 'manualEdit', 'mappedAttributeId'].includes(k));
+  }
+
+  return (
+    <div className="space-y-4 mt-6">
+      <h3 className="font-semibold text-lg font-headline">Contingent Liabilities</h3>
+       <Select
+            value={data.selection}
+            onValueChange={(v) => handleUpdate('selection', v as ContingentLiabilitiesData['selection'])}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select applicability" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Applicable">Applicable</SelectItem>
+              <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+              <SelectItem value="Not Available">Not Available</SelectItem>
+            </SelectContent>
+        </Select>
+      {data.selection === 'Applicable' && (
+        <TableSection
+            initialRows={data.tableRows}
+            headers={getTableHeaders(data.tableRows)}
+            onRefresh={async () => {
+                const refreshed = await onRefresh();
+                return refreshed?.tableRows || [];
+            }}
+            onAddRow={() => {}}
+            onUpdateRow={() => {}}
+            onRemoveRow={() => {}}
+            allowAddRow={false}
+            sectionKey="contingent_liabilities"
+            companyName={companyName}
+            readOnly={true}
+        />
+      )}
+    </div>
+  );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1906,6 +2003,8 @@ export default function SectionWrapper({
   const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
   const [boardComposition, setBoardComposition] = useState(sectionData.boardComposition);
   const [goodwillAssessment, setGoodwillAssessment] = useState(sectionData.goodwillAssessment);
+  const [balanceSheet, setBalanceSheet] = useState(sectionData.balanceSheet);
+  const [contingentLiabilities, setContingentLiabilities] = useState(sectionData.contingentLiabilities);
 
 
 
@@ -2069,6 +2168,24 @@ export default function SectionWrapper({
                 }
             });
         }
+    }
+    if (section.id === 's_balance_sheet') {
+      if (!balanceSheet) {
+        getBalanceSheetData(note.id).then(data => {
+          if (data) {
+            setBalanceSheet(data);
+            onUpdateSection(section.id, { balanceSheet: data });
+          }
+        });
+      }
+      if (!contingentLiabilities) {
+        getContingentLiabilitiesData(note.id).then(data => {
+            if (data) {
+                setContingentLiabilities(data);
+                onUpdateSection(section.id, { contingentLiabilities: data });
+            }
+        });
+      }
     }
     if(section.id === 's_rating_sensitivities') {
         if (!ratingSensitivities) {
@@ -2270,6 +2387,32 @@ export default function SectionWrapper({
       return updatedRows;
   }
 
+  const handleBalanceSheetUpdate = (data: BalanceSheetData) => {
+    setBalanceSheet(data);
+    onUpdateSection(section.id, { balanceSheet: data });
+  }
+
+  const handleBalanceSheetRefresh = async (): Promise<TableRowData[]> => {
+    console.log('Refreshing balance sheet...');
+    const refreshedData = await getBalanceSheetData(note.id);
+    if (!refreshedData) return [];
+    
+    const updatedRows = refreshedData.tableRows.map(row => ({...row, '2024P': (row['2024P'] as number) + 10}));
+    handleBalanceSheetUpdate({ tableRows: updatedRows });
+    return updatedRows;
+  }
+  
+  const handleContingentLiabilitiesUpdate = (data: ContingentLiabilitiesData) => {
+    setContingentLiabilities(data);
+    onUpdateSection(section.id, { contingentLiabilities: data });
+  }
+
+  const handleContingentLiabilitiesRefresh = async (): Promise<ContingentLiabilitiesData | null> => {
+      const refreshedData = await getContingentLiabilitiesData(note.id);
+      return refreshedData;
+  }
+
+
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
   };
@@ -2383,6 +2526,7 @@ export default function SectionWrapper({
   const isFinancialsPastProjectedSection = section.id === 's_financials_past_projected';
   const isInterimResultsSection = section.id === 's_interim_results';
   const isQuarterlyFinancialsSection = section.id === 's_quarterly_financials';
+  const isBalanceSheetSection = section.id === 's_balance_sheet';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -2532,6 +2676,25 @@ export default function SectionWrapper({
           />
         )}
         
+        {isBalanceSheetSection && sectionVisible && balanceSheet && (
+          <>
+            <BalanceSheetSection
+              initialData={balanceSheet}
+              onUpdate={handleBalanceSheetUpdate}
+              onRefresh={handleBalanceSheetRefresh}
+              companyName={note.company.name}
+            />
+            {contingentLiabilities && (
+              <ContingentLiabilitiesSection 
+                initialData={contingentLiabilities}
+                onUpdate={handleContingentLiabilitiesUpdate}
+                onRefresh={handleContingentLiabilitiesRefresh}
+                companyName={note.company.name}
+              />
+            )}
+          </>
+        )}
+
         { isAssumptionsForCashFlowSection && sectionVisible && (
             <Textarea 
                 value={sectionData.assumptionsForCashFlow || ''}
@@ -2689,6 +2852,7 @@ export default function SectionWrapper({
           !isFinancialsPastProjectedSection &&
           !isInterimResultsSection &&
           !isQuarterlyFinancialsSection &&
+          !isBalanceSheetSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&

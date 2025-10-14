@@ -355,6 +355,15 @@ export interface GoodwillAssessmentData {
   }[];
 }
 
+export interface BalanceSheetData {
+  tableRows: TableRowData[];
+}
+
+export interface ContingentLiabilitiesData {
+  selection: 'Applicable' | 'Not Applicable' | 'Not Available';
+  tableRows: TableRowData[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -401,6 +410,8 @@ export interface SectionData {
   consolidatedEntities?: ConsolidatedEntity[];
   goodwillAssessment?: GoodwillAssessmentData;
   instrumentDetails?: TableRowData[];
+  balanceSheet?: BalanceSheetData;
+  contingentLiabilities?: ContingentLiabilitiesData;
 }
 
 export interface RatingNote {

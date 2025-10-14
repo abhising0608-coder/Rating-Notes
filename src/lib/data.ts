@@ -32,6 +32,8 @@ import type {
   PeerCompany,
   BoardCompositionData,
   GoodwillAssessmentData,
+  BalanceSheetData,
+  ContingentLiabilitiesData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -147,6 +149,11 @@ const templates: Template[] = [
       {
         id: 's_quarterly_financials',
         title: '7.3 Quarterly Financials',
+        hasTable: false,
+      },
+      {
+        id: 's_balance_sheet',
+        title: '7.4 Balance Sheet',
         hasTable: false,
       },
       {
@@ -722,6 +729,22 @@ const goodwillAssessmentData: GoodwillAssessmentData = {
     ]
 };
 
+const balanceSheetData: BalanceSheetData = {
+  tableRows: [
+    { id: 'bs-1', 'Particulars': 'Total Assets', '2023A': 2000, '2024P': 2200 },
+    { id: 'bs-2', 'Particulars': 'Total Liabilities', '2023A': 1000, '2024P': 1100 },
+    { id: 'bs-3', 'Particulars': 'Equity', '2023A': 1000, '2024P': 1100 },
+  ]
+};
+
+const contingentLiabilitiesData: ContingentLiabilitiesData = {
+  selection: 'Applicable',
+  tableRows: [
+    { id: 'cl-1', 'Particulars': 'Guarantees', '2023': 50, '2022': 45 },
+    { id: 'cl-2', 'Particulars': 'Letters of Credit', '2023': 100, '2022': 95 },
+  ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -840,6 +863,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         quarterlyFinancials: quarterlyFinancialsData,
+      },
+      s_balance_sheet: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
       },
       s_cash_flow_assumptions: {
         applicable: 'Applicable',
@@ -1326,6 +1355,24 @@ export const getGoodwillAssessmentData = async (noteId: string): Promise<Goodwil
     await new Promise(resolve => setTimeout(resolve, 300));
     if (noteId === '1') {
         return goodwillAssessmentData;
+    }
+    return null;
+}
+
+export const getBalanceSheetData = async(noteId: string): Promise<BalanceSheetData | null> => {
+    console.log(`Fetching balance sheet data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return balanceSheetData;
+    }
+    return null;
+}
+
+export const getContingentLiabilitiesData = async(noteId: string): Promise<ContingentLiabilitiesData | null> => {
+    console.log(`Fetching contingent liabilities data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return contingentLiabilitiesData;
     }
     return null;
 }
