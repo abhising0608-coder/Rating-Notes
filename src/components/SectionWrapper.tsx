@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, GovernmentSupportFrameworkRow, CEChecklistData, CERatingTableRow, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1625,6 +1625,81 @@ const AnyOtherInformationSection = ({ initialData, onRefresh }: { initialData?: 
   );
 };
 
+const ConsolidatedEntitiesSection = ({ initialData, onUpdate, onRefresh }: { initialData: ConsolidatedEntity[], onUpdate: (data: ConsolidatedEntity[]) => void, onRefresh: () => void }) => {
+  const [entities, setEntities] = useState(initialData);
+  const [isRefreshing, startRefreshTransition] = useTransition();
+
+  const handleUpdate = (id: string, field: keyof ConsolidatedEntity, value: string) => {
+    const updatedEntities = entities.map(entity => 
+      entity.id === id ? { ...entity, [field]: value } : entity
+    );
+    setEntities(updatedEntities);
+    onUpdate(updatedEntities);
+  };
+  
+  const handleRefresh = () => {
+      startRefreshTransition(async () => {
+          onRefresh();
+      });
+  }
+
+  return (
+    <div className="space-y-4">
+       <div className="flex items-center justify-end">
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+          {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Refresh
+        </Button>
+      </div>
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Sr. No.</TableHead>
+              <TableHead>Name of Company</TableHead>
+              <TableHead>Extent of Consolidation</TableHead>
+              <TableHead>Rationale for Consolidation</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {entities.map(entity => (
+              <TableRow key={entity.id}>
+                <TableCell>{entity.srNo}</TableCell>
+                <TableCell>{entity.companyName}</TableCell>
+                <TableCell>
+                  <Select
+                    value={entity.extentOfConsolidation}
+                    onValueChange={(value) => handleUpdate(entity.id, 'extentOfConsolidation', value as ExtentOfConsolidation)}
+                  >
+                    <SelectTrigger className="h-8">
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Full">Full</SelectItem>
+                      <SelectItem value="Moderate">Moderate</SelectItem>
+                      <SelectItem value="Proportionate">Proportionate</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Input
+                    type="text"
+                    value={entity.rationale}
+                    onChange={(e) => handleUpdate(entity.id, 'rationale', e.target.value)}
+                    className="h-8"
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+};
+
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -1667,6 +1742,7 @@ export default function SectionWrapper({
   const [esgRisks, setEsgRisks] = useState(sectionData.esgRisks);
   const [statusOfNonCooperation, setStatusOfNonCooperation] = useState(sectionData.statusOfNonCooperation);
   const [anyOtherInformation, setAnyOtherInformation] = useState(sectionData.anyOtherInformation);
+  const [consolidatedEntities, setConsolidatedEntities] = useState(sectionData.consolidatedEntities);
 
 
 
@@ -1858,7 +1934,17 @@ export default function SectionWrapper({
         });
       }
     }
-  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, note.companyId, note.id, onUpdateSection]);
+    if (section.id === 's_consolidated_entities') {
+      if (!consolidatedEntities) {
+        getConsolidatedEntities(note.companyId).then(data => {
+          if (data) {
+            setConsolidatedEntities(data);
+            onUpdateSection(section.id, { consolidatedEntities: data });
+          }
+        });
+      }
+    }
+  }, [section.id, disclosureData, bankFacilitiesData, analystDetails, ratingRecommendation, qcSpecialists, summaryHygieneChecks, aboutCompany, keyUpdatesContent, analyticalApproach, modelSummary, parentGovSupport, ceChecklist, linkedRatings, financials, interimResults, quarterlyFinancials, ratingSensitivities, liquidity, statusOfNonCooperation, anyOtherInformation, consolidatedEntities, note.companyId, note.id, onUpdateSection]);
 
   const handleApplicabilityChange = (value: 'Applicable' | 'Not Applicable' | 'Not Available') => {
     setApplicability(value);
@@ -2063,6 +2149,20 @@ export default function SectionWrapper({
     }
     return refreshedData;
   }
+  
+  const handleConsolidatedEntitiesUpdate = (data: ConsolidatedEntity[]) => {
+    setConsolidatedEntities(data);
+    onUpdateSection(section.id, { consolidatedEntities: data });
+  }
+
+  const handleConsolidatedEntitiesRefresh = () => {
+    getConsolidatedEntities(note.companyId, true).then(data => {
+      if (data) {
+        setConsolidatedEntities(data);
+        onUpdateSection(section.id, { consolidatedEntities: data });
+      }
+    });
+  }
 
 
   const sectionVisible = applicability === 'Applicable';
@@ -2093,6 +2193,7 @@ export default function SectionWrapper({
   const isEsgRisksSection = section.id === 's_esg_risks';
   const isStatusOfNonCooperationSection = section.id === 's_non_cooperation_status';
   const isAnyOtherInformationSection = section.id === 's_any_other_info';
+  const isConsolidatedEntitiesSection = section.id === 's_consolidated_entities';
 
 
   return (
@@ -2330,6 +2431,14 @@ export default function SectionWrapper({
             onRefresh={handleAnyOtherInformationRefresh}
           />
         )}
+
+        { isConsolidatedEntitiesSection && sectionVisible && consolidatedEntities && (
+            <ConsolidatedEntitiesSection 
+                initialData={consolidatedEntities}
+                onUpdate={handleConsolidatedEntitiesUpdate}
+                onRefresh={handleConsolidatedEntitiesRefresh}
+            />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -2355,6 +2464,7 @@ export default function SectionWrapper({
           !isEsgRisksSection &&
           !isStatusOfNonCooperationSection &&
           !isAnyOtherInformationSection &&
+          !isConsolidatedEntitiesSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
@@ -2401,7 +2511,7 @@ export default function SectionWrapper({
           />
         )}
 
-        { !isAnalyticalApproachDisplaySection && (
+        { !isAnalyticalApproachDisplaySection && !isConsolidatedEntitiesSection && (
           <CommentsEditor 
             sectionId={section.id} 
             initialContent={sectionData.comments}

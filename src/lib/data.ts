@@ -28,6 +28,7 @@ import type {
   AboutCompanyData,
   StatusOfNonCooperationData,
   AnyOtherInformationData,
+  ConsolidatedEntity,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -217,6 +218,11 @@ const templates: Template[] = [
         title: 'Any Other Information',
         hasTable: false,
         tooltipKey: 'any.other.info',
+      },
+      {
+        id: 's_consolidated_entities',
+        title: 'Annexure: List of Entities Consolidated',
+        hasTable: false,
       }
     ],
     industryMapping: ['NSE_MANUFACTURING', 'NSE_HEAVY_ENGG'],
@@ -650,6 +656,12 @@ const anyOtherInformationData: AnyOtherInformationData = {
   ]
 };
 
+const consolidatedEntitiesData: ConsolidatedEntity[] = [
+    { id: 'ce-1', srNo: 1, companyName: 'Subsidiary A', extentOfConsolidation: '', rationale: '' },
+    { id: 'ce-2', srNo: 2, companyName: 'Subsidiary B', extentOfConsolidation: '', rationale: '' },
+    { id: 'ce-3', srNo: 3, companyName: 'Joint Venture X', extentOfConsolidation: '', rationale: '' },
+];
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -859,6 +871,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
       },
       s_any_other_info: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_consolidated_entities: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1183,6 +1201,23 @@ export const getAnyOtherInformationData = async (companyId: string, forceRefresh
   
   if (companyId === '2') {
     return { directors: [] };
+  }
+
+  return null;
+};
+
+export const getConsolidatedEntities = async (companyId: string, forceRefresh = false): Promise<ConsolidatedEntity[] | null> => {
+  console.log(`Fetching consolidated entities for company: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  if (companyId === '1') {
+    if (forceRefresh) {
+      return [
+          ...consolidatedEntitiesData,
+          { id: 'ce-4-refresh', srNo: 4, companyName: 'New Subsidiary (Refreshed)', extentOfConsolidation: '', rationale: '' }
+      ];
+    }
+    return consolidatedEntitiesData;
   }
 
   return null;

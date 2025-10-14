@@ -312,6 +312,16 @@ export interface AnyOtherInformationData {
   }[];
 }
 
+export type ExtentOfConsolidation = 'Full' | 'Moderate' | 'Proportionate' | 'Other' | '';
+
+export interface ConsolidatedEntity {
+  id: string;
+  srNo: number;
+  companyName: string;
+  extentOfConsolidation: ExtentOfConsolidation;
+  rationale: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -354,6 +364,7 @@ export interface SectionData {
   aboutCompany?: AboutCompanyData;
   statusOfNonCooperation?: StatusOfNonCooperationData;
   anyOtherInformation?: AnyOtherInformationData;
+  consolidatedEntities?: ConsolidatedEntity[];
 }
 
 export interface RatingNote {
