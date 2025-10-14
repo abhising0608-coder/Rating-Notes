@@ -2663,7 +2663,7 @@ export default function SectionWrapper({
           />
         )}
 
-        { !isAnalyticalApproachDisplaySection && !isConsolidatedEntitiesSection && (
+        { !isAnalyticalApproachDisplaySection && (
           <CommentsEditor 
             sectionId={section.id} 
             initialContent={sectionData.comments}
