@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
 import type { Company, PeerCompany } from '@/types';
-import { Plus, Trash2, RefreshCw, Check as CheckIcon } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -38,7 +38,8 @@ export default function PeerComparisonPage() {
     getPrefetchedPeers('1').then(peers => {
       setPrefetchedPeers(peers);
       // Also using prefetched peers as mock query results for now
-      setQueryResultPeers(peers);
+      const mockQueryResults = peers.filter(p => ['Torrent Pharma', 'Sun Pharma', 'Divis Labs', 'Cipla'].includes(p.companyName));
+      setQueryResultPeers(mockQueryResults);
     });
   }, []);
 
@@ -202,39 +203,27 @@ export default function PeerComparisonPage() {
                         <AccordionTrigger>Query Builder to Search the Companies in the DB</AccordionTrigger>
                         <AccordionContent>
                            <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                                <Table>
-                                  <TableBody>
-                                    <TableRow>
-                                      <TableCell className="font-medium w-1/3">Sector</TableCell>
-                                      <TableCell>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                                <div className="space-y-4">
+                                     <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+                                        <Label>Sector</Label>
                                         <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
-                                      </TableCell>
-                                    </TableRow>
-                                     <TableRow>
-                                      <TableCell className="font-medium">Industry</TableCell>
-                                      <TableCell>
+                                    </div>
+                                    <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+                                        <Label>Industry</Label>
                                         <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
-                                      </TableCell>
-                                    </TableRow>
-                                     <TableRow>
-                                      <TableCell className="font-medium">Basic Industry</TableCell>
-                                      <TableCell>
+                                    </div>
+                                     <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+                                        <Label>Basic Industry</Label>
                                         <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>
-                                </Table>
-                                <Table>
-                                  <TableBody>
-                                    <TableRow>
-                                      <TableCell className="font-medium w-1/3">Ratings</TableCell>
-                                      <TableCell>
-                                         <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>
-                                </Table>
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                     <div className="grid grid-cols-[100px_1fr] items-center gap-4">
+                                        <Label>Ratings</Label>
+                                        <Select><SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger></Select>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div className="space-y-2">
@@ -243,7 +232,7 @@ export default function PeerComparisonPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="w-[25%]">Parameter</TableHead>
+                                                <TableHead>Parameter</TableHead>
                                                 <TableHead>Min Range</TableHead>
                                                 <TableHead>Max Range</TableHead>
                                                 <TableHead>Operations</TableHead>
@@ -263,6 +252,26 @@ export default function PeerComparisonPage() {
                                                 <TableCell className="flex gap-2">
                                                     <Button variant="ghost" size="icon"><CheckIcon className="h-5 w-5 text-green-600" /></Button>
                                                     <Button variant="ghost" size="icon"><RefreshCw className="h-4 w-4" /></Button>
+                                                </TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell><Input value="Track Record (No. of Years)" readOnly /></TableCell>
+                                                <TableCell><Input value="0" readOnly /></TableCell>
+                                                <TableCell><Input value="100" readOnly /></TableCell>
+                                                <TableCell><Input value="AND" readOnly /></TableCell>
+                                                <TableCell className="flex gap-2">
+                                                    <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                                </TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell><Input value="% Share of Domestic Export" readOnly /></TableCell>
+                                                <TableCell><Input value="0" readOnly /></TableCell>
+                                                <TableCell><Input value="100" readOnly /></TableCell>
+                                                <TableCell><Input value="OR" readOnly /></TableCell>
+                                                <TableCell className="flex gap-2">
+                                                    <Button variant="ghost" size="icon"><Pencil className="h-4 w-4" /></Button>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                                 </TableCell>
                                             </TableRow>
                                         </TableBody>
@@ -370,3 +379,5 @@ export default function PeerComparisonPage() {
     </div>
   );
 }
+
+    
