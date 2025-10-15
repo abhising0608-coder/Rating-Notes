@@ -1422,7 +1422,6 @@ export const getRatingRecommendation = async (noteId: string): Promise<RatingRec
           LT: getConcatenatedRatings(workflowData, "LT"),
           ST: getConcatenatedRatings(workflowData, "ST"),
           unsupported: workflowData.find(d => d.instrument === 'Instrument 2')?.LT || '',
-          pendingSteps: workflowData.find(d => d.instrument === 'Instrument 3')?.ST || '',
         };
     }
 

@@ -180,7 +180,7 @@ const RatingRecommendationSection = ({ ratings }: { ratings: RatingRecommendatio
                     <tr className="hover:bg-muted/50 divide-x">
                         <td className="p-2">Unsupported Rating(s), if any</td>
                         <td className="p-2">{ratings.unsupported}</td>
-                        <td className="p-2">{ratings.unsupported}</td>
+                        <td className="p-2"></td>
                     </tr>
                 </tbody>
             </table>

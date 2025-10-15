@@ -104,7 +104,6 @@ export interface RatingRecommendation {
     LT: string;
     ST: string;
     unsupported: string;
-    pendingSteps: string;
 }
 
 export interface QCSectorSpecialistData {
