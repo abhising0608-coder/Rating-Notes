@@ -145,13 +145,13 @@ const RatingRecommendationSection = ({ ratings }: { ratings: RatingRecommendatio
                 <thead className="bg-muted/50">
                     <tr className="divide-x">
                         <th className="p-2 text-left font-medium">Rating Team Recommendation</th>
-                        <th className="p-2 text-left font-medium">Long Term Rating</th>
+                        <th className="p-2 text-left font-medium">Long Term Rating and Outlook</th>
                         <th className="p-2 text-left font-medium">Short Term Rating</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y">
                     <tr className="hover:bg-muted/50 divide-x">
-                        <td className="p-2">Ratings</td>
+                        <td className="p-2">Rating(s)</td>
                         <td className="p-2">
                              <TooltipProvider>
                                 <ShadcnTooltip>
@@ -178,14 +178,9 @@ const RatingRecommendationSection = ({ ratings }: { ratings: RatingRecommendatio
                         </td>
                     </tr>
                     <tr className="hover:bg-muted/50 divide-x">
-                        <td className="p-2">Unsupported Ratings if any</td>
+                        <td className="p-2">Unsupported Rating(s), if any</td>
                         <td className="p-2">{ratings.unsupported}</td>
                         <td className="p-2">{ratings.unsupported}</td>
-                    </tr>
-                    <tr className="hover:bg-muted/50 divide-x">
-                        <td className="p-2">Rating in absence of pending steps/documents</td>
-                        <td className="p-2">{ratings.pendingSteps}</td>
-                        <td className="p-2">{ratings.pendingSteps}</td>
                     </tr>
                 </tbody>
             </table>
