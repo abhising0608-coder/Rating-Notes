@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -77,6 +77,11 @@ export default function PeerComparisonPage() {
     { id: 'int-3', type: 'IPT', date: '', name: '', checked: false },
   ]);
 
+  const [bankerInteractions, setBankerInteractions] = useState<BankerInteraction[]>([
+    { id: 'bi-1', bankerName: 'HDFC Bank', name: 'R. Mehra', designation: 'RM', email: 'r.mehra@hdfc.com', mobile: '9876543210', dateOfInteraction: '2024-07-10', feedback: 'Positive' },
+    { id: 'bi-2', bankerName: 'ICICI Bank', name: 'S. Singh', designation: 'Sr. RM', email: 's.singh@icici.com', mobile: '9876543211', dateOfInteraction: '2024-07-12', feedback: 'Neutral' },
+  ]);
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
@@ -93,6 +98,10 @@ export default function PeerComparisonPage() {
 
   const handleInteractionChange = (id: string, field: keyof Interaction, value: string | boolean) => {
     setInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleBankerInteractionChange = (id: string, field: keyof BankerInteraction, value: string) => {
+    setBankerInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 
@@ -675,6 +684,41 @@ export default function PeerComparisonPage() {
                             </Table>
                           </div>
                         </div>
+                         <div className="space-y-4">
+                          <h4 className="font-semibold text-md">Banker Interactions</h4>
+                           <div className="border rounded-lg overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Name of the banker/lender</TableHead>
+                                  <TableHead>Banker Interactions</TableHead>
+                                  <TableHead>Feedback</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {bankerInteractions.map(item => (
+                                  <TableRow key={item.id}>
+                                    <TableCell>
+                                      <Input value={item.bankerName} onChange={e => handleBankerInteractionChange(item.id, 'bankerName', e.target.value)} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="space-y-1">
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Name:</span><Input value={item.name} onChange={e => handleBankerInteractionChange(item.id, 'name', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Designation:</span><Input value={item.designation} onChange={e => handleBankerInteractionChange(item.id, 'designation', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Email Id:</span><Input type="email" value={item.email} onChange={e => handleBankerInteractionChange(item.id, 'email', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Mobile No:</span><Input value={item.mobile} onChange={e => handleBankerInteractionChange(item.id, 'mobile', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date of Interaction:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleBankerInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Input value={item.feedback} onChange={e => handleBankerInteractionChange(item.id, 'feedback', e.target.value)} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                           </div>
+                         </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

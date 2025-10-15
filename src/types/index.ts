@@ -480,6 +480,17 @@ export interface Interaction {
   checked: boolean;
 }
 
+export interface BankerInteraction {
+  id: string;
+  bankerName: string;
+  name: string;
+  designation: string;
+  email: string;
+  mobile: string;
+  dateOfInteraction: string;
+  feedback: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
