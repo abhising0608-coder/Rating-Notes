@@ -1,4 +1,5 @@
 
+
 export interface Company {
   id: string;
   name: string;
@@ -564,6 +565,19 @@ export interface WithdrawnFacility {
   date: string;
 }
 
+export interface MandateDetailsData {
+    constitution: string;
+    cin: string;
+    status: 'Initial' | 'Reaffirmed' | 'Upgraded' | 'Downgraded';
+}
+
+export interface ContactDetails {
+  id: string;
+  name: string;
+  designation: string;
+  email: string;
+  phone: string;
+}
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -621,6 +635,10 @@ export interface SectionData {
   managementDiscussion?: ManagementDiscussionData;
   discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
   checklist?: Checklist;
+  mandateDetails?: MandateDetailsData;
+  contactDetailsEntity?: ContactDetails[];
+  contactDetailsBankers?: ContactDetails[];
+  contactDetailsAuditor?: ContactDetails[];
 }
 
 export interface RatingNote {

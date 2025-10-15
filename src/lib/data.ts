@@ -45,6 +45,8 @@ import type {
   DiscussionWithAuditCommitteeData,
   Checklist,
   WithdrawnFacility,
+  MandateDetailsData,
+  ContactDetails,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -359,6 +361,29 @@ const templates: Template[] = [
     industryMapping: [],
     createdAt: '2023-11-01T10:00:00Z',
     createdBy: 'system'
+  },
+  {
+    id: 'tmpl_cpti_01',
+    name: 'CPTI Rating Note',
+    sector: 'Agnostic',
+    subSector: 'CPTI',
+    isAgnostic: true,
+    version: 'v1.0',
+    effectiveFrom: '2024-01-01',
+    description: 'Sector-agnostic template for CPTI instruments.',
+    sampleFormatUrl: null,
+    sections: [
+        { id: 's_cpti_mandate_details', title: 'Mandate Details', hasTable: false },
+        { id: 's1', title: 'Cover Page', hasTable: false }, // Re-using cover page
+        { id: 's_cpti_contact_entity', title: 'Contact Details - Rated Entity', hasTable: false },
+        { id: 's_cpti_contact_bankers', title: 'Contact Details - Bankers / Lenders', hasTable: false },
+        { id: 's_cpti_contact_auditor', title: 'Contact Details - Auditor', hasTable: false },
+        { id: 's_cpti_last_rating_action', title: 'Last Rating Action', hasTable: true },
+        // ... add other CPTI sections here from the prompt
+    ],
+    industryMapping: [],
+    createdAt: '2024-07-01T10:00:00Z',
+    createdBy: 'system',
   },
   {
     id: 'tmpl_agn_02',
@@ -907,6 +932,24 @@ const withdrawnFacilitiesData: WithdrawnFacility[] = [
   { id: 'wf-2', facility: 'Working Capital Demand Loan', details: 'NOC received from bank.', date: '2024-06-01' },
 ];
 
+const mandateDetailsData: MandateDetailsData = {
+    constitution: "Private Limited",
+    cin: "L12345MH2025PLC123456",
+    status: 'Initial',
+};
+
+const contactDetailsEntityData: ContactDetails[] = [
+    { id: 'cde-1', name: 'Mr. John Doe', designation: 'CFO', email: 'john.doe@example.com', phone: '9876543210' }
+];
+
+const contactDetailsBankersData: ContactDetails[] = [
+    { id: 'cdb-1', name: 'Ms. Jane Smith', designation: 'RM, HDFC Bank', email: 'jane.smith@hdfc.com', phone: '8765432109' }
+];
+
+const contactDetailsAuditorData: ContactDetails[] = [
+    { id: 'cda-1', name: 'Mr. Auditor', designation: 'Partner, Audit & Co.', email: 'auditor@auditco.com', phone: '7654321098' }
+];
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -1209,7 +1252,31 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
         checklist: checklistData,
-      }
+      },
+      s_cpti_mandate_details: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_cpti_contact_entity: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_cpti_contact_bankers: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_cpti_contact_auditor: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
     },
   },
 ];
@@ -1708,4 +1775,39 @@ export const getPreviousRatingNotes = async (companyId: string): Promise<RatingN
         .filter(note => note.companyId === companyId)
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 4);
+};
+
+export const getMandateDetails = async (noteId: string): Promise<MandateDetailsData | null> => {
+    console.log(`Fetching mandate details for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return mandateDetailsData;
+    }
+    return null;
+}
+
+export const getContactDetailsEntity = async (companyId: string): Promise<ContactDetails[] | null> => {
+    console.log(`Fetching entity contact details for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (companyId === '1') {
+        return contactDetailsEntityData;
+    }
+    return null;
+};
+export const getContactDetailsBankers = async (companyId: string): Promise<ContactDetails[] | null> => {
+    console.log(`Fetching banker contact details for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (companyId === '1') {
+        return contactDetailsBankersData;
+    }
+    return null;
+};
+
+export const getContactDetailsAuditor = async (companyId: string): Promise<ContactDetails[] | null> => {
+    console.log(`Fetching auditor contact details for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (companyId === '1') {
+        return contactDetailsAuditorData;
+    }
+    return null;
 };

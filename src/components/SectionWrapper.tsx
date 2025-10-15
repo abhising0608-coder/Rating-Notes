@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, AuditCommitteeRecord } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData, getMandateDetails, getContactDetailsEntity, getContactDetailsBankers, getContactDetailsAuditor } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -2247,6 +2247,70 @@ const DiscussionWithAuditCommitteeSection = ({ data, onRefresh }: { data: Discus
     );
 };
 
+const MandateDetailsSection = ({ data, onUpdate }: { data: MandateDetailsData, onUpdate: (data: MandateDetailsData) => void }) => {
+    const [localData, setLocalData] = useState(data);
+
+    const handleUpdate = (field: keyof MandateDetailsData, value: any) => {
+        const updatedData = { ...localData, [field]: value };
+        setLocalData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <Label>Constitution</Label>
+                <Input value={localData.constitution} readOnly className="bg-muted" />
+            </div>
+            <div>
+                <Label>CIN</Label>
+                <Input value={localData.cin} readOnly className="bg-muted" />
+            </div>
+            <div>
+                <Label>Status</Label>
+                <Select value={localData.status} onValueChange={v => handleUpdate('status', v)}>
+                    <SelectTrigger>
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Initial">Initial</SelectItem>
+                        <SelectItem value="Reaffirmed">Reaffirmed</SelectItem>
+                        <SelectItem value="Upgraded">Upgraded</SelectItem>
+                        <SelectItem value="Downgraded">Downgraded</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
+    );
+};
+
+const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: ContactDetails[] }) => (
+    <div className="space-y-2">
+        <h3 className="font-semibold text-lg font-headline">{title}</h3>
+        <div className="border rounded-lg overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Designation</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {contacts.map(contact => (
+                        <TableRow key={contact.id}>
+                            <TableCell>{contact.name}</TableCell>
+                            <TableCell>{contact.designation}</TableCell>
+                            <TableCell>{contact.email}</TableCell>
+                            <TableCell>{contact.phone}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    </div>
+);
 
 
 type SectionWrapperProps = {
@@ -2308,6 +2372,10 @@ export default function SectionWrapper({
   const [pastRatingSensitivities, setPastRatingSensitivities] = useState(sectionData.pastRatingSensitivities);
   const [managementDiscussion, setManagementDiscussion] = useState(sectionData.managementDiscussion);
   const [discussionWithAuditCommittee, setDiscussionWithAuditCommittee] = useState(sectionData.discussionWithAuditCommittee);
+  const [mandateDetails, setMandateDetails] = useState(sectionData.mandateDetails);
+  const [contactDetailsEntity, setContactDetailsEntity] = useState(sectionData.contactDetailsEntity);
+  const [contactDetailsBankers, setContactDetailsBankers] = useState(sectionData.contactDetailsBankers);
+  const [contactDetailsAuditor, setContactDetailsAuditor] = useState(sectionData.contactDetailsAuditor);
 
 
 
@@ -2629,6 +2697,46 @@ export default function SectionWrapper({
           }
         });
       }
+    }
+     if (section.id === 's_cpti_mandate_details') {
+        if (!mandateDetails) {
+            getMandateDetails(note.id).then(data => {
+                if(data) {
+                    setMandateDetails(data);
+                    onUpdateSection(section.id, { mandateDetails: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_cpti_contact_entity') {
+        if (!contactDetailsEntity) {
+            getContactDetailsEntity(note.companyId).then(data => {
+                if (data) {
+                    setContactDetailsEntity(data);
+                    onUpdateSection(section.id, { contactDetailsEntity: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_cpti_contact_bankers') {
+        if (!contactDetailsBankers) {
+            getContactDetailsBankers(note.companyId).then(data => {
+                if (data) {
+                    setContactDetailsBankers(data);
+                    onUpdateSection(section.id, { contactDetailsBankers: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_cpti_contact_auditor') {
+        if (!contactDetailsAuditor) {
+            getContactDetailsAuditor(note.companyId).then(data => {
+                if (data) {
+                    setContactDetailsAuditor(data);
+                    onUpdateSection(section.id, { contactDetailsAuditor: data });
+                }
+            });
+        }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section.id, note.companyId, note.id, onUpdateSection]);
@@ -2973,6 +3081,11 @@ export default function SectionWrapper({
     onUpdateSection(section.id, { goodwillAssessment: data });
   }
 
+  const handleMandateDetailsUpdate = (data: MandateDetailsData) => {
+      setMandateDetails(data);
+      onUpdateSection(section.id, { mandateDetails: data });
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -3015,6 +3128,10 @@ export default function SectionWrapper({
   const isConsolidatedEntitiesSection = section.id === 's_consolidated_entities';
   const isGoodwillAssessmentSection = section.id === 's_goodwill_assessment';
   const isInstrumentDetailsSection = section.id === 's_instrument_details';
+  const isMandateDetailsSection = section.id === 's_cpti_mandate_details';
+  const isContactDetailsEntitySection = section.id === 's_cpti_contact_entity';
+  const isContactDetailsBankersSection = section.id === 's_cpti_contact_bankers';
+  const isContactDetailsAuditorSection = section.id === 's_cpti_contact_auditor';
 
 
   return (
@@ -3378,6 +3495,25 @@ export default function SectionWrapper({
                 onRemoveRow={handleRowRemove}
             />
         )}
+
+        {isMandateDetailsSection && sectionVisible && mandateDetails && (
+          <MandateDetailsSection
+            data={mandateDetails}
+            onUpdate={handleMandateDetailsUpdate}
+          />
+        )}
+        
+        {isContactDetailsEntitySection && sectionVisible && contactDetailsEntity && (
+            <ContactDetailsSection title="Contact Details - Rated Entity" contacts={contactDetailsEntity} />
+        )}
+        
+        {isContactDetailsBankersSection && sectionVisible && contactDetailsBankers && (
+            <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} />
+        )}
+
+        {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
+            <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
+        )}
         
         { !isCoverPage && 
           !isAboutCompanySection &&
@@ -3416,6 +3552,10 @@ export default function SectionWrapper({
           !isConsolidatedEntitiesSection &&
           !isGoodwillAssessmentSection &&
           !isInstrumentDetailsSection &&
+          !isMandateDetailsSection &&
+          !isContactDetailsEntitySection &&
+          !isContactDetailsBankersSection &&
+          !isContactDetailsAuditorSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection
