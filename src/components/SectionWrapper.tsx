@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, AuditCommitteeRecord } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -2209,6 +2209,45 @@ const ManagementDiscussionSection = ({ data }: { data: ManagementDiscussionData 
   )
 }
 
+const DiscussionWithAuditCommitteeSection = ({ data, onRefresh }: { data: DiscussionWithAuditCommitteeData, onRefresh: () => void }) => {
+    return (
+        <div className="space-y-4">
+            <div className="flex justify-end">
+                <Button variant="outline" size="sm" onClick={onRefresh}>
+                    <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+                </Button>
+            </div>
+            {data.records.length > 0 ? (
+                <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Meeting Date</TableHead>
+                                <TableHead>Attendees</TableHead>
+                                <TableHead>Key Discussion Points</TableHead>
+                                <TableHead>Decisions Taken</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {data.records.map((record) => (
+                                <TableRow key={record.id}>
+                                    <TableCell>{format(new Date(record.meetingDate), 'PPP')}</TableCell>
+                                    <TableCell>{record.attendees.join(', ')}</TableCell>
+                                    <TableCell>{record.keyDiscussions}</TableCell>
+                                    <TableCell>{record.decisions}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            ) : (
+                <p className="text-muted-foreground p-4 text-center">No records found.</p>
+            )}
+        </div>
+    );
+};
+
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2268,6 +2307,7 @@ export default function SectionWrapper({
   const [addressedQCObservations, setAddressedQCObservations] = useState(sectionData.addressedQCObservations);
   const [pastRatingSensitivities, setPastRatingSensitivities] = useState(sectionData.pastRatingSensitivities);
   const [managementDiscussion, setManagementDiscussion] = useState(sectionData.managementDiscussion);
+  const [discussionWithAuditCommittee, setDiscussionWithAuditCommittee] = useState(sectionData.discussionWithAuditCommittee);
 
 
 
@@ -2519,6 +2559,16 @@ export default function SectionWrapper({
           if (data) {
             setManagementDiscussion(data);
             onUpdateSection(section.id, { managementDiscussion: data });
+          }
+        });
+      }
+    }
+    if (section.id === 's_discussion_audit_committee') {
+      if (!discussionWithAuditCommittee) {
+        getDiscussionWithAuditCommitteeData(note.id).then(data => {
+          if (data) {
+            setDiscussionWithAuditCommittee(data);
+            onUpdateSection(section.id, { discussionWithAuditCommittee: data });
           }
         });
       }
@@ -2817,6 +2867,15 @@ export default function SectionWrapper({
     })
   }
 
+  const handleDiscussionWithAuditCommitteeRefresh = () => {
+    getDiscussionWithAuditCommitteeData(note.id, true).then(data => {
+        if(data) {
+            setDiscussionWithAuditCommittee(data);
+            onUpdateSection(section.id, { discussionWithAuditCommittee: data });
+        }
+    })
+  }
+
   const handleAssumptionsForCashFlowUpdate = (content: string) => {
     onUpdateSection(section.id, { assumptionsForCashFlow: content });
   };
@@ -2938,6 +2997,7 @@ export default function SectionWrapper({
   const isAddressedQCObservationsSection = section.id === 's_qc_observations';
   const isPastRatingSensitivitiesSection = section.id === 's_past_rating_sensitivities';
   const isManagementDiscussionSection = section.id === 's_management_discussion';
+  const isDiscussionWithAuditCommitteeSection = section.id === 's_discussion_audit_committee';
   const isAssumptionsForCashFlowSection = section.id === 's_cash_flow_assumptions';
   const isSensitivityAnalysisSection = section.id === 's_sensitivity_analysis';
   const isGstCalculationSection = section.id === 's_gst_calculation';
@@ -3165,6 +3225,13 @@ export default function SectionWrapper({
         {isManagementDiscussionSection && sectionVisible && managementDiscussion && (
           <ManagementDiscussionSection data={managementDiscussion} />
         )}
+        
+        {isDiscussionWithAuditCommitteeSection && sectionVisible && discussionWithAuditCommittee && (
+          <DiscussionWithAuditCommitteeSection 
+            data={discussionWithAuditCommittee}
+            onRefresh={handleDiscussionWithAuditCommitteeRefresh}
+           />
+        )}
 
 
         { isAssumptionsForCashFlowSection && sectionVisible && (
@@ -3332,6 +3399,7 @@ export default function SectionWrapper({
           !isAddressedQCObservationsSection &&
           !isPastRatingSensitivitiesSection &&
           !isManagementDiscussionSection &&
+          !isDiscussionWithAuditCommitteeSection &&
           !isAssumptionsForCashFlowSection &&
           !isSensitivityAnalysisSection &&
           !isGstCalculationSection &&
@@ -3394,7 +3462,7 @@ export default function SectionWrapper({
           />
         )}
 
-        { !isAnalyticalApproachDisplaySection && !isManagementDiscussionSection && (
+        { !isAnalyticalApproachDisplaySection && !isManagementDiscussionSection && !isDiscussionWithAuditCommitteeSection && (
           <CommentsEditor 
             sectionId={section.id} 
             initialContent={sectionData.comments}

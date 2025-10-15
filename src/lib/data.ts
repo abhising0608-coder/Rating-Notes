@@ -42,6 +42,7 @@ import type {
   AddressedQCObservationData,
   PastRatingSensitivitiesData,
   ManagementDiscussionData,
+  DiscussionWithAuditCommitteeData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -200,6 +201,12 @@ const templates: Template[] = [
         id: 's_management_discussion',
         title: 'Discussion with Management',
         hasTable: false,
+      },
+      {
+        id: 's_discussion_audit_committee',
+        title: 'Discussion with Audit Committee',
+        hasTable: false,
+        tooltipKey: 'discussion.auditCommittee',
       },
       {
         id: 's_cash_flow_assumptions',
@@ -497,6 +504,10 @@ const tooltips: TooltipData[] = [
   {
     key: 'rcm.minutes',
     text: 'A review for enhancement or reclassification for facilities etc. normally would not have had a detailed discussion and hence the earlier RCs minutes would have to be selected.'
+  },
+  {
+    key: 'discussion.auditCommittee',
+    text: 'Displays details of discussion held with the Audit Committee for the entity. Data is fetched from the core database and is read-only.'
   }
 ];
 
@@ -852,6 +863,12 @@ const managementDiscussionData: ManagementDiscussionData = {
   ]
 };
 
+const discussionWithAuditCommitteeData: DiscussionWithAuditCommitteeData = {
+    records: [
+        { id: 'dac-1', meetingDate: "2025-06-10", attendees: ["CFO – Mr. Arun Mehta", "Statutory Auditor – Ms. Riya Patel"], keyDiscussions: "Reviewed quarterly financial statements and related-party transactions.", decisions: "Audit Committee approved the unaudited results for Q1 FY 2025-26." }
+    ]
+};
+
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -1018,6 +1035,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         attachments: [],
       },
       s_management_discussion: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_discussion_audit_committee: {
         applicable: 'Applicable',
         tableRows: [],
         comments: '',
@@ -1598,3 +1621,17 @@ export const getManagementDiscussionData = async (noteId: string): Promise<Manag
   }
   return null;
 };
+
+export const getDiscussionWithAuditCommitteeData = async (noteId: string, forceRefresh = false): Promise<DiscussionWithAuditCommitteeData | null> => {
+    console.log(`Fetching audit committee discussion data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        if(forceRefresh) {
+            const refreshedData = { ...discussionWithAuditCommitteeData };
+            refreshedData.records[0].keyDiscussions += ' (Refreshed)';
+            return refreshedData;
+        }
+        return discussionWithAuditCommitteeData;
+    }
+    return null;
+}

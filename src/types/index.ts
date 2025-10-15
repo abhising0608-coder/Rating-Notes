@@ -437,6 +437,18 @@ export interface ManagementDiscussionData {
   discussionItems: ManagementDiscussionItem[];
 }
 
+export interface AuditCommitteeRecord {
+    id: string;
+    meetingDate: string;
+    attendees: string[];
+    keyDiscussions: string;
+    decisions: string;
+}
+
+export interface DiscussionWithAuditCommitteeData {
+    records: AuditCommitteeRecord[];
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -492,6 +504,7 @@ export interface SectionData {
   addressedQCObservations?: AddressedQCObservationData[];
   pastRatingSensitivities?: PastRatingSensitivitiesData;
   managementDiscussion?: ManagementDiscussionData;
+  discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
 }
 
 export interface RatingNote {
