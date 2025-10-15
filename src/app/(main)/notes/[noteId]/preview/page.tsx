@@ -5,7 +5,7 @@ import { getRatingNoteById } from '@/lib/data';
 import type { RatingNote } from '@/types';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
+import { Printer, Save, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 function NotePreviewPage() {
@@ -44,10 +44,17 @@ function NotePreviewPage() {
         <div className="bg-white">
             <div className="p-4 sm:p-6 md:p-8 print:hidden flex justify-between items-center bg-background border-b">
                 <h1 className="text-xl font-bold font-headline">Note Preview</h1>
-                <Button onClick={handlePrint}>
-                    <Printer className="mr-2" />
-                    Print / Save as PDF
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline">
+                        <Save className="mr-2 h-4 w-4" /> Save as Draft
+                    </Button>
+                    <Button>
+                        <CheckCircle className="mr-2 h-4 w-4" /> Mark as Complete
+                    </Button>
+                    <Button variant="secondary" onClick={handlePrint}>
+                        <Printer className="mr-2 h-4 w-4" /> Print / Export
+                    </Button>
+                </div>
             </div>
             <div className="max-w-4xl mx-auto p-8 print:p-0" id="printable-area">
                 <header className="mb-8 print:fixed print:top-0 print:left-0 print:right-0 print:p-4 print:border-b">
@@ -72,7 +79,7 @@ function NotePreviewPage() {
                                         <p className="text-sm italic text-gray-600">Section marked as "{sectionData.applicable}"</p>
                                      </div>
                                 )}
-                                {section.hasTable && sectionData.applicable === 'Applicable' && (
+                                {section.hasTable && sectionData.applicable === 'Applicable' && sectionData.tableRows.length > 0 && (
                                     <div className="overflow-x-auto mb-4">
                                         <table className="min-w-full text-sm border">
                                             <thead className="bg-gray-100">
