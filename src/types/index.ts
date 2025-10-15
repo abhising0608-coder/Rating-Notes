@@ -554,6 +554,13 @@ export interface Checklist {
   };
 }
 
+export interface WithdrawnFacility {
+  id: string;
+  facility: string;
+  details: string;
+  date: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';

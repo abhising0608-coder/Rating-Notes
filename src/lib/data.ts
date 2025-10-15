@@ -44,6 +44,7 @@ import type {
   ManagementDiscussionData,
   DiscussionWithAuditCommitteeData,
   Checklist,
+  WithdrawnFacility,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -734,8 +735,8 @@ const aboutCompanyData: AboutCompanyData = {
   briefFinancials: {
     fetchedRows: [
       { id: 'bf1', 'Particulars': 'Total operating income', 'March 31, 2023 (A)': 1200, 'March 31, 2024 (A)': 1350 },
-      { id: 'bf2', 'Particulars': 'PBILDT', 'March 31, 2023 (A)': 200, 'March 31, 2024 (A)': 230 },
-      { id: 'bf3', 'Particulars': 'Overall gearing (times)', 'March 31, 2023 (A)': -0.5, 'March 31, 2024 (A)': 0.8, mappedAttributeId: '1089' }
+      { id: 'bf2', 'Particulars': 'PBILDT', '2023A': 200, '2024A': 230 },
+      { id: 'bf3', 'Particulars': 'Overall gearing (times)', '2023A': -0.5, '2024A': 0.8, mappedAttributeId: '1089' }
     ],
     manualRows: [],
     manualColumns: []
@@ -886,6 +887,11 @@ const checklistData: Checklist = {
     ]
   }
 };
+
+const withdrawnFacilitiesData: WithdrawnFacility[] = [
+  { id: 'wf-1', facility: 'Term Loan A', details: 'Repaid in full on maturity.', date: '2024-05-15' },
+  { id: 'wf-2', facility: 'Working Capital Demand Loan', details: 'NOC received from bank.', date: '2024-06-01' },
+];
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -1667,4 +1673,13 @@ export const getChecklistData = async (noteId: string): Promise<Checklist | null
         return checklistData;
     }
     return null;
+}
+
+export const getWithdrawnFacilities = async (noteId: string): Promise<WithdrawnFacility[]> => {
+    console.log(`Fetching withdrawn facilities for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return withdrawnFacilitiesData;
+    }
+    return [];
 }
