@@ -62,6 +62,7 @@ export interface Attachment {
   url: string;
   type: string;
   name: string;
+  description?: string;
 }
 
 export interface BankFacility {
