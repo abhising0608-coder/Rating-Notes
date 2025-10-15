@@ -25,6 +25,7 @@ const navLinks = [
   { href: 'checklist', label: 'Checklist' },
   { href: 'important-data', label: 'Important Data, Ratios, etc.' },
   { href: 'other-data', label: 'Other Data' },
+  { href: 'annexures', label: 'Annexures' },
 ];
 
 export default function NoteNavigation() {
@@ -42,7 +43,7 @@ export default function NoteNavigation() {
                     ))}
                 </Stepper>
             </div>
-            <div className="flex items-center space-x-4 border-b">
+            <div className="flex items-center space-x-4 border-b overflow-x-auto pb-2">
             {navLinks.map((link) => {
                 const fullPath = `/notes/${noteId}/${link.href}`;
                 const isActive = pathname.includes(link.href);
@@ -51,7 +52,7 @@ export default function NoteNavigation() {
                     key={link.href}
                     href={fullPath}
                     className={cn(
-                    'px-3 py-2 border-b-2 text-sm font-medium',
+                    'px-3 py-2 border-b-2 text-sm font-medium whitespace-nowrap',
                     isActive
                         ? 'border-primary text-primary'
                         : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'

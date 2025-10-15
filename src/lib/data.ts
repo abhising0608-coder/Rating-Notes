@@ -70,6 +70,20 @@ const companies: Company[] = [
     subIndustry: 'Retail',
     registeredOffice: '789 Market St, Delhi, India',
   },
+  {
+    id: '4',
+    name: 'Sun Pharma',
+    nseIndustry: 'NSE_PHARMA',
+    subIndustry: 'Pharmaceuticals',
+    registeredOffice: '101 Pharma Lane, Hyderabad, India',
+  },
+   {
+    id: '5',
+    name: 'Cipla',
+    nseIndustry: 'NSE_PHARMA',
+    subIndustry: 'Pharmaceuticals',
+    registeredOffice: '202 Health Ave, Mumbai, India',
+  },
 ];
 
 const users: User[] = [
@@ -1683,3 +1697,15 @@ export const getWithdrawnFacilities = async (noteId: string): Promise<WithdrawnF
     }
     return [];
 }
+
+export const getPreviousRatingNotes = async (companyId: string): Promise<RatingNote[]> => {
+    console.log(`Fetching previous rating notes for company: ${companyId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const allNotes = await getRatingNotes();
+    
+    // Simulate fetching previous notes for a company
+    return allNotes
+        .filter(note => note.companyId === companyId)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 4);
+};
