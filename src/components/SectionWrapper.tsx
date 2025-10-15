@@ -2294,19 +2294,23 @@ const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: C
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Name</TableHead>
+                        <TableHead>Sr. No.</TableHead>
+                        <TableHead>Name of the Official</TableHead>
                         <TableHead>Designation</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Phone</TableHead>
+                        <TableHead>Address</TableHead>
+                        <TableHead>Email ID</TableHead>
+                        <TableHead>Contact Number</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {contacts.map(contact => (
+                    {contacts.map((contact, index) => (
                         <TableRow key={contact.id}>
+                            <TableCell>{index + 1}</TableCell>
                             <TableCell>{contact.name}</TableCell>
                             <TableCell>{contact.designation}</TableCell>
+                            <TableCell>{contact.address}</TableCell>
                             <TableCell>{contact.email}</TableCell>
-                            <TableCell>{contact.phone}</TableCell>
+                            <TableCell>{contact.contactNumber}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

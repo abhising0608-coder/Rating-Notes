@@ -578,8 +578,9 @@ export interface ContactDetails {
   id: string;
   name: string;
   designation: string;
+  address: string;
   email: string;
-  phone: string;
+  contactNumber: string;
 }
 
 export interface LastRatingActionData {

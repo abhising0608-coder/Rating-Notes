@@ -943,15 +943,15 @@ const mandateDetailsData: MandateDetailsData = {
 };
 
 const contactDetailsEntityData: ContactDetails[] = [
-    { id: 'cde-1', name: 'Mr. John Doe', designation: 'CFO', email: 'john.doe@example.com', phone: '9876543210' }
+    { id: 'cde-1', name: 'Mr. John Doe', designation: 'CFO', address: '123 Main St, Mumbai', email: 'john.doe@example.com', contactNumber: '9876543210' }
 ];
 
 const contactDetailsBankersData: ContactDetails[] = [
-    { id: 'cdb-1', name: 'Ms. Jane Smith', designation: 'RM, HDFC Bank', email: 'jane.smith@hdfc.com', phone: '8765432109' }
+    { id: 'cdb-1', name: 'Ms. Jane Smith', designation: 'RM, HDFC Bank', address: '456 Business Ave, Mumbai', email: 'jane.smith@hdfc.com', contactNumber: '8765432109' }
 ];
 
 const contactDetailsAuditorData: ContactDetails[] = [
-    { id: 'cda-1', name: 'Mr. Auditor', designation: 'Partner, Audit & Co.', email: 'auditor@auditco.com', phone: '7654321098' }
+    { id: 'cda-1', name: 'Mr. Auditor', designation: 'Partner, Audit & Co.', address: '789 Audit Ln, Mumbai', email: 'auditor@auditco.com', contactNumber: '7654321098' }
 ];
 
 const lastRatingActionData: LastRatingActionData = {
@@ -997,6 +997,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         },
         bankFacilities: bankFacilitiesData,
         analystDetails: analystDetailsData,
+        ratingRecommendation: { LT: 'CARE AA+; Stable, CARE AAA; Stable, CARE A+, CARE AA+; Stable, CARE A-', ST: 'CARE A1+', unsupported: 'CARE AAA; Stable' },
         qcSpecialists: qcSpecialistsData,
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
         summaryHygieneChecks: hygieneChecksData,
