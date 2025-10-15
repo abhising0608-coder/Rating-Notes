@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -87,6 +87,10 @@ export default function PeerComparisonPage() {
     { id: 'ai-1', auditFirmName: 'Deloitte', name: 'Ravi Kumar', designation: 'Partner', email: 'ravi.kumar@deloitte.com', mobile: '9876543210', dateOfInteraction: '2025-01-15', feedback: 'No qualifications in the last audit report. Management has been cooperative.' },
   ]);
 
+  const [debentureTrusteeInteractions, setDebentureTrusteeInteractions] = useState<DebentureTrusteeInteraction[]>([
+      { id: 'dt-1', dtName: 'IDBI Trusteeship', name: 'Anjali Sharma', designation: 'Trustee Officer', email: 'anjali.s@idbitrustee.com', mobile: '9988776655', dateOfInteraction: '2025-01-20', feedback: 'All covenants are complied with. No investor complaints received.' },
+  ]);
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
@@ -111,6 +115,10 @@ export default function PeerComparisonPage() {
 
   const handleAuditorInteractionChange = (id: string, field: keyof AuditorInteraction, value: string) => {
     setAuditorInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+  
+  const handleDebentureTrusteeInteractionChange = (id: string, field: keyof DebentureTrusteeInteraction, value: string) => {
+    setDebentureTrusteeInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 
@@ -756,6 +764,41 @@ export default function PeerComparisonPage() {
                                     </TableCell>
                                     <TableCell>
                                       <Textarea value={item.feedback} onChange={e => handleAuditorInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                           </div>
+                         </div>
+                         <div className="space-y-4">
+                          <h4 className="font-semibold text-md">Debenture Trustee</h4>
+                           <div className="border rounded-lg overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Name of the DT</TableHead>
+                                  <TableHead>Debenture Trustee</TableHead>
+                                  <TableHead>Feedback</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {debentureTrusteeInteractions.map(item => (
+                                  <TableRow key={item.id}>
+                                    <TableCell>
+                                      <Input value={item.dtName} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'dtName', e.target.value)} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="space-y-1">
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Name:</span><Input value={item.name} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'name', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Designation:</span><Input value={item.designation} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'designation', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Email Id:</span><Input type="email" value={item.email} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'email', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Mobile No:</span><Input value={item.mobile} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'mobile', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Textarea value={item.feedback} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
                                     </TableCell>
                                   </TableRow>
                                 ))}
