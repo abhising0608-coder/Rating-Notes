@@ -78,8 +78,9 @@ export default function PeerComparisonPage() {
   ]);
 
   const [bankerInteractions, setBankerInteractions] = useState<BankerInteraction[]>([
-    { id: 'bi-1', bankerName: 'HDFC Bank', name: 'R. Mehra', designation: 'RM', email: 'r.mehra@hdfc.com', mobile: '9876543210', dateOfInteraction: '2024-07-10', feedback: 'Positive' },
-    { id: 'bi-2', bankerName: 'ICICI Bank', name: 'S. Singh', designation: 'Sr. RM', email: 's.singh@icici.com', mobile: '9876543211', dateOfInteraction: '2024-07-12', feedback: 'Neutral' },
+    { id: 'bi-1', bankerName: 'SBI', name: 'Nihar Lenka', designation: 'RM', email: 'nihar.lenka@abi.co.in', mobile: '9898989898', dateOfInteraction: '2025-02-04', feedback: 'The classification of the account is standard.\nThe conduct of the account is satisfactory\nThere are no delays or defaults in debt servicing\nUtilization of the limits remains around 40%' },
+    { id: 'bi-2', bankerName: 'HDFC Bank', name: 'Amit Shah', designation: 'RM', email: 'amit.shah@hdfc.co.in', mobile: '9898989898', dateOfInteraction: '2025-02-04', feedback: 'The classification of the account is standard.\nThe conduct of the account is satisfactory\nThere are no delays or defaults in debt servicing\nUtilization of the limits remains around 40%' },
+    { id: 'bi-3', bankerName: 'Kotak Mahindra Bank', name: 'Mahesh Patil', designation: 'RM', email: 'mahesh.patil@kotak.com', mobile: '8989898989', dateOfInteraction: '2025-02-04', feedback: 'The classification of the account is standard.\nThe conduct of the account is satisfactory\nThere are no delays or defaults in debt servicing\nUtilization of the limits remains around 40%' },
   ]);
 
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
@@ -707,11 +708,11 @@ export default function PeerComparisonPage() {
                                         <div className="grid grid-cols-[100px_1fr] items-center"><span>Designation:</span><Input value={item.designation} onChange={e => handleBankerInteractionChange(item.id, 'designation', e.target.value)} /></div>
                                         <div className="grid grid-cols-[100px_1fr] items-center"><span>Email Id:</span><Input type="email" value={item.email} onChange={e => handleBankerInteractionChange(item.id, 'email', e.target.value)} /></div>
                                         <div className="grid grid-cols-[100px_1fr] items-center"><span>Mobile No:</span><Input value={item.mobile} onChange={e => handleBankerInteractionChange(item.id, 'mobile', e.target.value)} /></div>
-                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date of Interaction:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleBankerInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleBankerInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
                                       </div>
                                     </TableCell>
                                     <TableCell>
-                                      <Input value={item.feedback} onChange={e => handleBankerInteractionChange(item.id, 'feedback', e.target.value)} />
+                                      <Textarea value={item.feedback} onChange={e => handleBankerInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
                                     </TableCell>
                                   </TableRow>
                                 ))}
