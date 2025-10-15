@@ -1,8 +1,9 @@
+
 'use client';
 
 import NoteNavigation from '@/components/NoteNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AttachmentSection from '@/components/AttachmentSection';
+import AnnexureAttachments from '@/components/AnnexureAttachments';
 import { useState, useEffect } from 'react';
 import type { WithdrawnFacility } from '@/types';
 import { getWithdrawnFacilities } from '@/lib/data';
@@ -124,7 +125,7 @@ export default function OtherDataPage() {
             </Card>
 
             <WithdrawnFacilitiesSection />
-            <AttachmentSection />
+            <AnnexureAttachments />
         </div>
       </main>
     </div>

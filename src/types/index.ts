@@ -1,3 +1,4 @@
+
 export interface Company {
   id: string;
   name: string;
@@ -63,6 +64,8 @@ export interface Attachment {
   type: string;
   name: string;
   description?: string;
+  uploadedOn?: string;
+  uploadedBy?: string;
 }
 
 export interface BankFacility {

@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import NoteNavigation from '@/components/NoteNavigation';
@@ -10,6 +11,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useParams } from 'next/navigation';
+import AnnexureAttachments from '@/components/AnnexureAttachments';
+import { Separator } from '@/components/ui/separator';
 
 export default function AnnexuresPage() {
     const params = useParams();
@@ -81,39 +84,45 @@ export default function AnnexuresPage() {
         <div className="flex-1 flex flex-col">
             <NoteNavigation />
             <main className="flex-1 p-8 bg-background">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Select and Attach Previous / Other Rating Notes</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-8">
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-lg">Previous rating notes (Same Company)</h3>
-                            <RatingNoteTable notes={sameCompanyNotes} selectedNote={selectedSameCompanyNote} onSelectNote={setSelectedSameCompanyNote} />
-                        </div>
-
-                        <div className="space-y-4">
-                            <h3 className="font-semibold text-lg">Previous rating notes (Other Company)</h3>
-                            <div className="max-w-sm">
-                                <Label htmlFor="select-company">Select Company</Label>
-                                <Select onValueChange={setSelectedOtherCompany}>
-                                    <SelectTrigger id="select-company">
-                                        <SelectValue placeholder="Select a company" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {allCompanies.map(company => (
-                                            <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                <div className="space-y-8">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Select and Attach Previous / Other Rating Notes</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-lg">Previous rating notes (Same Company)</h3>
+                                <RatingNoteTable notes={sameCompanyNotes} selectedNote={selectedSameCompanyNote} onSelectNote={setSelectedSameCompanyNote} />
                             </div>
 
-                            {selectedOtherCompany && (
-                                 <RatingNoteTable notes={otherCompanyNotes} selectedNote={selectedOtherCompanyNote} onSelectNote={setSelectedOtherCompanyNote} />
-                            )}
-                        </div>
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-lg">Previous rating notes (Other Company)</h3>
+                                <div className="max-w-sm">
+                                    <Label htmlFor="select-company">Select Company</Label>
+                                    <Select onValueChange={setSelectedOtherCompany}>
+                                        <SelectTrigger id="select-company">
+                                            <SelectValue placeholder="Select a company" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allCompanies.map(company => (
+                                                <SelectItem key={company.id} value={company.id}>{company.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
 
-                    </CardContent>
-                </Card>
+                                {selectedOtherCompany && (
+                                    <RatingNoteTable notes={otherCompanyNotes} selectedNote={selectedOtherCompanyNote} onSelectNote={setSelectedOtherCompanyNote} />
+                                )}
+                            </div>
+
+                        </CardContent>
+                    </Card>
+                    
+                    <Separator />
+
+                    <AnnexureAttachments />
+                </div>
             </main>
              <footer className="p-4 bg-card border-t flex justify-end gap-2">
                 <Button>Attach Selected Notes</Button>
