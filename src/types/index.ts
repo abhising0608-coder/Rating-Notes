@@ -491,6 +491,17 @@ export interface BankerInteraction {
   feedback: string;
 }
 
+export interface AuditorInteraction {
+  id: string;
+  auditFirmName: string;
+  name: string;
+  designation: string;
+  email: string;
+  mobile: string;
+  dateOfInteraction: string;
+  feedback: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';

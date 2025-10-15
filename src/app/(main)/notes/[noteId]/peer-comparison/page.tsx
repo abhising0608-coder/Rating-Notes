@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -83,6 +83,10 @@ export default function PeerComparisonPage() {
     { id: 'bi-3', bankerName: 'Kotak Mahindra Bank', name: 'Mahesh Patil', designation: 'RM', email: 'mahesh.patil@kotak.com', mobile: '8989898989', dateOfInteraction: '2025-02-04', feedback: 'The classification of the account is standard.\nThe conduct of the account is satisfactory\nThere are no delays or defaults in debt servicing\nUtilization of the limits remains around 40%' },
   ]);
 
+  const [auditorInteractions, setAuditorInteractions] = useState<AuditorInteraction[]>([
+    { id: 'ai-1', auditFirmName: 'Deloitte', name: 'Ravi Kumar', designation: 'Partner', email: 'ravi.kumar@deloitte.com', mobile: '9876543210', dateOfInteraction: '2025-01-15', feedback: 'No qualifications in the last audit report. Management has been cooperative.' },
+  ]);
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
@@ -103,6 +107,10 @@ export default function PeerComparisonPage() {
 
   const handleBankerInteractionChange = (id: string, field: keyof BankerInteraction, value: string) => {
     setBankerInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleAuditorInteractionChange = (id: string, field: keyof AuditorInteraction, value: string) => {
+    setAuditorInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 
@@ -713,6 +721,41 @@ export default function PeerComparisonPage() {
                                     </TableCell>
                                     <TableCell>
                                       <Textarea value={item.feedback} onChange={e => handleBankerInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                           </div>
+                         </div>
+                         <div className="space-y-4">
+                          <h4 className="font-semibold text-md">Auditor Interactions</h4>
+                           <div className="border rounded-lg overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Name of the audit firm</TableHead>
+                                  <TableHead>Auditor Interaction</TableHead>
+                                  <TableHead>Feedback</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {auditorInteractions.map(item => (
+                                  <TableRow key={item.id}>
+                                    <TableCell>
+                                      <Input value={item.auditFirmName} onChange={e => handleAuditorInteractionChange(item.id, 'auditFirmName', e.target.value)} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="space-y-1">
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Name:</span><Input value={item.name} onChange={e => handleAuditorInteractionChange(item.id, 'name', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Designation:</span><Input value={item.designation} onChange={e => handleAuditorInteractionChange(item.id, 'designation', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Email Id:</span><Input type="email" value={item.email} onChange={e => handleAuditorInteractionChange(item.id, 'email', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Mobile No:</span><Input value={item.mobile} onChange={e => handleAuditorInteractionChange(item.id, 'mobile', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleAuditorInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Textarea value={item.feedback} onChange={e => handleAuditorInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
                                     </TableCell>
                                   </TableRow>
                                 ))}
