@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -46,6 +46,19 @@ export default function PeerComparisonPage() {
     { id: 'rs-3', sensitivity: 'Successful project commissioning', care: 'Positive', cra1: 'Positive', cra2: 'Positive' },
     { id: 'rs-4', sensitivity: 'Increase in debt levels', care: 'Negative', cra1: 'Stable', cra2: 'Negative' },
   ]);
+
+  const [ndsCibilChecks, setNdsCibilChecks] = useState<NdsCibilCheckItem[]>([
+    { id: 'nds-1', label: 'Status of No-defaults and Delays', details: 'No; As per NDS dated Feb 01, 2025', verificationDate: '', quarter: null, status: null },
+    { id: 'nds-2', label: 'Due diligence as per CIBIL for latest quarter', details: 'No Adverse Remark for quarter ended December 31, 2024 (Verified on January 25, 2025)', verificationDate: '', quarter: '', status: null },
+    { id: 'nds-3', label: 'Due diligence as per CIBIL for previous quarter', details: 'No Adverse Remark for quarter ended September 30, 2024 (Verified on December 29, 2025)', verificationDate: '', quarter: '', status: null },
+    { id: 'nds-4', label: 'Due diligence as per watchout investors', details: 'No Adverse remarks (Verified on January 25, 2025)', verificationDate: '', quarter: null, status: null },
+    { id: 'nds-5', label: 'Status of receipts of Bank Statements from client', details: '', verificationDate: null, quarter: null, status: 'No' },
+    { id: 'nds-6', label: 'Annual Declaration on regulatory action/adverse', details: '', verificationDate: null, quarter: null, status: 'Yes' },
+  ]);
+
+  const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
+    setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
 
 
   useEffect(() => {
@@ -185,7 +198,7 @@ export default function PeerComparisonPage() {
                 <CardTitle>Peer Comparison</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6']} className="w-full">
+                <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3', 'item-4', 'item-5', 'item-6', 'item-7']} className="w-full">
                   <AccordionItem value="item-1">
                     <AccordionTrigger className="font-semibold">Pre-fetched Companies from Last Rating Note</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
@@ -467,6 +480,73 @@ export default function PeerComparisonPage() {
                           </TableBody>
                         </Table>
                       </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                   <AccordionItem value="item-7">
+                    <AccordionTrigger className="font-semibold">Discussion with Key Stakeholders</AccordionTrigger>
+                    <AccordionContent className="space-y-6 pt-4">
+                      <h4 className="font-semibold text-md">NDS, CIBIL &amp; Watchout Investors Check</h4>
+                       <div className="border rounded-lg overflow-hidden">
+                        <Table>
+                           <TableHeader>
+                            <TableRow>
+                              <TableHead className="w-1/4">Check Item</TableHead>
+                              <TableHead className="w-1/3">Details</TableHead>
+                              <TableHead>Verification Date</TableHead>
+                              <TableHead>Quarter / Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {ndsCibilChecks.map((item) => (
+                              <TableRow key={item.id}>
+                                <TableCell className="font-medium">{item.label}</TableCell>
+                                <TableCell>
+                                  <Input 
+                                    type="text"
+                                    value={item.details}
+                                    onChange={(e) => handleNdsCibilChange(item.id, 'details', e.target.value)}
+                                    disabled={item.status !== null}
+                                  />
+                                </TableCell>
+                                <TableCell>
+                                  {item.verificationDate !== null && (
+                                    <Input
+                                        type="date"
+                                        value={item.verificationDate}
+                                        onChange={(e) => handleNdsCibilChange(item.id, 'verificationDate', e.target.value)}
+                                    />
+                                  )}
+                                </TableCell>
+                                <TableCell>
+                                  {item.quarter !== null ? (
+                                    <Select value={item.quarter} onValueChange={(v) => handleNdsCibilChange(item.id, 'quarter', v)}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select Quarter" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="March">March</SelectItem>
+                                        <SelectItem value="June">June</SelectItem>
+                                        <SelectItem value="September">September</SelectItem>
+                                        <SelectItem value="December">December</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  ) : item.status !== null ? (
+                                    <Select value={item.status} onValueChange={(v) => handleNdsCibilChange(item.id, 'status', v)}>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select Status" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Yes">Yes</SelectItem>
+                                        <SelectItem value="No">No</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  ): null}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                       </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

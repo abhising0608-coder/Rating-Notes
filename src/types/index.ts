@@ -449,6 +449,15 @@ export interface DiscussionWithAuditCommitteeData {
     records: AuditCommitteeRecord[];
 }
 
+export interface NdsCibilCheckItem {
+  id: string;
+  label: string;
+  details: string;
+  verificationDate: string | null;
+  quarter: string | null;
+  status: 'Yes' | 'No' | null;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -501,7 +510,7 @@ export interface SectionData {
   cashFlow?: CashFlowData;
   ratioAnalysis?: RatioAnalysisData;
   previousRCMMinutes?: PreviousRCMMinutesData;
-  addressedQCObservations?: AddressedQCObservationData[];
+  addressedQCObservations?: AddressedQCObservationsData[];
   pastRatingSensitivities?: PastRatingSensitivitiesData;
   managementDiscussion?: ManagementDiscussionData;
   discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
