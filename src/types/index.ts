@@ -524,6 +524,17 @@ export interface IpaInteraction {
   feedback: string;
 }
 
+export interface ThirdPartyInteraction {
+  id: string;
+  partyType: string;
+  name: string;
+  designation: string;
+  email: string;
+  mobile: string;
+  dateOfInteraction: string;
+  feedback: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
