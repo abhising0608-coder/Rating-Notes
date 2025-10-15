@@ -2287,7 +2287,7 @@ const MandateDetailsSection = ({ data, onUpdate }: { data: MandateDetailsData, o
     );
 };
 
-const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: ContactDetails[] }) => (
+const ContactDetailsSection = ({ title, contacts, isBankerSection }: { title: string, contacts: ContactDetails[], isBankerSection?: boolean }) => (
     <div className="space-y-2">
         <h3 className="font-semibold text-lg font-headline">{title}</h3>
         <div className="border rounded-lg overflow-hidden">
@@ -2295,6 +2295,7 @@ const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: C
                 <TableHeader>
                     <TableRow>
                         <TableHead>Sr. No.</TableHead>
+                        {isBankerSection && <TableHead>Bank / Lender Name</TableHead>}
                         <TableHead>Name of the Official</TableHead>
                         <TableHead>Designation</TableHead>
                         <TableHead>Address</TableHead>
@@ -2306,6 +2307,7 @@ const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: C
                     {contacts.map((contact, index) => (
                         <TableRow key={contact.id}>
                             <TableCell>{index + 1}</TableCell>
+                            {isBankerSection && <TableCell>{contact.bankLenderName}</TableCell>}
                             <TableCell>{contact.name}</TableCell>
                             <TableCell>{contact.designation}</TableCell>
                             <TableCell>{contact.address}</TableCell>
@@ -3569,7 +3571,7 @@ export default function SectionWrapper({
         )}
         
         {isContactDetailsBankersSection && sectionVisible && contactDetailsBankers && (
-            <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} />
+            <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} isBankerSection={true} />
         )}
         
         {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (

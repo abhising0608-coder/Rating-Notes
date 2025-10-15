@@ -581,6 +581,7 @@ export interface ContactDetails {
   address: string;
   email: string;
   contactNumber: string;
+  bankLenderName?: string;
 }
 
 export interface LastRatingActionData {

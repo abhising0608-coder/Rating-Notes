@@ -947,7 +947,7 @@ const contactDetailsEntityData: ContactDetails[] = [
 ];
 
 const contactDetailsBankersData: ContactDetails[] = [
-    { id: 'cdb-1', name: 'Ms. Jane Smith', designation: 'RM, HDFC Bank', address: '456 Business Ave, Mumbai', email: 'jane.smith@hdfc.com', contactNumber: '8765432109' }
+    { id: 'cdb-1', bankLenderName: 'HDFC Bank', name: 'Ms. Jane Smith', designation: 'RM', address: '456 Business Ave, Mumbai', email: 'jane.smith@hdfc.com', contactNumber: '8765432109' }
 ];
 
 const contactDetailsAuditorData: ContactDetails[] = [
