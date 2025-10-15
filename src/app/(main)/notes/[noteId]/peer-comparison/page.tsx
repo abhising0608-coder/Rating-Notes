@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -71,6 +71,12 @@ export default function PeerComparisonPage() {
     comments: ''
   });
 
+  const [interactions, setInteractions] = useState<Interaction[]>([
+    { id: 'int-1', type: 'Lender', date: '', name: '', checked: false },
+    { id: 'int-2', type: 'DT', date: '', name: '', checked: false },
+    { id: 'int-3', type: 'IPT', date: '', name: '', checked: false },
+  ]);
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
@@ -83,6 +89,10 @@ export default function PeerComparisonPage() {
         [field]: value
       }
     }));
+  };
+
+  const handleInteractionChange = (id: string, field: keyof Interaction, value: string | boolean) => {
+    setInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 
@@ -622,6 +632,49 @@ export default function PeerComparisonPage() {
                             </div>
                         )}
                        </div>
+                        <div className="space-y-4">
+                          <h4 className="font-semibold text-md">Interaction with key stakeholders</h4>
+                          <div className="border rounded-lg overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Check-box</TableHead>
+                                  <TableHead>Type of stake holder</TableHead>
+                                  <TableHead>Date of Interaction</TableHead>
+                                  <TableHead>Name of stake holder</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {interactions.map((item) => (
+                                  <TableRow key={item.id}>
+                                    <TableCell>
+                                      <Checkbox
+                                        checked={item.checked}
+                                        onCheckedChange={(checked) => handleInteractionChange(item.id, 'checked', !!checked)}
+                                      />
+                                    </TableCell>
+                                    <TableCell>{item.type}</TableCell>
+                                    <TableCell>
+                                      <Input
+                                        type="date"
+                                        value={item.date}
+                                        onChange={(e) => handleInteractionChange(item.id, 'date', e.target.value)}
+                                      />
+                                    </TableCell>
+                                    <TableCell>
+                                      <Input
+                                        type="text"
+                                        value={item.name}
+                                        onChange={(e) => handleInteractionChange(item.id, 'name', e.target.value)}
+                                        placeholder="Enter name..."
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

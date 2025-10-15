@@ -472,6 +472,14 @@ export interface SiteVisitDetailsData {
   comments: string;
 }
 
+export interface Interaction {
+  id: string;
+  type: 'Lender' | 'DT' | 'IPT' | string;
+  date: string;
+  name: string;
+  checked: boolean;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
