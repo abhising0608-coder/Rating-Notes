@@ -43,6 +43,7 @@ import type {
   PastRatingSensitivitiesData,
   ManagementDiscussionData,
   DiscussionWithAuditCommitteeData,
+  Checklist,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -869,6 +870,22 @@ const discussionWithAuditCommitteeData: DiscussionWithAuditCommitteeData = {
     ]
 };
 
+const checklistData: Checklist = {
+  commonChecklist: [
+    { id: 'cc-1', title: 'Financial statements reconciled with audited accounts', answer: '', remarks: '', autoFilledFrom: 'briefFinancials.PAT' },
+    { id: 'cc-2', title: 'Management declaration obtained', answer: '', remarks: '' },
+    { id: 'cc-3', title: 'Debt service coverage ratio verified', answer: '', remarks: '' },
+  ],
+  sectorChecklists: {
+    'Manufacturing': [
+      { id: 'sc-mfg-1', title: 'Capacity Utilisation verified', answer: '', remarks: '' },
+      { id: 'sc-mfg-2', title: 'Supply chain risk assessed', answer: '', remarks: '' },
+    ],
+    'Technology': [
+        { id: 'sc-tech-1', title: 'Client concentration risk evaluated', answer: '', remarks: '' }
+    ]
+  }
+};
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
@@ -1165,6 +1182,13 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: [],
+      },
+      s_checklist: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+        checklist: checklistData,
       }
     },
   },
@@ -1632,6 +1656,15 @@ export const getDiscussionWithAuditCommitteeData = async (noteId: string, forceR
             return refreshedData;
         }
         return discussionWithAuditCommitteeData;
+    }
+    return null;
+}
+
+export const getChecklistData = async (noteId: string): Promise<Checklist | null> => {
+    console.log(`Fetching checklist data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return checklistData;
     }
     return null;
 }

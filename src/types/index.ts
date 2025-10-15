@@ -536,6 +536,24 @@ export interface ThirdPartyInteraction {
   feedback: string;
 }
 
+export type ChecklistAnswer = 'Yes' | 'No' | 'NA' | '';
+
+export interface ChecklistItem {
+  id: string;
+  title: string;
+  answer: ChecklistAnswer;
+  remarks: string;
+  autoFilledFrom?: string;
+  isManual?: boolean;
+}
+
+export interface Checklist {
+  commonChecklist: ChecklistItem[];
+  sectorChecklists: {
+    [sector: string]: ChecklistItem[];
+  };
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -592,6 +610,7 @@ export interface SectionData {
   pastRatingSensitivities?: PastRatingSensitivitiesData;
   managementDiscussion?: ManagementDiscussionData;
   discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
+  checklist?: Checklist;
 }
 
 export interface RatingNote {

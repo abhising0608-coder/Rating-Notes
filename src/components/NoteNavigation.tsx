@@ -22,6 +22,7 @@ const navLinks = [
   { href: 'risk-assessment', label: 'Risk Assessment Framework / Model Output' },
   { href: 'draft-pr-rr', label: 'Draft PR & RR' },
   { href: 'peer-comparison', label: 'Peer Comparison' },
+  { href: 'checklist', label: 'Checklist' },
   { href: 'important-data', label: 'Important Data, Ratios, etc.' },
   { href: 'other-data', label: 'Other Data' },
 ];
