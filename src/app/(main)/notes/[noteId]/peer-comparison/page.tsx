@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Accordion,
   AccordionContent,
@@ -56,8 +57,32 @@ export default function PeerComparisonPage() {
     { id: 'nds-6', label: 'Annual Declaration on regulatory action/adverse', details: '', verificationDate: null, quarter: null, status: 'Yes' },
   ]);
 
+  const [siteVisitDetails, setSiteVisitDetails] = useState<SiteVisitDetailsData>({
+    applicability: 'Applicable',
+    particulars: {
+      carePersonVisited: '',
+      personMetClient: '',
+      dateOfVisit: '',
+      facilityVisited: '',
+      installedCapacity: '',
+      majorProducts: '',
+      remark: ''
+    },
+    comments: ''
+  });
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+  
+  const handleSiteVisitChange = (field: keyof SiteVisitDetailsData['particulars'], value: string) => {
+    setSiteVisitDetails(prev => ({
+      ...prev,
+      particulars: {
+        ...prev.particulars,
+        [field]: value
+      }
+    }));
   };
 
 
@@ -546,6 +571,56 @@ export default function PeerComparisonPage() {
                             ))}
                           </TableBody>
                         </Table>
+                       </div>
+                       <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                            <h4 className="font-semibold text-md">Site visit details</h4>
+                            <div className="w-[180px]">
+                                <Select value={siteVisitDetails.applicability} onValueChange={(v) => setSiteVisitDetails(prev => ({...prev, applicability: v as any}))}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Applicability" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Applicable">Applicable</SelectItem>
+                                        <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                                        <SelectItem value="Not Available">Not Available</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        {siteVisitDetails.applicability === 'Applicable' && (
+                            <div className="space-y-4">
+                                <div className="border rounded-lg overflow-hidden">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Particulars</TableHead>
+                                                <TableHead>Comments</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {Object.entries(siteVisitDetails.particulars).map(([key, value]) => (
+                                                <TableRow key={key}>
+                                                    <TableCell className="font-medium capitalize w-1/3">{key.replace(/([A-Z])/g, ' $1')}</TableCell>
+                                                    <TableCell>
+                                                        <Input 
+                                                            type={key === 'dateOfVisit' ? 'date' : 'text'}
+                                                            value={value}
+                                                            onChange={(e) => handleSiteVisitChange(key as any, e.target.value)}
+                                                        />
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <div>
+                                    <Label>Comments</Label>
+                                    <Textarea value={siteVisitDetails.comments} onChange={(e) => setSiteVisitDetails(prev => ({...prev, comments: e.target.value}))} />
+                                </div>
+                            </div>
+                        )}
                        </div>
                     </AccordionContent>
                   </AccordionItem>

@@ -458,6 +458,20 @@ export interface NdsCibilCheckItem {
   status: 'Yes' | 'No' | null;
 }
 
+export interface SiteVisitDetailsData {
+  applicability: 'Applicable' | 'Not Applicable' | 'Not Available';
+  particulars: {
+    carePersonVisited: string;
+    personMetClient: string;
+    dateOfVisit: string;
+    facilityVisited: string;
+    installedCapacity: string;
+    majorProducts: string;
+    remark: string;
+  };
+  comments: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
@@ -510,7 +524,7 @@ export interface SectionData {
   cashFlow?: CashFlowData;
   ratioAnalysis?: RatioAnalysisData;
   previousRCMMinutes?: PreviousRCMMinutesData;
-  addressedQCObservations?: AddressedQCObservationsData[];
+  addressedQCObservations?: AddressedQCObservationData[];
   pastRatingSensitivities?: PastRatingSensitivitiesData;
   managementDiscussion?: ManagementDiscussionData;
   discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
