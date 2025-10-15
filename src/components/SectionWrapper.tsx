@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +17,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData, getMandateDetails, getContactDetailsEntity, getContactDetailsBankers, getContactDetailsAuditor } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData, getMandateDetails, getContactDetailsEntity, getContactDetailsBankers, getContactDetailsAuditor, getLastRatingActionData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Plus, Trash2, RefreshCw, Upload, Loader2, MessageSquare } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Upload, Loader2, MessageSquare, Download } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
 import SummaryHygieneChecks from './SummaryHygieneChecks';
@@ -2312,6 +2312,39 @@ const ContactDetailsSection = ({ title, contacts }: { title: string, contacts: C
     </div>
 );
 
+const LastRatingActionSection = ({ data, onRefresh }: { data: LastRatingActionData, onRefresh: () => void }) => (
+    <div className="space-y-4">
+        <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={onRefresh}><RefreshCw className="mr-2 h-4 w-4"/>Refresh</Button>
+            <Button variant="outline" size="sm" className="ml-2"><Download className="mr-2 h-4 w-4"/>Download</Button>
+        </div>
+        <div className="border rounded-lg overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Mandate ID</TableHead>
+                        <TableHead>Facilities / Instruments</TableHead>
+                        <TableHead>Volume (₹ crore)</TableHead>
+                        <TableHead>Existing Rating(s)</TableHead>
+                        <TableHead>Agenda Type</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {data.actions.map(action => (
+                        <TableRow key={action.id}>
+                            <TableCell>{action.mandateId}</TableCell>
+                            <TableCell>{action.facilitiesInstruments}</TableCell>
+                            <TableCell>{action.volume}</TableCell>
+                            <TableCell>{action.existingRating}</TableCell>
+                            <TableCell>{action.agendaType}</TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    </div>
+);
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2376,6 +2409,7 @@ export default function SectionWrapper({
   const [contactDetailsEntity, setContactDetailsEntity] = useState(sectionData.contactDetailsEntity);
   const [contactDetailsBankers, setContactDetailsBankers] = useState(sectionData.contactDetailsBankers);
   const [contactDetailsAuditor, setContactDetailsAuditor] = useState(sectionData.contactDetailsAuditor);
+  const [lastRatingAction, setLastRatingAction] = useState(sectionData.lastRatingAction);
 
 
 
@@ -2738,6 +2772,16 @@ export default function SectionWrapper({
             });
         }
     }
+    if (section.id === 's_cpti_last_rating_action') {
+        if (!lastRatingAction) {
+            getLastRatingActionData(note.id).then(data => {
+                if (data) {
+                    setLastRatingAction(data);
+                    onUpdateSection(section.id, { lastRatingAction: data });
+                }
+            });
+        }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section.id, note.companyId, note.id, onUpdateSection]);
 
@@ -3086,6 +3130,15 @@ export default function SectionWrapper({
       onUpdateSection(section.id, { mandateDetails: data });
   }
 
+  const handleLastRatingActionRefresh = () => {
+    getLastRatingActionData(note.id, true).then(data => {
+      if (data) {
+        setLastRatingAction(data);
+        onUpdateSection(section.id, { lastRatingAction: data });
+      }
+    });
+  }
+
 
   const sectionVisible = applicability === 'Applicable';
   const tableHeaders = sectionData.tableRows.length > 0 ? Object.keys(sectionData.tableRows[0]).filter(k => k !== 'id' && k !== 'isManual' && k !== 'manualEdit' && k !== 'mappedAttributeId') : [];
@@ -3132,6 +3185,7 @@ export default function SectionWrapper({
   const isContactDetailsEntitySection = section.id === 's_cpti_contact_entity';
   const isContactDetailsBankersSection = section.id === 's_cpti_contact_bankers';
   const isContactDetailsAuditorSection = section.id === 's_cpti_contact_auditor';
+  const isLastRatingActionSection = section.id === 's_cpti_last_rating_action';
 
 
   return (
@@ -3510,9 +3564,16 @@ export default function SectionWrapper({
         {isContactDetailsBankersSection && sectionVisible && contactDetailsBankers && (
             <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} />
         )}
-
+        
         {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
             <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
+        )}
+
+        {isLastRatingActionSection && sectionVisible && lastRatingAction && (
+          <LastRatingActionSection 
+            data={lastRatingAction} 
+            onRefresh={handleLastRatingActionRefresh}
+          />
         )}
         
         { !isCoverPage && 
@@ -3556,6 +3617,7 @@ export default function SectionWrapper({
           !isContactDetailsEntitySection &&
           !isContactDetailsBankersSection &&
           !isContactDetailsAuditorSection &&
+          !isLastRatingActionSection &&
           section.hasTable && 
           sectionVisible && (
           <TableSection

@@ -47,6 +47,7 @@ import type {
   WithdrawnFacility,
   MandateDetailsData,
   ContactDetails,
+  LastRatingActionData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -374,12 +375,11 @@ const templates: Template[] = [
     sampleFormatUrl: null,
     sections: [
         { id: 's_cpti_mandate_details', title: 'Mandate Details', hasTable: false },
-        { id: 's1', title: 'Cover Page', hasTable: false }, // Re-using cover page
+        { id: 's1', title: 'Cover Page', hasTable: false },
         { id: 's_cpti_contact_entity', title: 'Contact Details - Rated Entity', hasTable: false },
         { id: 's_cpti_contact_bankers', title: 'Contact Details - Bankers / Lenders', hasTable: false },
         { id: 's_cpti_contact_auditor', title: 'Contact Details - Auditor', hasTable: false },
-        { id: 's_cpti_last_rating_action', title: 'Last Rating Action', hasTable: true },
-        // ... add other CPTI sections here from the prompt
+        { id: 's_cpti_last_rating_action', title: 'Last Rating Action', hasTable: false },
     ],
     industryMapping: [],
     createdAt: '2024-07-01T10:00:00Z',
@@ -950,6 +950,12 @@ const contactDetailsAuditorData: ContactDetails[] = [
     { id: 'cda-1', name: 'Mr. Auditor', designation: 'Partner, Audit & Co.', email: 'auditor@auditco.com', phone: '7654321098' }
 ];
 
+const lastRatingActionData: LastRatingActionData = {
+    actions: [
+        { id: 'lra-1', mandateId: '', facilitiesInstruments: '', volume: '', existingRating: '', agendaType: 'Review with Non-Cooperation' }
+    ]
+};
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -1277,6 +1283,12 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         comments: '',
         attachments: [],
       },
+      s_cpti_last_rating_action: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      }
     },
   },
 ];
@@ -1808,6 +1820,20 @@ export const getContactDetailsAuditor = async (companyId: string): Promise<Conta
     await new Promise(resolve => setTimeout(resolve, 300));
     if (companyId === '1') {
         return contactDetailsAuditorData;
+    }
+    return null;
+};
+
+export const getLastRatingActionData = async (noteId: string, forceRefresh = false): Promise<LastRatingActionData | null> => {
+    console.log(`Fetching last rating action data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        if (forceRefresh) {
+            const refreshedData = { ...lastRatingActionData };
+            refreshedData.actions[0].mandateId = `MANDATE-${Math.floor(Math.random() * 1000)}`;
+            return refreshedData;
+        }
+        return lastRatingActionData;
     }
     return null;
 };

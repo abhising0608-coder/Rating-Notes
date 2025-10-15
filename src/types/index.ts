@@ -579,6 +579,17 @@ export interface ContactDetails {
   phone: string;
 }
 
+export interface LastRatingActionData {
+    actions: {
+        id: string;
+        mandateId: string;
+        facilitiesInstruments: string;
+        volume: string;
+        existingRating: string;
+        agendaType: string;
+    }[];
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -639,6 +650,7 @@ export interface SectionData {
   contactDetailsEntity?: ContactDetails[];
   contactDetailsBankers?: ContactDetails[];
   contactDetailsAuditor?: ContactDetails[];
+  lastRatingAction?: LastRatingActionData;
 }
 
 export interface RatingNote {
