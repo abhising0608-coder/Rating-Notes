@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getCompanies, getPrefetchedPeers } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction } from '@/types';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction, IpaInteraction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -91,6 +91,10 @@ export default function PeerComparisonPage() {
       { id: 'dt-1', dtName: 'IDBI Trusteeship', name: 'Anjali Sharma', designation: 'Trustee Officer', email: 'anjali.s@idbitrustee.com', mobile: '9988776655', dateOfInteraction: '2025-01-20', feedback: 'All covenants are complied with. No investor complaints received.' },
   ]);
 
+  const [ipaInteractions, setIpaInteractions] = useState<IpaInteraction[]>([
+    { id: 'ipa-1', ipaName: 'Axis Bank', name: 'Priya Singh', designation: 'IPA Officer', email: 'priya.singh@axisbank.com', mobile: '9876543211', dateOfInteraction: '2025-01-22', feedback: 'All payments processed on time. No issues reported.' },
+  ]);
+
   const handleNdsCibilChange = (id: string, field: keyof NdsCibilCheckItem, value: string | null) => {
     setNdsCibilChecks(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
@@ -119,6 +123,10 @@ export default function PeerComparisonPage() {
   
   const handleDebentureTrusteeInteractionChange = (id: string, field: keyof DebentureTrusteeInteraction, value: string) => {
     setDebentureTrusteeInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleIpaInteractionChange = (id: string, field: keyof IpaInteraction, value: string) => {
+    setIpaInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
 
@@ -799,6 +807,41 @@ export default function PeerComparisonPage() {
                                     </TableCell>
                                     <TableCell>
                                       <Textarea value={item.feedback} onChange={e => handleDebentureTrusteeInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                           </div>
+                         </div>
+                         <div className="space-y-4">
+                          <h4 className="font-semibold text-md">Issuing and Paying Agent</h4>
+                           <div className="border rounded-lg overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Name of IPA</TableHead>
+                                  <TableHead>Issuing and Paying Agent</TableHead>
+                                  <TableHead>Feedback</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {ipaInteractions.map(item => (
+                                  <TableRow key={item.id}>
+                                    <TableCell>
+                                      <Input value={item.ipaName} onChange={e => handleIpaInteractionChange(item.id, 'ipaName', e.target.value)} />
+                                    </TableCell>
+                                    <TableCell>
+                                      <div className="space-y-1">
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Name:</span><Input value={item.name} onChange={e => handleIpaInteractionChange(item.id, 'name', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Designation:</span><Input value={item.designation} onChange={e => handleIpaInteractionChange(item.id, 'designation', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Email Id:</span><Input type="email" value={item.email} onChange={e => handleIpaInteractionChange(item.id, 'email', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Mobile No:</span><Input value={item.mobile} onChange={e => handleIpaInteractionChange(item.id, 'mobile', e.target.value)} /></div>
+                                        <div className="grid grid-cols-[100px_1fr] items-center"><span>Date:</span><Input type="date" value={item.dateOfInteraction} onChange={e => handleIpaInteractionChange(item.id, 'dateOfInteraction', e.target.value)} /></div>
+                                      </div>
+                                    </TableCell>
+                                    <TableCell>
+                                      <Textarea value={item.feedback} onChange={e => handleIpaInteractionChange(item.id, 'feedback', e.target.value)} rows={5} />
                                     </TableCell>
                                   </TableRow>
                                 ))}

@@ -513,6 +513,17 @@ export interface DebentureTrusteeInteraction {
   feedback: string;
 }
 
+export interface IpaInteraction {
+  id: string;
+  ipaName: string;
+  name: string;
+  designation: string;
+  email: string;
+  mobile: string;
+  dateOfInteraction: string;
+  feedback: string;
+}
+
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
