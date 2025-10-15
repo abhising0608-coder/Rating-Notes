@@ -67,8 +67,8 @@ function NotePreviewPage() {
                 <main className="space-y-8 mt-16">
                     {note.template.sections.map(section => {
                         const sectionData = note.sections[section.id];
-                        if (sectionData.applicable !== 'Applicable') {
-                            if (!sectionData.comments || sectionData.comments === '<p></p>') return null;
+                        if (!sectionData || (sectionData.applicable !== 'Applicable' && (!sectionData.comments || sectionData.comments === '<p></p>'))) {
+                             return null;
                         }
 
                         return (
@@ -79,7 +79,7 @@ function NotePreviewPage() {
                                         <p className="text-sm italic text-gray-600">Section marked as "{sectionData.applicable}"</p>
                                      </div>
                                 )}
-                                {section.hasTable && sectionData.applicable === 'Applicable' && sectionData.tableRows.length > 0 && (
+                                {section.hasTable && sectionData.applicable === 'Applicable' && sectionData.tableRows && sectionData.tableRows.length > 0 && (
                                     <div className="overflow-x-auto mb-4">
                                         <table className="min-w-full text-sm border">
                                             <thead className="bg-gray-100">
@@ -93,7 +93,7 @@ function NotePreviewPage() {
                                                 {sectionData.tableRows.map(row => (
                                                     <tr key={row.id} className="border-b">
                                                         {Object.keys(row).filter(k => !['id', 'isManual', 'mappedAttributeId', 'manualEdit'].includes(k)).map(key => (
-                                                             <td key={key} className="p-2 border">{row[key]}</td>
+                                                             <td key={key} className="p-2 border">{String(row[key])}</td>
                                                         ))}
                                                     </tr>
                                                 ))}
@@ -119,12 +119,18 @@ function NotePreviewPage() {
                  <footer className="text-center mt-12 text-xs text-gray-400 print:fixed print:bottom-0 print:left-0 print:right-0 print:p-4 print:border-t">
                     <div className="flex justify-between text-xs">
                         <span className="page-number"></span>
-                        <div>
-                             Go to: {note.template.sections.map(sec => (
-                                <a key={sec.id} href={`#${sec.key}`} className="mx-1 underline">
-                                    {sec.title}
-                                </a>
-                            ))}
+                        <div className="text-center">
+                             Go to: {note.template.sections.map(sec => {
+                                const sectionData = note.sections[sec.id];
+                                if (!sectionData || (sectionData.applicable !== 'Applicable' && (!sectionData.comments || sectionData.comments === '<p></p>'))) {
+                                    return null;
+                                }
+                                return (
+                                    <a key={sec.id} href={`#${sec.key}`} className="mx-1 underline">
+                                        {sec.title}
+                                    </a>
+                                )
+                            }).filter(Boolean).reduce((prev, curr, index) => [prev, <span key={`sep-${index}`}> | </span>, curr] as any)}
                         </div>
                         <span>Version: {note.version}</span>
                     </div>
