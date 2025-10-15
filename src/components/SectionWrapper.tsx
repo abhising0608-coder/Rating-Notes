@@ -119,17 +119,17 @@ const AnalystDetailsSection = ({ details }: { details: AnalystDetails }) => (
                 <thead className="bg-muted/50">
                     <tr className="divide-x">
                         <th className="p-2 text-left font-medium">Analyst</th>
+                        <th className="p-2 text-left font-medium">Designation</th>
                         <th className="p-2 text-left font-medium">Group Head</th>
-                        <th className="p-2 text-left font-medium">Rating Head</th>
-                        <th className="p-2 text-left font-medium">QC Head</th>
+                        <th className="p-2 text-left font-medium">Designation</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y">
                     <tr className="divide-x hover:bg-muted/50">
                         <td className="p-2">{details.analyst1 || 'Not Available'}</td>
+                        <td className="p-2">{details.analyst1Designation || 'Not Available'}</td>
                         <td className="p-2">{details.groupHead || 'Not Available'}</td>
-                        <td className="p-2">{details.ratingHead || 'Not Available'}</td>
-                        <td className="p-2">{details.qcHead || 'Not Available'}</td>
+                        <td className="p-2">{details.groupHeadDesignation || 'Not Available'}</td>
                     </tr>
                 </tbody>
             </table>

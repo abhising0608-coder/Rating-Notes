@@ -85,7 +85,9 @@ export interface BankFacilitiesData {
 
 export interface AnalystDetails {
   analyst1: string;
+  analyst1Designation: string;
   groupHead: string;
+  groupHeadDesignation: string;
   ratingHead: string;
   qcHead: string;
 }

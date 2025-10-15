@@ -575,7 +575,9 @@ const bankFacilitiesData: BankFacilitiesData = {
 
 const analystDetailsData: AnalystDetails = {
     analyst1: 'Rahul Sharma',
+    analyst1Designation: 'Lead Analyst',
     groupHead: 'Ananya Mehta',
+    groupHeadDesignation: 'Group Head - Corporate Ratings',
     ratingHead: 'Vikram Nair',
     qcHead: 'Sanjay Patel',
 };
