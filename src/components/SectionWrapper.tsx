@@ -2257,16 +2257,24 @@ const MandateDetailsSection = ({ data, onUpdate }: { data: MandateDetailsData, o
     };
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+        <div className="grid grid-cols-2 gap-x-8 gap-y-4">
+            <div className="space-y-1">
+                <Label>Mandate Date</Label>
+                <Input value={format(new Date(localData.mandateDate), 'PP')} readOnly className="bg-muted" />
+            </div>
+             <div className="space-y-1">
                 <Label>Constitution</Label>
                 <Input value={localData.constitution} readOnly className="bg-muted" />
             </div>
-            <div>
+            <div className="space-y-1">
                 <Label>CIN</Label>
                 <Input value={localData.cin} readOnly className="bg-muted" />
             </div>
-            <div>
+            <div className="space-y-1">
+                <Label>Status of No Defaults and No Delays</Label>
+                <Input value={localData.noDefaultsStatus} readOnly className="bg-muted" />
+            </div>
+            <div className="space-y-1">
                 <Label>Status</Label>
                 <Select value={localData.status} onValueChange={v => handleUpdate('status', v)}>
                     <SelectTrigger>

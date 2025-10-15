@@ -933,9 +933,11 @@ const withdrawnFacilitiesData: WithdrawnFacility[] = [
 ];
 
 const mandateDetailsData: MandateDetailsData = {
+    mandateDate: "2024-07-20",
     constitution: "Private Limited",
     cin: "L12345MH2025PLC123456",
     status: 'Initial',
+    noDefaultsStatus: 'No defaults as of ' + format(new Date(), 'PP')
 };
 
 const contactDetailsEntityData: ContactDetails[] = [

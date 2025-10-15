@@ -566,9 +566,11 @@ export interface WithdrawnFacility {
 }
 
 export interface MandateDetailsData {
+    mandateDate: string;
     constitution: string;
     cin: string;
     status: 'Initial' | 'Reaffirmed' | 'Upgraded' | 'Downgraded';
+    noDefaultsStatus: string;
 }
 
 export interface ContactDetails {
