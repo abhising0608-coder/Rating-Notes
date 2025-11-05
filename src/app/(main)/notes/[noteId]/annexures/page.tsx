@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import NoteNavigation from '@/components/NoteNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getCompanies, getPreviousRatingNotes } from '@/lib/data';
+import { getCompanies, getPreviousRatingNotes, getRatingNoteById } from '@/lib/data';
 import type { Company, RatingNote } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -13,10 +13,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useParams } from 'next/navigation';
 import AnnexureAttachments from '@/components/AnnexureAttachments';
 import { Separator } from '@/components/ui/separator';
+import PressReleaseAnnexure from '@/components/PressReleaseAnnexure';
 
 export default function AnnexuresPage() {
     const params = useParams();
     const noteId = params.noteId as string;
+    const [note, setNote] = useState<RatingNote | null>(null);
     const [sameCompanyNotes, setSameCompanyNotes] = useState<RatingNote[]>([]);
     const [otherCompanyNotes, setOtherCompanyNotes] = useState<RatingNote[]>([]);
     const [allCompanies, setAllCompanies] = useState<Company[]>([]);
@@ -27,6 +29,7 @@ export default function AnnexuresPage() {
 
     useEffect(() => {
         if (noteId) {
+            getRatingNoteById(noteId).then(setNote);
             // Assuming the current company is the one associated with the note
             getPreviousRatingNotes('1').then(setSameCompanyNotes);
         }
@@ -85,6 +88,7 @@ export default function AnnexuresPage() {
             <NoteNavigation />
             <main className="flex-1 p-8 bg-background">
                 <div className="space-y-8">
+                    {note && <PressReleaseAnnexure entityName={note.company.name} />}
                     <Card>
                         <CardHeader>
                             <CardTitle>Select and Attach Previous / Other Rating Notes</CardTitle>
