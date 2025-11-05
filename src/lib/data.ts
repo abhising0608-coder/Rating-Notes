@@ -776,11 +776,13 @@ const aboutCompanyData: AboutCompanyData = {
   briefFinancials: {
     fetchedRows: [
       { id: 'bf1', 'Particulars': 'Total operating income', 'March 31, 2023 (A)': 1200, 'March 31, 2024 (A)': 1350 },
-      { id: 'bf2', 'Particulars': 'PBILDT', '2023A': 200, '2024A': 230 },
-      { id: 'bf3', 'Particulars': 'Overall gearing (times)', '2023A': -0.5, '2024A': 0.8, mappedAttributeId: '1089' }
+      { id: 'bf2', 'Particulars': 'PBILDT', 'March 31, 2023 (A)': 200, 'March 31, 2024 (A)': 230 },
+      { id: 'bf3', 'Particulars': 'PAT', 'March 31, 2023 (A)': 120, 'March 31, 2024 (A)': 135 },
+      { id: 'bf4', 'Particulars': 'Overall gearing (times)', 'March 31, 2023 (A)': -0.5, 'March 31, 2024 (A)': 0.8, mappedAttributeId: '1089' },
+      { id: 'bf5', 'Particulars': 'Interest coverage (times)', 'March 31, 2023 (A)': 4.5, 'March 31, 2024 (A)': 4.8 }
     ],
     manualRows: [],
-    manualColumns: []
+    manualColumns: ['Q1_ / H1_ /9M_']
   }
 };
 
@@ -956,7 +958,7 @@ const contactDetailsAuditorData: ContactDetails[] = [
 
 const lastRatingActionData: LastRatingActionData = {
     actions: [
-        { id: 'lra-1', mandateId: '', facilitiesInstruments: '', volume: '', existingRating: '', agendaType: 'Review with Non-Cooperation' }
+        { id: 'lra-1', mandateId: 'M12345', facilitiesInstruments: 'Term Loan', volume: '100.00', existingRating: 'CARE A+; Stable', agendaType: 'Review with Non-Cooperation' }
     ]
 };
 
@@ -1841,4 +1843,5 @@ export const getLastRatingActionData = async (noteId: string, forceRefresh = fal
     }
     return null;
 };
+
 
