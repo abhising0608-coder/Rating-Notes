@@ -34,7 +34,20 @@ export default function NoteNavigation() {
   const pathname = usePathname();
   const noteId = params.noteId;
 
-  const currentStep = pathname.includes('/preview') ? 4 : 3;
+  const currentPathEnd = pathname.split('/').pop();
+  const activeLinkIndex = navLinks.findIndex(link => link.href === currentPathEnd);
+
+  // A simple mapping from nav link to stepper step.
+  // This could be more sophisticated.
+  let currentStep = 0;
+  if (activeLinkIndex >= 0 && activeLinkIndex < 3) {
+      currentStep = 1;
+  } else if (activeLinkIndex >= 3 && activeLinkIndex < 8) {
+      currentStep = 2;
+  } else if (activeLinkIndex === 8) {
+      currentStep = 3;
+  }
+
 
   return (
     <div className="bg-card border-b p-4 print:hidden">
@@ -49,7 +62,7 @@ export default function NoteNavigation() {
             <div className="flex items-center space-x-4 border-b overflow-x-auto pb-2">
             {navLinks.map((link) => {
                 const fullPath = `/notes/${noteId}/${link.href}`;
-                const isActive = pathname.includes(link.href);
+                const isActive = pathname.endsWith(`/${link.href}`);
                 return (
                 <Link
                     key={link.href}

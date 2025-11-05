@@ -5,7 +5,7 @@ import { getRatingNoteById } from '@/lib/data';
 import type { RatingNote } from '@/types';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Save, CheckCircle, Download } from 'lucide-react';
+import { Printer, Download, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
