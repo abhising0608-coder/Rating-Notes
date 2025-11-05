@@ -1,6 +1,7 @@
+
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
-import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData } from '@/types';
+import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData, AlmStatementData, QuarterlyCashFlowData, DetailsOfInstrumentData } from '@/types';
 import {
   Card,
   CardContent,
@@ -17,7 +18,7 @@ import {
 import Tooltip from '@/components/Tooltip';
 import TableSection from './TableSection';
 import CommentsEditor from './CommentsEditor';
-import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData, getMandateDetails, getContactDetailsEntity, getContactDetailsBankers, getContactDetailsAuditor, getLastRatingActionData } from '@/lib/data';
+import { getDisclosureData, getBankFacilitiesData, getAnalystDetails, getRatingRecommendation, getQCSpecialists, getSummaryHygieneChecksData, getAboutCompanyData, getKeyUpdatesData, getAnalyticalApproachData, getModelSummaryData, getParentGovSupportData, getCEChecklistData, getLinkedRatingsData, getFinancialsPastProjectedData, getInterimResultsData, getQuarterlyFinancialsData, getLiquidityData, getStatusOfNonCooperation, getAnyOtherInformationData, getConsolidatedEntities, getBoardCompositionData, getGoodwillAssessmentData, getBalanceSheetData, getContingentLiabilitiesData, getProfitAndLossData, getCashFlowData, getRatioAnalysisData, getPreviousRCMMinutes, getAddressedQCObservations, getPastRatingSensitivities, getManagementDiscussionData, getDiscussionWithAuditCommitteeData, getMandateDetails, getContactDetailsEntity, getContactDetailsBankers, getContactDetailsAuditor, getLastRatingActionData, getAlmStatementData, getQuarterlyCashFlowData, getDetailsOfInstrumentData } from '@/lib/data';
 import { Separator } from './ui/separator';
 import {
   Tooltip as ShadcnTooltip,
@@ -1478,6 +1479,7 @@ const LiquiditySection = ({
           <Select
             value={data.selection}
             onValueChange={(v) => handleUpdate('selection', v as LiquidityData['selection'])}
+            required
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Assessment" />
@@ -1490,6 +1492,7 @@ const LiquiditySection = ({
               <SelectItem value="Poor">Poor</SelectItem>
             </SelectContent>
           </Select>
+          {data.selection === '' && <p className="text-sm text-destructive mt-1">This field is mandatory.</p>}
         </div>
         <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
           {isRefreshing ? (
@@ -1655,7 +1658,7 @@ const ConsolidatedEntitiesSection = ({ initialData, onUpdate, onRefresh }: { ini
               <TableHead>Sr. No.</TableHead>
               <TableHead>Name of Company</TableHead>
               <TableHead>Extent of Consolidation</TableHead>
-              <TableHead>Rationale for Consolidation</TableHead>
+              <TableHead>Rationale / Comments</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -2354,6 +2357,217 @@ const LastRatingActionSection = ({ data, onRefresh }: { data: LastRatingActionDa
     </div>
 );
 
+const AlmStatementSection = ({ initialData, onUpdate }: { initialData: AlmStatementData, onUpdate: (data: AlmStatementData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (field: keyof AlmStatementData, value: any) => {
+        const updatedData = { ...data, [field]: value };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="w-1/3">
+                <Label>Applicability</Label>
+                <Select
+                    value={data.applicability}
+                    onValueChange={(v) => handleUpdate('applicability', v as AlmStatementData['applicability'])}
+                    required
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Applicable">Applicable</SelectItem>
+                        <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                        <SelectItem value="Not Available">Not Available</SelectItem>
+                    </SelectContent>
+                </Select>
+                 {data.applicability === 'Not Applicable' && <p className="text-sm text-destructive mt-1">This field is mandatory.</p>}
+            </div>
+            <div>
+                <Label>Comments</Label>
+                <Textarea
+                    value={data.comments}
+                    onChange={(e) => handleUpdate('comments', e.target.value)}
+                    rows={4}
+                    placeholder="Enter your comments for the ALM Statement..."
+                />
+            </div>
+        </div>
+    );
+};
+
+const QuarterlyCashFlowSection = ({ initialData, onUpdate }: { initialData: QuarterlyCashFlowData, onUpdate: (data: QuarterlyCashFlowData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleUpdate = (field: keyof QuarterlyCashFlowData, value: any) => {
+        const updatedData = { ...data, [field]: value };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="w-1/3">
+                <Label>Applicability</Label>
+                <Select
+                    value={data.applicability}
+                    onValueChange={(v) => handleUpdate('applicability', v as QuarterlyCashFlowData['applicability'])}
+                    required
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Applicable">Applicable</SelectItem>
+                        <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                        <SelectItem value="Not Available">Not Available</SelectItem>
+                    </SelectContent>
+                </Select>
+                 {data.applicability === 'Not Applicable' && <p className="text-sm text-destructive mt-1">This field is mandatory.</p>}
+            </div>
+            <div>
+                <Label>Comments</Label>
+                <Textarea
+                    value={data.comments}
+                    onChange={(e) => handleUpdate('comments', e.target.value)}
+                    rows={4}
+                    placeholder="Enter your comments for the Quarterly Cash Flow Statement..."
+                />
+            </div>
+        </div>
+    );
+};
+
+const DetailsOfInstrumentSection = ({ initialData, onUpdate }: { initialData: DetailsOfInstrumentData, onUpdate: (data: DetailsOfInstrumentData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const totalOutstanding = useMemo(() => {
+        return data.outstandingCp.reduce((sum, row) => sum + (Number(row['Amount']) || 0), 0);
+    }, [data.outstandingCp]);
+
+    const cpNotIssued = useMemo(() => {
+        return data.amountOfCpRated - totalOutstanding;
+    }, [data.amountOfCpRated, totalOutstanding]);
+
+    const handleUpdate = (field: keyof DetailsOfInstrumentData, value: any) => {
+        const updatedData = { ...data, [field]: value };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+    
+    const handleTableRowChange = (rowId: string, column: string, value: string) => {
+        const updatedRows = data.outstandingCp.map(row => 
+            row.id === rowId ? { ...row, [column]: value } : row
+        );
+        handleUpdate('outstandingCp', updatedRows);
+    };
+
+    const handleAddRow = () => {
+        const newRow: TableRowData = { id: `manual-${Date.now()}`, 'Date': '', 'Amount': '' };
+        handleUpdate('outstandingCp', [...data.outstandingCp, newRow]);
+    };
+
+    const handleRemoveRow = (rowId: string) => {
+        const updatedRows = data.outstandingCp.filter(row => row.id !== rowId);
+        handleUpdate('outstandingCp', updatedRows);
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="w-1/3">
+                <Label>Applicability</Label>
+                <Select
+                    value={data.applicability}
+                    onValueChange={(v) => handleUpdate('applicability', v as DetailsOfInstrumentData['applicability'])}
+                    required
+                >
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Applicable">Applicable</SelectItem>
+                        <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                        <SelectItem value="Not Available">Not Available</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            {data.applicability === 'Applicable' && (
+                <div className="space-y-4">
+                    <Table>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell className="font-semibold bg-muted/50 w-1/3">Amount of CP Rated</TableCell>
+                                <TableCell>{data.amountOfCpRated}</TableCell>
+                            </TableRow>
+                             <TableRow>
+                                <TableCell className="font-semibold bg-muted/50">Date of last revalidation rating letter</TableCell>
+                                <TableCell>{data.dateOfLastRevalidation}</TableCell>
+                            </TableRow>
+                             <TableRow>
+                                <TableCell className="font-semibold bg-muted/50">Validity of the above rating letter</TableCell>
+                                <TableCell>
+                                    <Input value={data.validityOfLetter} onChange={(e) => handleUpdate('validityOfLetter', e.target.value)} />
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                    
+                    <h4 className="font-semibold">CP Outstanding as on [•]</h4>
+                    <div className="border rounded-lg overflow-hidden">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {data.outstandingCp.map(row => (
+                                    <TableRow key={row.id}>
+                                        <TableCell><Input type="date" value={row['Date']} onChange={(e) => handleTableRowChange(row.id, 'Date', e.target.value)} /></TableCell>
+                                        <TableCell><Input type="number" value={row['Amount']} onChange={(e) => handleTableRowChange(row.id, 'Amount', e.target.value)} /></TableCell>
+                                        <TableCell>
+                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}>
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                                <TableRow>
+                                    <TableCell colSpan={3} className="text-right">
+                                        <Button variant="outline" size="sm" onClick={handleAddRow}><Plus className="mr-2 h-4 w-4" /> Add Row</Button>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </div>
+
+                     <Table>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell className="font-semibold bg-muted/50 w-1/3">Total</TableCell>
+                                <TableCell>{totalOutstanding}</TableCell>
+                            </TableRow>
+                             <TableRow>
+                                <TableCell className="font-semibold bg-muted/50">CP not yet issued</TableCell>
+                                <TableCell>{cpNotIssued}</TableCell>
+                            </TableRow>
+                             <TableRow>
+                                <TableCell className="font-semibold bg-muted/50">Grand Total</TableCell>
+                                <TableCell>{data.amountOfCpRated}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 type SectionWrapperProps = {
   section: TemplateSection;
@@ -2419,6 +2633,9 @@ export default function SectionWrapper({
   const [contactDetailsBankers, setContactDetailsBankers] = useState(sectionData.contactDetailsBankers);
   const [contactDetailsAuditor, setContactDetailsAuditor] = useState(sectionData.contactDetailsAuditor);
   const [lastRatingAction, setLastRatingAction] = useState(sectionData.lastRatingAction);
+  const [almStatement, setAlmStatement] = useState(sectionData.almStatement);
+  const [quarterlyCashFlow, setQuarterlyCashFlow] = useState(sectionData.quarterlyCashFlow);
+  const [detailsOfInstrument, setDetailsOfInstrument] = useState(sectionData.detailsOfInstrument);
 
 
 
@@ -2697,6 +2914,36 @@ export default function SectionWrapper({
                 if (data) {
                     setLiquidity(data);
                     onUpdateSection(section.id, { liquidity: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_alm_statement') {
+        if (!almStatement) {
+            getAlmStatementData(note.id).then(data => {
+                if (data) {
+                    setAlmStatement(data);
+                    onUpdateSection(section.id, { almStatement: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_quarterly_cash_flow') {
+        if (!quarterlyCashFlow) {
+            getQuarterlyCashFlowData(note.id).then(data => {
+                if (data) {
+                    setQuarterlyCashFlow(data);
+                    onUpdateSection(section.id, { quarterlyCashFlow: data });
+                }
+            });
+        }
+    }
+    if (section.id === 's_details_of_instrument') {
+        if (!detailsOfInstrument) {
+            getDetailsOfInstrumentData(note.id).then(data => {
+                if (data) {
+                    setDetailsOfInstrument(data);
+                    onUpdateSection(section.id, { detailsOfInstrument: data });
                 }
             });
         }
@@ -3077,6 +3324,21 @@ export default function SectionWrapper({
       const refreshedData = await getLiquidityData(note.companyId, true);
       return refreshedData;
   }
+  
+  const handleAlmStatementUpdate = (data: AlmStatementData) => {
+      setAlmStatement(data);
+      onUpdateSection(section.id, { almStatement: data });
+  }
+  
+  const handleQuarterlyCashFlowUpdate = (data: QuarterlyCashFlowData) => {
+      setQuarterlyCashFlow(data);
+      onUpdateSection(section.id, { quarterlyCashFlow: data });
+  }
+
+  const handleDetailsOfInstrumentUpdate = (data: DetailsOfInstrumentData) => {
+      setDetailsOfInstrument(data);
+      onUpdateSection(section.id, { detailsOfInstrument: data });
+  }
 
   const handleEsgRisksUpdate = (content: string) => {
     setEsgRisks(content);
@@ -3184,6 +3446,9 @@ export default function SectionWrapper({
   const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
   const isLiquiditySection = section.id === 's_liquidity';
+  const isAlmStatementSection = section.id === 's_alm_statement';
+  const isQuarterlyCashFlowSection = section.id === 's_quarterly_cash_flow';
+  const isDetailsOfInstrumentSection = section.id === 's_details_of_instrument';
   const isEsgRisksSection = section.id === 's_esg_risks';
   const isStatusOfNonCooperationSection = section.id === 's_non_cooperation_status';
   const isAnyOtherInformationSection = section.id === 's_any_other_info';
@@ -3480,6 +3745,27 @@ export default function SectionWrapper({
                 onRefresh={handleLiquidityRefresh}
             />
         )}
+
+        {isAlmStatementSection && sectionVisible && almStatement && (
+            <AlmStatementSection
+                initialData={almStatement}
+                onUpdate={handleAlmStatementUpdate}
+            />
+        )}
+
+        {isQuarterlyCashFlowSection && sectionVisible && quarterlyCashFlow && (
+            <QuarterlyCashFlowSection
+                initialData={quarterlyCashFlow}
+                onUpdate={handleQuarterlyCashFlowUpdate}
+            />
+        )}
+
+        {isDetailsOfInstrumentSection && sectionVisible && detailsOfInstrument && (
+            <DetailsOfInstrumentSection
+                initialData={detailsOfInstrument}
+                onUpdate={handleDetailsOfInstrumentUpdate}
+            />
+        )}
         
         { isDetailedDriversSection && sectionVisible && (
              <div className="space-y-4">
@@ -3616,6 +3902,9 @@ export default function SectionWrapper({
           !isRatingSensitivitiesSection &&
           !isDetailedDriversSection &&
           !isLiquiditySection &&
+          !isAlmStatementSection &&
+          !isQuarterlyCashFlowSection &&
+          !isDetailsOfInstrumentSection &&
           !isEsgRisksSection &&
           !isStatusOfNonCooperationSection &&
           !isAnyOtherInformationSection &&

@@ -50,6 +50,9 @@ import type {
   MandateDetailsData,
   ContactDetails,
   LastRatingActionData,
+  AlmStatementData,
+  QuarterlyCashFlowData,
+  DetailsOfInstrumentData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -289,6 +292,21 @@ const templates: Template[] = [
       {
         id: 's_liquidity',
         title: 'Liquidity',
+        hasTable: false,
+      },
+       {
+        id: 's_alm_statement',
+        title: 'ALM Statement',
+        hasTable: false,
+      },
+      {
+        id: 's_quarterly_cash_flow',
+        title: 'Quarterly Cash Flow Statement',
+        hasTable: false,
+      },
+      {
+        id: 's_details_of_instrument',
+        title: 'Details of Instrument (CP / STD / NCD)',
         hasTable: false,
       },
       {
@@ -763,7 +781,7 @@ const quarterlyFinancialsData: QuarterlyFinancialsData = {
 };
 
 const liquidityData: LiquidityData = {
-  selection: 'Adequate',
+  selection: '',
   comment: 'Liquidity position remains adequate backed by steady cash flows from operations.'
 };
 
@@ -975,6 +993,24 @@ const lastRatingActionData: LastRatingActionData = {
     actions: [
         { id: 'lra-1', mandateId: 'M12345', facilitiesInstruments: 'Term Loan', volume: '100.00', existingRating: 'CARE A+; Stable', agendaType: 'Review with Non-Cooperation' }
     ]
+};
+
+const almStatementData: AlmStatementData = {
+    applicability: 'Not Applicable',
+    comments: 'ALM statement is not applicable for this entity.'
+};
+
+const quarterlyCashFlowData: QuarterlyCashFlowData = {
+    applicability: 'Not Applicable',
+    comments: ''
+};
+
+const detailsOfInstrumentData: DetailsOfInstrumentData = {
+    applicability: 'Not Applicable',
+    amountOfCpRated: 500,
+    dateOfLastRevalidation: '2024-06-01',
+    validityOfLetter: '1 year',
+    outstandingCp: []
 };
 
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
@@ -1232,10 +1268,24 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         tableRows: [],
         comments: '',
         attachments: [],
-        liquidity: {
-          selection: 'Adequate',
-          comment: 'Initial comment from mock data.'
-        }
+      },
+       s_alm_statement: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_quarterly_cash_flow: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
+      },
+      s_details_of_instrument: {
+        applicable: 'Applicable',
+        tableRows: [],
+        comments: '',
+        attachments: [],
       },
       s_esg_risks: {
         applicable: 'Applicable',
@@ -1883,5 +1933,29 @@ export const getLastRatingActionData = async (noteId: string, forceRefresh = fal
     return null;
 };
 
+export const getAlmStatementData = async (noteId: string): Promise<AlmStatementData | null> => {
+    console.log(`Fetching ALM statement data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return almStatementData;
+    }
+    return null;
+};
 
+export const getQuarterlyCashFlowData = async (noteId: string): Promise<QuarterlyCashFlowData | null> => {
+    console.log(`Fetching quarterly cash flow data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return quarterlyCashFlowData;
+    }
+    return null;
+};
 
+export const getDetailsOfInstrumentData = async (noteId: string): Promise<DetailsOfInstrumentData | null> => {
+    console.log(`Fetching details of instrument data for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return detailsOfInstrumentData;
+    }
+    return null;
+};

@@ -1,5 +1,6 @@
 
 
+
 export interface Company {
   id: string;
   name: string;
@@ -606,6 +607,24 @@ export interface LastRatingActionData {
     }[];
 }
 
+export interface DetailsOfInstrumentData {
+  applicability: 'Applicable' | 'Not Applicable' | 'Not Available';
+  amountOfCpRated: number;
+  dateOfLastRevalidation: string;
+  validityOfLetter: string;
+  outstandingCp: TableRowData[];
+}
+
+export interface AlmStatementData {
+  applicability: 'Applicable' | 'Not Applicable' | 'Not Available';
+  comments: string;
+}
+
+export interface QuarterlyCashFlowData {
+  applicability: 'Applicable' | 'Not Applicable' | 'Not Available';
+  comments: string;
+}
+
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
   tableRows: TableRowData[];
@@ -668,6 +687,9 @@ export interface SectionData {
   contactDetailsBankers?: ContactDetails[];
   contactDetailsAuditor?: ContactDetails[];
   lastRatingAction?: LastRatingActionData;
+  almStatement?: AlmStatementData;
+  quarterlyCashFlow?: QuarterlyCashFlowData;
+  detailsOfInstrument?: DetailsOfInstrumentData;
 }
 
 export interface RatingNote {
