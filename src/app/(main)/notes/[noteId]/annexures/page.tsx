@@ -15,6 +15,40 @@ import AnnexureAttachments from '@/components/AnnexureAttachments';
 import { Separator } from '@/components/ui/separator';
 import PressReleaseAnnexure from '@/components/PressReleaseAnnexure';
 
+const Annexure1 = () => (
+    <div className="bg-card p-8 rounded-lg shadow-sm">
+        <h2 className="text-lg font-bold mb-4">Annexure-1: Details of instruments/facilities</h2>
+        <div className="border rounded-lg overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow className="bg-primary/90 hover:bg-primary/90 text-primary-foreground">
+                        <TableHead className="text-primary-foreground font-bold">Name of the Instrument</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">ISIN</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">Date of Issuance (DD-MM-YYYY)</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">Coupon Rate (%)</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">Maturity Date (DD-MM-YYYY)</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">Size of the Issue (₹ crore)</TableHead>
+                        <TableHead className="text-primary-foreground font-bold">Rating Assigned along with Rating Outlook</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>&nbsp;</TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">*Issuer did not cooperate; based on best available information.</p>
+    </div>
+);
+
+
 export default function AnnexuresPage() {
     const params = useParams();
     const noteId = params.noteId as string;
@@ -89,6 +123,9 @@ export default function AnnexuresPage() {
             <main className="flex-1 p-8 bg-background">
                 <div className="space-y-8">
                     {note && <PressReleaseAnnexure entityName={note.company.name} />}
+                    <Separator />
+                    <Annexure1 />
+                    <Separator />
                     <Card>
                         <CardHeader>
                             <CardTitle>Select and Attach Previous / Other Rating Notes</CardTitle>
