@@ -14,6 +14,7 @@ import { useParams } from 'next/navigation';
 import AnnexureAttachments from '@/components/AnnexureAttachments';
 import { Separator } from '@/components/ui/separator';
 import PressReleaseAnnexure from '@/components/PressReleaseAnnexure';
+import RatingHistoryAnnexure from '@/components/RatingHistoryAnnexure';
 
 const Annexure1 = () => (
     <div className="bg-card p-8 rounded-lg shadow-sm">
@@ -125,6 +126,8 @@ export default function AnnexuresPage() {
                     {note && <PressReleaseAnnexure entityName={note.company.name} />}
                     <Separator />
                     <Annexure1 />
+                    <Separator />
+                    <RatingHistoryAnnexure noteId={noteId} />
                     <Separator />
                     <Card>
                         <CardHeader>

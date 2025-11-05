@@ -46,6 +46,7 @@ import type {
   DiscussionWithAuditCommitteeData,
   Checklist,
   WithdrawnFacility,
+  RatingHistoryItem,
   MandateDetailsData,
   ContactDetails,
   LastRatingActionData,
@@ -944,6 +945,12 @@ const withdrawnFacilitiesData: WithdrawnFacility[] = [
   { id: 'wf-2', facility: 'Working Capital Demand Loan', details: 'NOC received from bank.', date: '2024-06-01' },
 ];
 
+const ratingHistoryData: RatingHistoryItem[] = [
+  { id: 'rh-1', instrumentName: 'Long-term Bank Facilities', currentRatingType: 'Long Term', history: { '2024': 'CARE A+; Stable', '2023': 'CARE A; Stable', '2022': 'CARE A-; Stable' } },
+  { id: 'rh-2', instrumentName: 'Short-term Bank Facilities', currentRatingType: 'Short Term', history: { '2024': 'CARE A1+', '2023': 'CARE A1', '2022': 'CARE A1' } },
+  { id: 'rh-3', instrumentName: 'Commercial Paper', currentRatingType: 'Short Term', history: { '2024': 'CARE A1+', '2023': 'CARE A1+', '2022': 'CARE A1' } },
+];
+
 const mandateDetailsData: MandateDetailsData = {
     mandateDate: "2024-07-20",
     constitution: "Private Limited",
@@ -1800,6 +1807,21 @@ export const getWithdrawnFacilities = async (noteId: string): Promise<WithdrawnF
     return [];
 }
 
+export const getRatingHistory = async (noteId: string, forceRefresh = false): Promise<RatingHistoryItem[]> => {
+    console.log(`Fetching rating history for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        if (forceRefresh) {
+            // Simulate a change on refresh
+            const refreshed = [...ratingHistoryData];
+            refreshed[0].history['2024'] = 'CARE AA-; Stable';
+            return refreshed;
+        }
+        return ratingHistoryData;
+    }
+    return [];
+};
+
 export const getPreviousRatingNotes = async (companyId: string): Promise<RatingNote[]> => {
     console.log(`Fetching previous rating notes for company: ${companyId}`);
     await new Promise(resolve => setTimeout(resolve, 300));
@@ -1860,5 +1882,6 @@ export const getLastRatingActionData = async (noteId: string, forceRefresh = fal
     }
     return null;
 };
+
 
 

@@ -568,6 +568,15 @@ export interface WithdrawnFacility {
   date: string;
 }
 
+export interface RatingHistoryItem {
+  id: string;
+  instrumentName: string;
+  currentRatingType: 'Long Term' | 'Short Term';
+  history: {
+    [year: string]: string;
+  };
+}
+
 export interface MandateDetailsData {
     mandateDate: string;
     constitution: string;
@@ -653,6 +662,7 @@ export interface SectionData {
   managementDiscussion?: ManagementDiscussionData;
   discussionWithAuditCommittee?: DiscussionWithAuditCommitteeData;
   checklist?: Checklist;
+  ratingHistory?: RatingHistoryItem[];
   mandateDetails?: MandateDetailsData;
   contactDetailsEntity?: ContactDetails[];
   contactDetailsBankers?: ContactDetails[];
