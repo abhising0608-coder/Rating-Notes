@@ -354,13 +354,15 @@ export interface PeerCompany {
 
 export interface OtherAgencyRating {
   id: string;
-  companyName: string;
-  agency: string;
-  prDate: string;
+  craName: string;
+  ratedDebtInCrores: number;
+  lastPressReleaseDate: string;
   presentRating: string;
   presentRatingOutlook: string;
+  previousRating: string;
+  previousRatingOutlook: string;
   lastRatingAction: string;
-  category: string;
+  categoryINC: string;
 }
 
 export interface RatingSensitivity {

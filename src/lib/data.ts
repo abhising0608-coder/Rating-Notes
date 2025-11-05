@@ -30,6 +30,7 @@ import type {
   AnyOtherInformationData,
   ConsolidatedEntity,
   PeerCompany,
+  OtherAgencyRating,
   BoardCompositionData,
   GoodwillAssessmentData,
   BalanceSheetData,
@@ -813,6 +814,13 @@ const prefetchedPeersData: PeerCompany[] = [
     { id: 'comp-6', companyName: 'Divis Labs', industryType: 'JKL', industry: 'MNO', rating: 'B' },
     { id: 'comp-7', companyName: 'Cipla', industryType: 'PQR', industry: 'STU', rating: 'BB+' }
 ];
+
+const otherAgencyRatingsData: OtherAgencyRating[] = [
+    { id: 'oar-1', craName: 'CRISIL', ratedDebtInCrores: 500, lastPressReleaseDate: '2024-07-01', presentRating: 'AA+', presentRatingOutlook: 'Stable', previousRating: 'AA', previousRatingOutlook: 'Stable', lastRatingAction: 'Upgraded', categoryINC: 'Accepted' },
+    { id: 'oar-2', craName: 'ICRA', ratedDebtInCrores: 750, lastPressReleaseDate: '2024-06-15', presentRating: 'AA', presentRatingOutlook: 'Stable', previousRating: 'AA', previousRatingOutlook: 'Positive', lastRatingAction: 'Affirmed', categoryINC: 'Accepted' },
+    { id: 'oar-3', craName: 'India Ratings', ratedDebtInCrores: 300, lastPressReleaseDate: '2024-05-20', presentRating: 'A1+', presentRatingOutlook: 'Positive', previousRating: 'A1', previousRatingOutlook: 'Stable', lastRatingAction: 'Assigned', categoryINC: 'INC' },
+];
+
 
 const boardCompositionData: BoardCompositionData = {
     boardOfDirectors: [
@@ -1642,6 +1650,15 @@ export const getPrefetchedPeers = async (noteId: string): Promise<PeerCompany[]>
     // In a real app, this would use the noteId to find the previous year's note.
     if (noteId === '1') {
         return prefetchedPeersData;
+    }
+    return [];
+}
+
+export const getOtherAgencyRatings = async (noteId: string): Promise<OtherAgencyRating[]> => {
+    console.log(`Fetching other agency ratings for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    if (noteId === '1') {
+        return otherAgencyRatingsData;
     }
     return [];
 }

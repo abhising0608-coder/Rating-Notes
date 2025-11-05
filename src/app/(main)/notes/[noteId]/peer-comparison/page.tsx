@@ -4,7 +4,7 @@ import NoteNavigation from '@/components/NoteNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { getCompanies, getPrefetchedPeers } from '@/lib/data';
+import { getCompanies, getPrefetchedPeers, getOtherAgencyRatings } from '@/lib/data';
 import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction, IpaInteraction, ThirdPartyInteraction } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -35,11 +35,7 @@ export default function PeerComparisonPage() {
 
   const [manualCompanyName, setManualCompanyName] = useState('');
 
-  const [otherAgencyRatings, setOtherAgencyRatings] = useState<OtherAgencyRating[]>([
-    { id: 'oar-1', companyName: 'Sample Industries Ltd', agency: 'CRISIL', prDate: '2024-07-01', presentRating: 'AA+', presentRatingOutlook: 'Stable', lastRatingAction: 'Upgraded', category: 'Long Term' },
-    { id: 'oar-2', companyName: 'Sample Industries Ltd', agency: 'ICRA', prDate: '2024-06-15', presentRating: 'AA', presentRatingOutlook: 'Stable', lastRatingAction: 'Affirmed', category: 'Long Term' },
-    { id: 'oar-3', companyName: 'Tech Solutions Inc.', agency: 'CRISIL', prDate: '2024-05-20', presentRating: 'A1+', presentRatingOutlook: 'Positive', lastRatingAction: 'Assigned', category: 'Short Term' },
-  ]);
+  const [otherAgencyRatings, setOtherAgencyRatings] = useState<OtherAgencyRating[]>([]);
 
   const [ratingSensitivities, setRatingSensitivities] = useState<RatingSensitivity[]>([
     { id: 'rs-1', sensitivity: 'Improvement in operating margin', care: 'Positive', cra1: 'Positive', cra2: 'Stable' },
@@ -152,6 +148,7 @@ export default function PeerComparisonPage() {
       const mockQueryResults = peers.slice(0, 4);
       setQueryResultPeers(mockQueryResults);
     });
+    getOtherAgencyRatings('1').then(setOtherAgencyRatings);
   }, []);
 
   const manualSearchOptions = useMemo(() => {
@@ -500,31 +497,35 @@ export default function PeerComparisonPage() {
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="item-5">
-                    <AccordionTrigger className="font-semibold">Ratings of other agencies</AccordionTrigger>
+                    <AccordionTrigger className="font-semibold">Outstanding Ratings of Other CRAs</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                       <div className="border rounded-lg overflow-hidden">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Company Name</TableHead>
-                              <TableHead>Agency</TableHead>
-                              <TableHead>PR date</TableHead>
-                              <TableHead>Present Rating</TableHead>
-                              <TableHead>Present Rating outlook</TableHead>
-                              <TableHead>Last rating action</TableHead>
-                              <TableHead>Category</TableHead>
+                              <TableHead>CRA Name</TableHead>
+                              <TableHead>Rated Debt (₹ crore)</TableHead>
+                              <TableHead>Last Date of Press Release</TableHead>
+                              <TableHead>Present Rating - Long Term / Short Term</TableHead>
+                              <TableHead>Present Rating Outlook</TableHead>
+                              <TableHead>Previous Rating - Long Term / Short Term</TableHead>
+                              <TableHead>Previous Rating Outlook</TableHead>
+                              <TableHead>Last Rating Action</TableHead>
+                              <TableHead>Category - INC / Accepted / Unaccepted</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {otherAgencyRatings.map((rating) => (
                               <TableRow key={rating.id}>
-                                <TableCell>{rating.companyName}</TableCell>
-                                <TableCell>{rating.agency}</TableCell>
-                                <TableCell>{rating.prDate}</TableCell>
+                                <TableCell>{rating.craName}</TableCell>
+                                <TableCell>{rating.ratedDebtInCrores}</TableCell>
+                                <TableCell>{rating.lastPressReleaseDate}</TableCell>
                                 <TableCell>{rating.presentRating}</TableCell>
                                 <TableCell>{rating.presentRatingOutlook}</TableCell>
+                                <TableCell>{rating.previousRating}</TableCell>
+                                <TableCell>{rating.previousRatingOutlook}</TableCell>
                                 <TableCell>{rating.lastRatingAction}</TableCell>
-                                <TableCell>{rating.category}</TableCell>
+                                <TableCell>{rating.categoryINC}</TableCell>
                               </TableRow>
                             ))}
                           </TableBody>
