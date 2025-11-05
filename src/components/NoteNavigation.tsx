@@ -1,3 +1,4 @@
+
 // src/components/NoteNavigation.tsx
 'use client';
 import { useParams, usePathname } from 'next/navigation';
@@ -18,7 +19,7 @@ const steps = [
   ];
 
 const navLinks = [
-  { href: 'company-details', label: 'Company Details' },
+  { href: '', label: 'Company Details' },
   { href: 'risk-assessment', label: 'Risk Assessment Framework / Model Output' },
   { href: 'draft-pr-rr', label: 'Draft PR & RR' },
   { href: 'peer-comparison', label: 'Peer Comparison' },
@@ -35,7 +36,12 @@ export default function NoteNavigation() {
   const noteId = params.noteId;
 
   const currentPathEnd = pathname.split('/').pop();
-  const activeLinkIndex = navLinks.findIndex(link => link.href === currentPathEnd);
+  
+  // Handle the base case where the path is just /notes/[noteId]
+  const isBasePage = currentPathEnd === noteId;
+  const activeLinkIndex = isBasePage 
+    ? navLinks.findIndex(link => link.href === '')
+    : navLinks.findIndex(link => link.href === currentPathEnd);
 
   // A simple mapping from nav link to stepper step.
   // This could be more sophisticated.
@@ -62,7 +68,9 @@ export default function NoteNavigation() {
             <div className="flex items-center space-x-4 border-b overflow-x-auto pb-2">
             {navLinks.map((link) => {
                 const fullPath = `/notes/${noteId}/${link.href}`;
-                const isActive = pathname.endsWith(`/${link.href}`);
+                // Check for active link, special case for the base note page
+                const isActive = isBasePage ? link.href === '' : pathname.endsWith(`/${link.href}`);
+
                 return (
                 <Link
                     key={link.href}

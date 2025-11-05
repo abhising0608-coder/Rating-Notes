@@ -5,6 +5,7 @@ import { updateNoteSection, refreshTable } from '@/lib/actions';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import NoteNavigation from '@/components/NoteNavigation';
 
 export default async function NotePage({ params }: { params: { noteId: string } }) {
   const note = await getRatingNoteById(params.noteId);
@@ -32,33 +33,21 @@ export default async function NotePage({ params }: { params: { noteId: string } 
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-            <h1 className="text-3xl font-bold font-headline">{note.company.name}</h1>
-            <p className="text-muted-foreground">{note.template.name}</p>
-        </div>
-        <div className="flex items-center gap-2">
-           <Link href={`/notes/${note.id}/peer-comparison`} passHref>
-              <Button variant="outline">Peer Comparison</Button>
-            </Link>
-            <Link href={`/notes/${note.id}/preview`} passHref>
-              <Button>Preview</Button>
-            </Link>
-        </div>
-      </div>
-
-      <div className="space-y-8">
-        {note.template.sections.map((section) => (
-          <SectionWrapper
-            key={section.id}
-            section={{...section, key: section.id}}
-            note={note}
-            onUpdateSection={handleUpdateSection}
-            onRefreshTable={handleRefreshTable}
-          />
-        ))}
-      </div>
+    <div className="flex-1 flex flex-col">
+       <NoteNavigation />
+        <main className="flex-1 p-8 bg-background">
+          <div className="space-y-8">
+            {note.template.sections.map((section) => (
+              <SectionWrapper
+                key={section.id}
+                section={{...section, key: section.id}}
+                note={note}
+                onUpdateSection={handleUpdateSection}
+                onRefreshTable={handleRefreshTable}
+              />
+            ))}
+          </div>
+       </main>
     </div>
   );
 }
