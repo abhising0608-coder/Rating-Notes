@@ -86,3 +86,63 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  body {
+    background-color: white;
+  }
+  .print\:hidden {
+    display: none;
+  }
+  .print\:p-0 {
+    padding: 0;
+  }
+  .print\:bg-gray-50 {
+    background-color: #f9fafb;
+  }
+  .print\:border-b {
+    border-bottom-width: 1px;
+  }
+  .print\:fixed {
+    position: fixed;
+  }
+  .print\:top-0 {
+    top: 0;
+  }
+  .print\:bottom-0 {
+    bottom: 0;
+  }
+  .print\:left-0 {
+    left: 0;
+  }
+  .print\:right-0 {
+    right: 0;
+  }
+  .print\:p-4 {
+    padding: 1rem;
+  }
+  .print\:border-t {
+    border-top-width: 1px;
+  }
+   .print\:mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  @page {
+    size: A4;
+    margin: 1in;
+  }
+
+  /* Ensure content doesn't get cut off between pages */
+  section, table {
+    break-inside: avoid-page;
+  }
+
+  h2, h3 {
+    break-after: avoid-page;
+  }
+  
+  .break-after-page {
+    break-after: page;
+  }
+}

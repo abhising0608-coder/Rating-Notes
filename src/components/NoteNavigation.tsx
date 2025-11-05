@@ -26,6 +26,7 @@ const navLinks = [
   { href: 'important-data', label: 'Important Data, Ratios, etc.' },
   { href: 'other-data', label: 'Other Data' },
   { href: 'annexures', label: 'Annexures' },
+  { href: 'preview', label: 'Preview' },
 ];
 
 export default function NoteNavigation() {
@@ -33,11 +34,13 @@ export default function NoteNavigation() {
   const pathname = usePathname();
   const noteId = params.noteId;
 
+  const currentStep = pathname.includes('/preview') ? 4 : 3;
+
   return (
-    <div className="bg-card border-b p-4">
+    <div className="bg-card border-b p-4 print:hidden">
         <div className="max-w-7xl mx-auto">
             <div className="mb-4">
-                <Stepper initialStep={0} activeStep={2}>
+                <Stepper initialStep={0} activeStep={currentStep}>
                     {steps.map((step, index) => (
                     <Step key={index} label={step.label} />
                     ))}
