@@ -64,14 +64,16 @@ export default function AnnexuresPage() {
 
     useEffect(() => {
         if (noteId) {
-            getRatingNoteById(noteId).then(setNote);
-            // Assuming the current company is the one associated with the note
-            getPreviousRatingNotes('1').then(setSameCompanyNotes);
+            getRatingNoteById(noteId).then(noteData => {
+                setNote(noteData);
+                if (noteData) {
+                    getPreviousRatingNotes(noteData.companyId).then(setSameCompanyNotes);
+                     getCompanies().then(companies => {
+                        setAllCompanies(companies.filter(c => c.id !== noteData.companyId));
+                    });
+                }
+            });
         }
-        getCompanies().then(companies => {
-            // Exclude current company from 'other companies' list
-            setAllCompanies(companies.filter(c => c.id !== '1'));
-        });
     }, [noteId]);
 
     useEffect(() => {
