@@ -90,6 +90,8 @@ body {
 @media print {
   body {
     background-color: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
   .print\:hidden {
     display: none;
@@ -127,6 +129,14 @@ body {
    .print\:mb-4 {
     margin-bottom: 1rem;
   }
+  
+  #printable-area {
+    padding: 0;
+  }
+  
+  header, footer, .prose {
+    color: black !important;
+  }
 
   @page {
     size: A4;
@@ -143,6 +153,6 @@ body {
   }
   
   .break-after-page {
-    break-after: page;
+    page-break-after: always;
   }
 }

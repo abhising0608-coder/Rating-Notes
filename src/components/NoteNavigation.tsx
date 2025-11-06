@@ -1,4 +1,5 @@
 
+
 // src/components/NoteNavigation.tsx
 'use client';
 import { useParams, usePathname } from 'next/navigation';
@@ -39,9 +40,9 @@ export default function NoteNavigation() {
   
   // Handle the base case where the path is just /notes/[noteId]
   const isBasePage = currentPathEnd === noteId;
-  const activeLinkIndex = isBasePage 
-    ? navLinks.findIndex(link => link.href === '')
-    : navLinks.findIndex(link => link.href === currentPathEnd);
+  const activeLink = isBasePage ? '' : (currentPathEnd || '');
+
+  const activeLinkIndex = navLinks.findIndex(link => link.href === activeLink);
 
   // A simple mapping from nav link to stepper step.
   // This could be more sophisticated.
@@ -69,7 +70,7 @@ export default function NoteNavigation() {
             {navLinks.map((link) => {
                 const fullPath = `/notes/${noteId}/${link.href}`;
                 // Check for active link, special case for the base note page
-                const isActive = isBasePage ? link.href === '' : pathname.endsWith(`/${link.href}`);
+                const isActive = activeLink === link.href;
 
                 return (
                 <Link
