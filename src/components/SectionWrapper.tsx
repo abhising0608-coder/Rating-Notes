@@ -2659,37 +2659,46 @@ export default function SectionWrapper({
 
 
   // Mock current user ID. In a real app, this would come from an auth context.
-  const currentUserId = 'u_001'; 
+  const currentUserId = 'u_002'; // Changed to u_002 to test secondary analyst view
 
-  const isEditable = useMemo(() => {
-    // If the note is not sector-agnostic, we use section-specific assignments
-    if (!note.template.isAgnostic) {
-      const assignedTo = (sectionData as any)?.assignedTo;
-      // If a section is explicitly assigned, only that user can edit
-      if (assignedTo) {
-        return currentUserId === assignedTo;
-      }
-      // If no secondary analyst is assigned at all, the primary can edit everything
-      if (!note.analysts[1]) {
-        return currentUserId === note.analysts[0];
-      }
-      // If a secondary is present but the section is unassigned, only primary can edit
-      return currentUserId === note.analysts[0];
-    }
+  const { isEditable, isPrimaryAnalyst, isSecondaryAnalyst } = useMemo(() => {
+    const primaryId = note.analysts[0];
+    const secondaryId = note.analysts[1];
+    const localIsPrimary = currentUserId === primaryId;
+    const localIsSecondary = currentUserId === secondaryId;
 
+    let editable = false;
     // For Sector-Agnostic notes, only one person can edit the whole note.
-    // If a secondary is assigned, they are the sole editor.
-    if (note.analysts[1]) {
-        return currentUserId === note.analysts[1];
+    if (note.template.isAgnostic) {
+      // If a secondary is assigned, they are the sole editor.
+      if (secondaryId) {
+        editable = localIsSecondary;
+      } else {
+        // Otherwise, the primary is the editor.
+        editable = localIsPrimary;
+      }
+    } else { // For Sectorial notes, we use section-specific assignments
+      const assignedTo = (sectionData as any)?.assignedTo;
+      if (assignedTo) {
+        editable = currentUserId === assignedTo;
+      } else {
+        // If no secondary analyst is assigned at all, the primary can edit everything
+        if (!secondaryId) {
+            editable = localIsPrimary;
+        } else {
+            // If a secondary is present but the section is unassigned, only primary can edit
+            editable = localIsPrimary;
+        }
+      }
     }
-    // Otherwise, the primary is the editor.
-    return currentUserId === note.analysts[0];
+
+    return {
+      isEditable: editable,
+      isPrimaryAnalyst: localIsPrimary,
+      isSecondaryAnalyst: localIsSecondary,
+    };
   }, [note, sectionData, currentUserId]);
 
-
-  const isSecondaryAnalyst = useMemo(() => {
-    return note.analysts[1] === currentUserId;
-  }, [note.analysts, currentUserId]);
 
   const handleTransferToPrimary = () => {
     // In a real app, this would trigger the `transferSectionToPrimary` cloud function.
@@ -4053,3 +4062,5 @@ export default function SectionWrapper({
     </Card>
   );
 }
+
+    

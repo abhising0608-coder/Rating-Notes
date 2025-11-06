@@ -6,7 +6,7 @@ import { getRatingNoteById } from '@/lib/data';
 import type { RatingNote } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, CheckCircle } from 'lucide-react';
+import { Printer, Download, CheckCircle, Send } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,7 @@ function NotePreviewPage() {
     const { toast } = useToast();
 
     // Mock current user ID. In a real app, this would come from an auth context.
-    const currentUserId = 'u_001'; 
+    const currentUserId = 'u_002'; // Changed to u_002 to test secondary analyst view
 
     useEffect(() => {
         if (noteId) {
@@ -41,33 +41,38 @@ function NotePreviewPage() {
         }
     }, [noteId, toast]);
 
-    const { canShowMarkAsComplete, isMarkAsCompleteDisabled } = useMemo(() => {
+    const { canShowMarkAsComplete, isMarkAsCompleteDisabled, isSecondaryAnalyst } = useMemo(() => {
         if (!note) {
-            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true };
+            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true, isSecondaryAnalyst: false };
         }
 
         const isPrimary = note.analysts[0] === currentUserId;
-        if (!isPrimary) {
-            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true };
+        const localIsSecondary = note.analysts[1] === currentUserId;
+
+        if (!isPrimary && !localIsSecondary) {
+            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true, isSecondaryAnalyst: false };
         }
 
-        if (note.template.isAgnostic) {
-            const hasSecondary = note.analysts.length > 1 && note.analysts[1];
-            return {
-                canShowMarkAsComplete: !hasSecondary,
-                isMarkAsCompleteDisabled: hasSecondary,
-            };
-        } else { // Sectorial Note
-            const allSectionsAssignedToPrimary = Object.values(note.sections).every(section => {
-                const assignedTo = (section as any).assignedTo;
-                // If a section is unassigned, it defaults to the primary analyst.
-                return !assignedTo || assignedTo === note.analysts[0];
-            });
-            return {
-                canShowMarkAsComplete: true,
-                isMarkAsCompleteDisabled: !allSectionsAssignedToPrimary
-            };
+        let isCompletable = false;
+        if (isPrimary) {
+             if (note.template.isAgnostic) {
+                // For agnostic, primary can only complete if no secondary is assigned
+                isCompletable = !note.analysts[1];
+            } else {
+                // For sectorial, primary can complete only if all sections are assigned back to them
+                isCompletable = Object.values(note.sections).every(section => {
+                    const assignedTo = (section as any).assignedTo;
+                    return !assignedTo || assignedTo === note.analysts[0];
+                });
+            }
         }
+       
+
+        return {
+            canShowMarkAsComplete: isPrimary, // Only primary can ever see the button
+            isMarkAsCompleteDisabled: !isCompletable, // Disabled if conditions aren't met
+            isSecondaryAnalyst: localIsSecondary,
+        };
     }, [note, currentUserId]);
 
     const handlePrint = () => {
@@ -83,7 +88,7 @@ function NotePreviewPage() {
     };
 
     const handleMarkAsComplete = () => {
-        // In a real app, this would update the note status in Firestore
+        // In a real app, this would call the validateAndMarkAsComplete cloud function
         console.log("Marking note as complete...");
         toast({
             title: 'Success',
@@ -92,6 +97,15 @@ function NotePreviewPage() {
         // Here you would typically disable editing, e.g., by setting a state
         // or re-fetching the note with an updated 'completed' status.
     };
+    
+    const handleReassignCase = () => {
+        // Simulates calling the reassignSecondaryAnalyst cloud function
+        console.log(`Simulating reassignment of case ${noteId} from ${currentUserId} to another analyst.`);
+        toast({
+            title: 'Case Reassigned',
+            description: 'The rating note has been successfully transferred.'
+        });
+    }
 
     if (loading) {
         return (
@@ -121,6 +135,27 @@ function NotePreviewPage() {
                     <Button variant="secondary" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
                     </Button>
+                    {isSecondaryAnalyst && (
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="outline">
+                                    <Send className="mr-2 h-4 w-4" /> Assign Case to Another Analyst
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Case Reassignment</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to assign this case to another analyst? You will lose all access to this note after the transfer is complete.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>No</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleReassignCase}>Yes, Assign</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                     {canShowMarkAsComplete && (
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -237,3 +272,5 @@ function NotePreviewPage() {
 }
 
 export default NotePreviewPage;
+
+    
