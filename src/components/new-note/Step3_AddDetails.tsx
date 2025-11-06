@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { NewNoteConfig } from '@/app/(main)/notes/new/page';
 import { getCriteria, getCompanies } from '@/lib/data';
 import type { Criteria, Company } from '@/types';
@@ -11,6 +11,7 @@ import { Separator } from '../ui/separator';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { Link } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type Step3Props = {
   config: NewNoteConfig;
@@ -63,13 +64,25 @@ export default function Step3_AddDetails({ config, onConfigChange }: Step3Props)
     onConfigChange({ combinedEntities: entityIds });
   }
 
+  const combinedApproachError = useMemo(() => {
+    if (config.financialApproach !== 'Combined') return null;
+    if (config.template?.isAgnostic) {
+      return "Combined Approach cannot be used with Sector-Agnostic templates (Review, Revalidation, Representation, Withdrawal, INC, CPTI). Please choose Standalone/Consolidated or select a non-agnostic template.";
+    }
+    if (!['Initial', 'Surveillance'].includes(config.ratingCycle!)) {
+      return "Combined Approach is allowed only for Initial or Surveillance rating cycles.";
+    }
+    return null;
+  }, [config.financialApproach, config.template?.isAgnostic, config.ratingCycle]);
+
+
   return (
     <div className="space-y-8">
       {/* Financial Data Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold font-headline">Financial Data</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start p-4 border rounded-lg">
+          <div className="space-y-2">
             <Label>Analytical Approach for Financials</Label>
             <Select value={config.financialApproach} onValueChange={(v) => onConfigChange({ financialApproach: v as any })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -80,14 +93,7 @@ export default function Step3_AddDetails({ config, onConfigChange }: Step3Props)
               </SelectContent>
             </Select>
           </div>
-          {config.financialApproach === 'Combined' && (
-            <div>
-              <Label>Combined Entities</Label>
-              {/* A real multi-select would be better here */}
-               <Textarea placeholder="Enter comma-separated company IDs for now." />
-            </div>
-          )}
-           <div className="flex gap-4">
+          <div className="flex gap-4">
                 <div>
                     <Label>From Year</Label>
                     <Select value={config.financialYearFrom?.toString()} onValueChange={(v) => onConfigChange({ financialYearFrom: parseInt(v) })}>
@@ -103,6 +109,41 @@ export default function Step3_AddDetails({ config, onConfigChange }: Step3Props)
                     </Select>
                 </div>
             </div>
+           {config.financialApproach === 'Combined' && !combinedApproachError && (
+            <>
+              <div className="space-y-2">
+                <Label>Approach for Individual Entity</Label>
+                <Select value={config.individualEntityApproach || ''} onValueChange={(v) => onConfigChange({ individualEntityApproach: v as any })}>
+                  <SelectTrigger><SelectValue placeholder="Select approach..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Standalone">Standalone</SelectItem>
+                    <SelectItem value="Consolidated">Consolidated</SelectItem>
+                  </SelectContent>
+                </Select>
+                {!(config.individualEntityApproach) && <p className="text-xs text-destructive">This field is required for Combined approach.</p>}
+              </div>
+               <div className="space-y-2">
+                <Label>Select Group</Label>
+                <Select value={config.combinedGroupId || ''} onValueChange={(v) => onConfigChange({ combinedGroupId: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select a group..." /></SelectTrigger>
+                  <SelectContent>
+                    {/* Mock data, in real app this would be fetched */}
+                    <SelectItem value="group_1">Major Conglomerate Group</SelectItem>
+                    <SelectItem value="group_2">PQR Industries Group</SelectItem>
+                  </SelectContent>
+                </Select>
+                 {!(config.combinedGroupId) && <p className="text-xs text-destructive">This field is required for Combined approach.</p>}
+              </div>
+            </>
+           )}
+           {combinedApproachError && (
+              <div className="md:col-span-2">
+                <Alert variant="destructive">
+                  <AlertTitle>Invalid Configuration</AlertTitle>
+                  <AlertDescription>{combinedApproachError}</AlertDescription>
+                </Alert>
+              </div>
+           )}
         </div>
       </div>
 

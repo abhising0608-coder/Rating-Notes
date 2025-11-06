@@ -18,7 +18,7 @@ export default function Step4_Preview({ config }: Step4Props) {
         company, template, analysts, financialApproach, financialYearFrom, financialYearTo,
         operationalApproach, operationalYearFrom, operationalYearTo, currencyDenomination,
         scale, decimalPrecision, zeroRowPolicy, zeroColumnPolicy, applicableCriteria,
-        description 
+        description, ratingCycle, individualEntityApproach, combinedGroupId
     } = config;
 
   return (
@@ -30,6 +30,7 @@ export default function Step4_Preview({ config }: Step4Props) {
             <h3 className="font-semibold text-lg">General</h3>
             <PreviewItem label="Company" value={company?.name} />
             <PreviewItem label="Template" value={template?.name} />
+            <PreviewItem label="Rating Cycle" value={ratingCycle} />
             <PreviewItem label="Industry" value={company?.nseIndustry} />
             <PreviewItem label="Secondary Analysts" value={analysts?.join(', ') || 'None'} />
              <PreviewItem label="Description" value={description || 'None'} />
@@ -38,6 +39,12 @@ export default function Step4_Preview({ config }: Step4Props) {
          <div className="space-y-4 p-4 border rounded-lg">
             <h3 className="font-semibold text-lg">Data & Years</h3>
             <PreviewItem label="Financial Approach" value={financialApproach} />
+            {financialApproach === 'Combined' && (
+              <>
+                <PreviewItem label="Individual Entity Approach" value={individualEntityApproach} />
+                <PreviewItem label="Combined Group" value={combinedGroupId} />
+              </>
+            )}
             <PreviewItem label="Financial Years" value={`${financialYearFrom} - ${financialYearTo}`} />
              <PreviewItem label="Operational Approach" value={operationalApproach} />
             <PreviewItem label="Operational Years" value={`${operationalYearFrom} - ${operationalYearTo}`} />

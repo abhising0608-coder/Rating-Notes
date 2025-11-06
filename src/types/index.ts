@@ -3,6 +3,7 @@
 
 
 
+
 export interface Company {
   id: string;
   name: string;
@@ -723,6 +724,9 @@ export interface RatingNote {
   template: Template;
   version?: string;
   rcmDate?: string;
+  ratingCycle?: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
+  individualEntityApproach?: 'Standalone' | 'Consolidated' | null;
+  combinedGroupId?: string | null;
 }
 
 export interface FinancialData {

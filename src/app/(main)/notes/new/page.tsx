@@ -35,8 +35,12 @@ export type NewNoteConfig = Partial<
   Omit<RatingNote, 'id' | 'createdAt' | 'company' | 'template'> & {
     company: Company | null;
     template: Template | null;
+    ratingCycle: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
+    individualEntityApproach: 'Standalone' | 'Consolidated' | null;
+    combinedGroupId: string | null;
   }
 >;
+
 
 const steps = [
   { label: 'Select Template' },
@@ -53,7 +57,10 @@ export default function NewNotePage() {
     company: null,
     template: null,
     analysts: [],
+    ratingCycle: 'Review', // Default cycle for validation testing
     financialApproach: 'Standalone',
+    individualEntityApproach: null,
+    combinedGroupId: null,
     financialYearFrom: new Date().getFullYear() - 3,
     financialYearTo: new Date().getFullYear() -1,
     operationalApproach: 'Standalone',
@@ -89,6 +96,21 @@ export default function NewNotePage() {
   };
   
   const isStep1Valid = useMemo(() => !!config.company && !!config.template, [config.company, config.template]);
+  
+  const isStep3Valid = useMemo(() => {
+    if (config.financialApproach === 'Combined') {
+      if (config.template?.isAgnostic) return false;
+      if (!['Initial', 'Surveillance'].includes(config.ratingCycle!)) return false;
+      if (!config.individualEntityApproach || !config.combinedGroupId) return false;
+    }
+    return true;
+  }, [config]);
+
+  const getNextButtonDisabledState = () => {
+    if (currentStep === 0) return !isStep1Valid;
+    if (currentStep === 2) return !isStep3Valid;
+    return false;
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-8">
@@ -127,7 +149,7 @@ export default function NewNotePage() {
             Back
           </Button>
           {currentStep < steps.length - 1 ? (
-            <Button onClick={handleNext} disabled={currentStep === 0 && !isStep1Valid}>
+            <Button onClick={handleNext} disabled={getNextButtonDisabledState()}>
               Next
             </Button>
           ) : (
