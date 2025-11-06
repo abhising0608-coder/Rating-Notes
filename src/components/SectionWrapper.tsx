@@ -1,4 +1,5 @@
 
+
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
 import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData, AlmStatementData, QuarterlyCashFlowData, DetailsOfInstrumentData } from '@/types';
@@ -28,7 +29,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { Plus, Trash2, RefreshCw, Upload, Loader2, MessageSquare, Download } from 'lucide-react';
+import { Plus, Trash2, RefreshCw, Upload, Loader2, MessageSquare, Download, Send } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Label } from './ui/label';
 import SummaryHygieneChecks from './SummaryHygieneChecks';
@@ -2061,6 +2062,108 @@ const RatioAnalysisSection = ({
   );
 };
 
+const PreviousRCMMinutesSection = ({ initialData, onUpdate }: { initialData: PreviousRCMMinutesData, onUpdate: (data: PreviousRCMMinutesData) => void }) => {
+    const [data, setData] = useState(initialData);
+
+    const handleSelectionChange = (minuteId: string) => {
+        const selectedMinuteIds = data.selectedMinuteIds.includes(minuteId)
+        ? data.selectedMinuteIds.filter(id => id !== minuteId)
+        : [...data.selectedMinuteIds, minuteId];
+        
+        if (selectedMinuteIds.length > 5) {
+            // Optional: show a toast or message
+            return;
+        }
+
+        const updatedData = { ...data, selectedMinuteIds };
+        setData(updatedData);
+        onUpdate(updatedData);
+    };
+
+    const selectedMinutes = data.availableMinutes
+        .filter(minute => data.selectedMinuteIds.includes(minute.id))
+        .sort((a, b) => new Date(b.rcmDate).getTime() - new Date(a.rcmDate).getTime());
+
+    if (data.availableMinutes.length === 0) {
+        return <p className="text-muted-foreground">No previous RCM minutes found for this entity.</p>;
+    }
+
+    return (
+        <div className="space-y-6">
+        <div className="border rounded-lg overflow-hidden">
+            <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead className="w-12"><Checkbox 
+                    checked={data.selectedMinuteIds.length === data.availableMinutes.length && data.availableMinutes.length > 0}
+                    onCheckedChange={(checked) => {
+                        const allIds = checked ? data.availableMinutes.map(m => m.id) : [];
+                        const updatedData = { ...data, selectedMinuteIds: allIds.slice(0, 5) };
+                        setData(updatedData);
+                        onUpdate(updatedData);
+                    }}
+                /></TableHead>
+                <TableHead>RCM Date</TableHead>
+                <TableHead>Rating Committee Reference</TableHead>
+                <TableHead>Key Discussion Points</TableHead>
+                <TableHead>Prepared By</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {data.availableMinutes.map(minute => (
+                <TableRow key={minute.id}>
+                    <TableCell>
+                    <Checkbox
+                        checked={data.selectedMinuteIds.includes(minute.id)}
+                        onCheckedChange={() => handleSelectionChange(minute.id)}
+                    />
+                    </TableCell>
+                    <TableCell>{minute.rcmDate}</TableCell>
+                    <TableCell>{minute.ratingCommitteeReference}</TableCell>
+                    <TableCell>{minute.keyDiscussionPoints}</TableCell>
+                    <TableCell>{minute.preparedBy}</TableCell>
+                </TableRow>
+                ))}
+            </TableBody>
+            </Table>
+        </div>
+
+        {selectedMinutes.length > 0 && (
+            <div className="space-y-4">
+                <h3 className="text-lg font-semibold font-headline">Selected RCM Minutes Content</h3>
+                {selectedMinutes.map(minute => (
+                    <Card key={minute.id}>
+                        <CardHeader>
+                            <CardTitle className="text-base font-headline">RCM from {minute.rcmDate}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm whitespace-pre-wrap">{minute.fullContent}</p>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        )}
+        </div>
+    );
+};
+
+const AddressedQCObservationsSection = ({ initialData, onUpdate }: { initialData: AddressedQCObservationData[], onUpdate: (data: AddressedQCObservationData[]) => void }) => {
+    return (
+        <TableSection
+            initialRows={initialData}
+            headers={['Sr. No.', 'QC Observation', 'Comments of Rating Team']}
+            allowAddRow={true}
+            onRefresh={async () => initialData}
+            onAddRow={(row) => onUpdate([...initialData, row as AddressedQCObservationData])}
+            onUpdateRow={(updatedRow) => onUpdate(initialData.map(r => r.id === updatedRow.id ? updatedRow as AddressedQCObservationData : r))}
+            onRemoveRow={(rowId) => onUpdate(initialData.filter(r => r.id !== rowId))}
+            sectionKey="qc_observations"
+            companyName=""
+        />
+    )
+};
+
+
 const PastRatingSensitivitiesSection = ({ initialData, onUpdate, onRefresh }: { initialData: PastRatingSensitivitiesData, onUpdate: (data: PastRatingSensitivitiesData) => void, onRefresh: () => void }) => {
     const [data, setData] = useState(initialData);
 
@@ -2641,31 +2744,44 @@ export default function SectionWrapper({
 
 
   // Mock current user ID. In a real app, this would come from an auth context.
-  const currentUserId = 'user_001'; 
+  const currentUserId = 'u_001'; 
 
   const isEditable = useMemo(() => {
-    if (note.template.isAgnostic) {
-      // For Sector-Agnostic, only secondary analyst can edit if assigned.
-      if (note.analysts.length > 1 && note.analysts[1]) {
-        return currentUserId === note.analysts[1];
+    // If the note is not sector-agnostic, we use section-specific assignments
+    if (!note.template.isAgnostic) {
+      const assignedTo = (sectionData as any)?.assignedTo;
+      // If a section is explicitly assigned, only that user can edit
+      if (assignedTo) {
+        return currentUserId === assignedTo;
       }
-      // Otherwise, only primary can edit.
-      return currentUserId === note.analysts[0];
-    } else {
-      // For Sectorial notes, check section-specific assignments.
-      const sectionAssignment = (note.sections[section.id] as any)?.assignedTo;
-      if (sectionAssignment) {
-        return currentUserId === sectionAssignment;
-      }
-      // If no specific assignment, and no secondary analyst, primary can edit.
+      // If no secondary analyst is assigned at all, the primary can edit everything
       if (!note.analysts[1]) {
         return currentUserId === note.analysts[0];
       }
-      // If a secondary exists but this section is unassigned, no one can edit.
-      return false;
+      // If a secondary is present but the section is unassigned, only primary can edit
+      return currentUserId === note.analysts[0];
     }
-  }, [note, section.id, currentUserId]);
 
+    // For Sector-Agnostic notes, only one person can edit the whole note.
+    // If a secondary is assigned, they are the sole editor.
+    if (note.analysts[1]) {
+        return currentUserId === note.analysts[1];
+    }
+    // Otherwise, the primary is the editor.
+    return currentUserId === note.analysts[0];
+  }, [note, sectionData, currentUserId]);
+
+
+  const isSecondaryAnalyst = useMemo(() => {
+    return note.analysts[1] === currentUserId;
+  }, [note.analysts, currentUserId]);
+
+  const handleTransferToPrimary = () => {
+    // In a real app, this would trigger the `transferSectionToPrimary` cloud function.
+    console.log(`Simulating transfer of section ${section.id} to Primary Analyst.`);
+    alert(`Section "${section.title}" will be reassigned to the Primary Analyst.`);
+    // Here, you might optimistically update the UI or wait for a re-fetch.
+  };
 
   useEffect(() => {
     if (section.id === 's1') { // Cover page section
@@ -3505,9 +3621,17 @@ export default function SectionWrapper({
 
   return (
     <Card id={section.key}>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="font-headline text-2xl">{section.title}</CardTitle>
-        <div className="flex items-center gap-2">
+      <CardHeader className="flex flex-row items-start justify-between">
+        <div>
+            <CardTitle className="font-headline text-2xl">{section.title}</CardTitle>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {isSecondaryAnalyst && isEditable && (
+             <Button variant="outline" size="sm" onClick={handleTransferToPrimary}>
+                <Send className="mr-2 h-4 w-4" />
+                Assign to Primary
+            </Button>
+          )}
           <Select
             value={applicability}
             onValueChange={handleApplicabilityChange}
@@ -3688,16 +3812,9 @@ export default function SectionWrapper({
         )}
 
         {isAddressedQCObservationsSection && sectionVisible && addressedQCObservations && (
-            <TableSection
-                initialRows={addressedQCObservations}
-                headers={['Sr. No.', 'QC Observation', 'Comments of Rating Team']}
-                allowAddRow={true}
-                onRefresh={async () => addressedQCObservations}
-                onAddRow={(row) => handleAddressedQCObservationsUpdate([...addressedQCObservations, row as AddressedQCObservationData])}
-                onUpdateRow={(updatedRow) => handleAddressedQCObservationsUpdate(addressedQCObservations.map(r => r.id === updatedRow.id ? updatedRow as AddressedQCObservationData : r))}
-                onRemoveRow={(rowId) => handleAddressedQCObservationsUpdate(addressedQCObservations.filter(r => r.id !== rowId))}
-                sectionKey="qc_observations"
-                companyName={note.company.name}
+             <AddressedQCObservationsSection 
+                initialData={addressedQCObservations}
+                onUpdate={handleAddressedQCObservationsUpdate}
             />
         )}
 
@@ -4014,6 +4131,7 @@ export default function SectionWrapper({
             initialAttachments={sectionData.attachments}
             onSave={handleSaveComment}
             onTablePaste={handleTablePaste}
+            disabled={!isEditable}
           />
         )}
       </CardContent>

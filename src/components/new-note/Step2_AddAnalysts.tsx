@@ -6,6 +6,8 @@ import { getUsers } from '@/lib/data';
 import { NewNoteConfig } from '@/app/(main)/notes/new/page';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Info } from 'lucide-react';
 
 type Step2Props = {
   config: NewNoteConfig;
@@ -21,21 +23,21 @@ export default function Step2_AddAnalysts({ config, onConfigChange }: Step2Props
 
   return (
     <div className="space-y-6">
-      <div>
+       <div>
         <h2 className="text-xl font-semibold font-headline mb-2">Assign Secondary Analyst</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          The primary analyst is the note creator. You can assign one secondary analyst to collaborate on this rating note. The assignment and section-specific permissions are managed after note creation.
-        </p>
-        {/* In a real implementation, a dropdown to select an analyst would go here */}
-        <div className="space-y-2 rounded-md border p-4 bg-muted/50">
-          <p className="text-muted-foreground">Analyst selection dropdown will be implemented here.</p>
-        </div>
+         <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Note on Analyst Assignment</AlertTitle>
+          <AlertDescription>
+            The Primary Analyst is the creator of this note. A Secondary Analyst can be assigned after note creation to collaborate on specific sections. This step is for initial clarification only.
+          </AlertDescription>
+        </Alert>
       </div>
       <div>
         <Label htmlFor="analyst-comments" className="font-semibold">Role Clarification Comments (Optional)</Label>
         <Textarea
           id="analyst-comments"
-          placeholder="e.g., 'Analyst 2 will focus on financial modeling.'"
+          placeholder="e.g., 'Analyst 2 will focus on financial modeling and peer analysis.'"
           value={config.description}
           onChange={(e) => onConfigChange({ description: e.target.value })}
         />
