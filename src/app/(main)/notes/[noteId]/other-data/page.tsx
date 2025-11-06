@@ -52,7 +52,6 @@ const WithdrawnFacilitiesSection = () => {
                 <SelectContent>
                 <SelectItem value="Applicable">Applicable</SelectItem>
                 <SelectItem value="Not Applicable">Not Applicable</SelectItem>
-                <SelectItem value="Not Available">Not Available</SelectItem>
                 </SelectContent>
             </Select>
         </div>
