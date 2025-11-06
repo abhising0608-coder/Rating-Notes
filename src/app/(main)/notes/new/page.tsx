@@ -42,6 +42,7 @@ export type NewNoteConfig = Partial<
     combinedGroupId: string | null;
     entityType?: 'Master' | 'Child' | 'Standalone';
     masterEntityName?: string;
+    combinedEntities?: string[];
   }
 >;
 
@@ -66,7 +67,7 @@ export default function NewNotePage() {
     individualEntityApproach: null,
     combinedGroupId: null,
     financialYearFrom: new Date().getFullYear() - 3,
-    financialYearTo: new Date().getFullYear() -1,
+    financialYearTo: new Date().getFullYear() - 1,
     operationalApproach: 'Standalone',
     operationalYearFrom: new Date().getFullYear() - 3,
     operationalYearTo: new Date().getFullYear() - 1,
@@ -140,10 +141,12 @@ export default function NewNotePage() {
                     };
                 }
 
-                if (section.id === 's1' || section.title.toLowerCase().includes('draft pr')) {
-                     // Assuming 'draft pr' is part of a larger section like the cover page or a dedicated one.
-                     // Here we'll place it in the comments of the cover page for simulation.
+                if (section.id === 'draft-pr-rr') { // A more specific ID for draft PR
                      sectionConfig.comments = mockMasterPR;
+                     sectionConfig.isPrePopulated = true;
+                     sectionConfig.dataSource = 'MasterNote';
+                     sectionConfig.masterNoteId = masterNoteId;
+                     sectionConfig.isEditable = true;
                 }
 
                 acc[section.id] = sectionConfig as RatingNote['sections'][string];
@@ -165,7 +168,7 @@ export default function NewNotePage() {
   const isStep3Valid = useMemo(() => {
     if (config.financialApproach === 'Combined') {
       if (!config.individualEntityApproach || !config.combinedGroupId) return false;
-      if (config.template?.isAgnostic && !['Initial', 'Surveillance'].includes(config.ratingCycle!)) {
+       if (config.template?.isAgnostic && !['Initial', 'Surveillance'].includes(config.ratingCycle!)) {
         return false;
       }
     }

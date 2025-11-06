@@ -1,3 +1,4 @@
+
 'use client';
 import { useEffect, useState } from 'react';
 import type { User } from '@/types';
@@ -5,7 +6,6 @@ import { getUsers } from '@/lib/data';
 import { NewNoteConfig } from '@/app/(main)/notes/new/page';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Checkbox } from '../ui/checkbox';
 
 type Step2Props = {
   config: NewNoteConfig;
@@ -19,34 +19,16 @@ export default function Step2_AddAnalysts({ config, onConfigChange }: Step2Props
     getUsers().then(setUsers);
   }, []);
 
-  const handleAnalystToggle = (userId: string) => {
-    const currentAnalysts = config.analysts || [];
-    const newAnalysts = currentAnalysts.includes(userId)
-      ? currentAnalysts.filter((id) => id !== userId)
-      : [...currentAnalysts, userId];
-    onConfigChange({ analysts: newAnalysts });
-  };
-
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold font-headline mb-2">Select Secondary Analysts</h2>
+        <h2 className="text-xl font-semibold font-headline mb-2">Assign Secondary Analyst</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          The primary analyst is the note creator. You can add one or more secondary analysts.
+          The primary analyst is the note creator. You can assign one secondary analyst to collaborate on this rating note. The assignment and section-specific permissions are managed after note creation.
         </p>
-        <div className="space-y-2 rounded-md border p-4">
-          {users.filter(u => u.role === 'Analyst').map(user => (
-            <div key={user.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={`analyst-${user.id}`}
-                checked={(config.analysts || []).includes(user.id)}
-                onCheckedChange={() => handleAnalystToggle(user.id)}
-              />
-              <Label htmlFor={`analyst-${user.id}`} className="font-normal">
-                {user.name} ({user.email})
-              </Label>
-            </div>
-          ))}
+        {/* In a real implementation, a dropdown to select an analyst would go here */}
+        <div className="space-y-2 rounded-md border p-4 bg-muted/50">
+          <p className="text-muted-foreground">Analyst selection dropdown will be implemented here.</p>
         </div>
       </div>
       <div>
