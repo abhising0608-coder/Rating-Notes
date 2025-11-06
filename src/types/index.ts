@@ -1,4 +1,5 @@
 
+
 export interface Company {
   id: string;
   name: string;
@@ -690,6 +691,10 @@ export interface SectionData {
   almStatement?: AlmStatementData;
   quarterlyCashFlow?: QuarterlyCashFlowData;
   detailsOfInstrument?: DetailsOfInstrumentData;
+  isPrePopulated?: boolean;
+  dataSource?: 'MasterNote' | 'None';
+  masterNoteId?: string;
+  isEditable?: boolean;
 }
 
 export interface RatingNote {

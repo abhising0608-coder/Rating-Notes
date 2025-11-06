@@ -96,29 +96,61 @@ export default function NewNotePage() {
 
   const handleCreateNote = () => {
     // In a real app, this would save the config to Firestore and create the note.
-    // This simulates the logic from `createChildRatingNote` cloud function.
+    // This simulates the logic from `createChildRatingNote` and `copyPRandRRFromMasterNote` cloud functions.
     console.log('Final Rating Note Configuration:', config);
 
     if (config.financialApproach === 'Combined' && config.entityType === 'Child') {
         const masterName = config.masterEntityName || 'Master Company';
+        const masterNoteId = 'master_note_001'; // Simulated master note ID
         const referenceNote = `Note: Please refer Master Company Note ${masterName}`;
         
+        const mockMasterPR = `This is the Press Release content copied from the master note (${masterNoteId}) for ${masterName}. It is now editable.`;
+        const mockMasterRR = `This is the Rating Rationale content copied from the master note (${masterNoteId}) for ${masterName}. This content is also editable.`;
+
         const noteData = {
             ...config,
             sections: config.template?.sections.reduce((acc, section) => {
                 const isCommonLockedSection = COMMON_SECTIONS_FOR_CHILD_LOCK.includes(section.id);
-                acc[section.id] = {
+                
+                let sectionConfig: Partial<RatingNote['sections'][string]> = {
                     applicable: isCommonLockedSection ? 'Applicable' : 'Not Applicable',
                     tableRows: [],
                     comments: '',
                     attachments: [],
-                    isReferenceOnly: isCommonLockedSection,
-                    referenceNote: isCommonLockedSection ? referenceNote : undefined,
                 };
+
+                if (isCommonLockedSection) {
+                    sectionConfig = {
+                        ...sectionConfig,
+                        isReferenceOnly: true,
+                        referenceNote: referenceNote,
+                    };
+                }
+
+                // Simulate copying PR and RR data
+                if (section.id === 's_rationale_drivers') { // Corresponds to Rating Rationale
+                     sectionConfig = {
+                        ...sectionConfig,
+                        applicable: 'Applicable',
+                        isPrePopulated: true,
+                        dataSource: 'MasterNote',
+                        masterNoteId: masterNoteId,
+                        rationaleAndKeyRatingDrivers: mockMasterRR,
+                        isEditable: true,
+                    };
+                }
+
+                if (section.id === 's1' || section.title.toLowerCase().includes('draft pr')) {
+                     // Assuming 'draft pr' is part of a larger section like the cover page or a dedicated one.
+                     // Here we'll place it in the comments of the cover page for simulation.
+                     sectionConfig.comments = mockMasterPR;
+                }
+
+                acc[section.id] = sectionConfig as RatingNote['sections'][string];
                 return acc;
             }, {} as RatingNote['sections'])
         };
-        console.log('Creating CHILD note with locked sections:', noteData);
+        console.log('Creating CHILD note with locked and pre-populated sections:', noteData);
         // Here you would save the `noteData` to your database.
     } else {
         console.log('Creating MASTER or non-combined note.');
