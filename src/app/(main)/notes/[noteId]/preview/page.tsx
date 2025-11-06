@@ -1,9 +1,10 @@
+
 'use client';
 
 import { notFound, useParams } from 'next/navigation';
 import { getRatingNoteById } from '@/lib/data';
 import type { RatingNote } from '@/types';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Printer, Download, CheckCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +18,9 @@ function NotePreviewPage() {
     const [note, setNote] = useState<RatingNote | null>(null);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
+
+    // Mock current user ID. In a real app, this would come from an auth context.
+    const currentUserId = 'u_001'; 
 
     useEffect(() => {
         if (noteId) {
@@ -36,6 +40,35 @@ function NotePreviewPage() {
                 .finally(() => setLoading(false));
         }
     }, [noteId, toast]);
+
+    const { canShowMarkAsComplete, isMarkAsCompleteDisabled } = useMemo(() => {
+        if (!note) {
+            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true };
+        }
+
+        const isPrimary = note.analysts[0] === currentUserId;
+        if (!isPrimary) {
+            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true };
+        }
+
+        if (note.template.isAgnostic) {
+            const hasSecondary = note.analysts.length > 1 && note.analysts[1];
+            return {
+                canShowMarkAsComplete: !hasSecondary,
+                isMarkAsCompleteDisabled: hasSecondary,
+            };
+        } else { // Sectorial Note
+            const allSectionsAssignedToPrimary = Object.values(note.sections).every(section => {
+                const assignedTo = (section as any).assignedTo;
+                // If a section is unassigned, it defaults to the primary analyst.
+                return !assignedTo || assignedTo === note.analysts[0];
+            });
+            return {
+                canShowMarkAsComplete: true,
+                isMarkAsCompleteDisabled: !allSectionsAssignedToPrimary
+            };
+        }
+    }, [note, currentUserId]);
 
     const handlePrint = () => {
         window.print();
@@ -88,25 +121,27 @@ function NotePreviewPage() {
                     <Button variant="secondary" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
                     </Button>
-                     <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button>
-                                <CheckCircle className="mr-2 h-4 w-4" /> Mark as Complete
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure you want to mark this rating note as complete?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                This action will freeze the note, and it will become read-only. You will not be able to make any more changes.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>No</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleMarkAsComplete}>Yes</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
+                    {canShowMarkAsComplete && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button disabled={isMarkAsCompleteDisabled}>
+                                    <CheckCircle className="mr-2 h-4 w-4" /> Mark as Complete
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to mark this rating note as complete?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This action will freeze the note, and it will become read-only. You will not be able to make any more changes.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>No</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleMarkAsComplete}>Yes</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
                 </div>
             </div>
             <div className="max-w-4xl mx-auto p-8 bg-white print:p-0" id="printable-area">
