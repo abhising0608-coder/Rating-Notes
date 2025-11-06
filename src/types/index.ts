@@ -304,17 +304,21 @@ export interface LiquidityData {
   comment: string;
 }
 
+export interface BriefFinancials {
+  fetchedRows: TableRowData[];
+  manualRows: TableRowData[];
+  manualColumns: string[];
+}
+
 export interface AboutCompanyData {
   tag1_1: string;
   industryClassification: {
     fetchedRows: TableRowData[];
     manualRows: TableRowData[];
   };
-  briefFinancials: {
-    fetchedRows: TableRowData[];
-    manualRows: TableRowData[];
-    manualColumns: string[];
-  };
+  briefFinancials: BriefFinancials;
+  combinedBriefFinancials?: BriefFinancials;
+  individualBriefFinancials?: BriefFinancials;
 }
 
 export interface StatusOfNonCooperationData {
@@ -703,7 +707,6 @@ export interface RatingNote {
   templateId: string;
   analysts: string[];
   financialApproach: 'Standalone' | 'Consolidated' | 'Combined';
-  combinedEntities?: string[];
   financialYearFrom: number;
   financialYearTo: number;
   operationalApproach: 'Standalone' | 'Consolidated';
@@ -729,7 +732,7 @@ export interface RatingNote {
   ratingCycle?: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
   individualEntityApproach?: 'Standalone' | 'Consolidated' | null;
   combinedGroupId?: string | null;
-  entityType?: 'Master' | 'Child';
+  entityType?: 'Master' | 'Child' | 'Standalone';
   masterEntityName?: string;
 }
 

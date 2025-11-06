@@ -40,7 +40,7 @@ export type NewNoteConfig = Partial<
     ratingCycle: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
     individualEntityApproach: 'Standalone' | 'Consolidated' | null;
     combinedGroupId: string | null;
-    entityType?: 'Master' | 'Child';
+    entityType?: 'Master' | 'Child' | 'Standalone';
     masterEntityName?: string;
   }
 >;
@@ -78,7 +78,7 @@ export default function NewNotePage() {
     highlightZeros: true,
     applicableCriteria: [],
     description: '',
-    entityType: 'Master',
+    entityType: 'Standalone',
     masterEntityName: '',
   });
 
@@ -164,13 +164,14 @@ export default function NewNotePage() {
   
   const isStep3Valid = useMemo(() => {
     if (config.financialApproach === 'Combined') {
-      if (config.template?.isAgnostic) {
-        if (!['Initial', 'Surveillance'].includes(config.ratingCycle!)) return false;
-      }
       if (!config.individualEntityApproach || !config.combinedGroupId) return false;
+      if (config.template?.isAgnostic && !['Initial', 'Surveillance'].includes(config.ratingCycle!)) {
+        return false;
+      }
     }
     return true;
-  }, [config]);
+  }, [config.financialApproach, config.individualEntityApproach, config.combinedGroupId, config.template?.isAgnostic, config.ratingCycle]);
+
 
   const getNextButtonDisabledState = () => {
     if (currentStep === 0) return !isStep1Valid;
