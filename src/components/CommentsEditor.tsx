@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -20,6 +21,7 @@ type CommentsEditorProps = {
   initialAttachments: Attachment[];
   onSave: (sectionId: string, content: string, attachments: Attachment[]) => void;
   onTablePaste: (rows: TableRowData[]) => void;
+  disabled?: boolean;
 };
 
 export default function CommentsEditor({
@@ -28,6 +30,7 @@ export default function CommentsEditor({
   initialAttachments,
   onSave,
   onTablePaste,
+  disabled = false,
 }: CommentsEditorProps) {
   const [content, setContent] = useState(initialContent);
   const [attachments, setAttachments] = useState(initialAttachments);
@@ -111,14 +114,14 @@ export default function CommentsEditor({
       <h3 className="text-lg font-semibold font-headline mb-2">Comments</h3>
       <div className="rounded-lg border bg-card">
         <div className="p-2 border-b flex items-center gap-1 flex-wrap">
-          <Button variant="ghost" size="icon"><Bold /></Button>
-          <Button variant="ghost" size="icon"><Italic /></Button>
-          <Button variant="ghost" size="icon"><Underline /></Button>
-          <Button variant="ghost" size="icon"><List /></Button>
-          <Button variant="ghost" size="icon"><Link /></Button>
-          <Button variant="ghost" size="icon" onClick={handleImageUpload}><ImageIcon /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Bold /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Italic /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Underline /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><List /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Link /></Button>
+          <Button variant="ghost" size="icon" onClick={handleImageUpload} disabled={disabled}><ImageIcon /></Button>
           <Separator orientation="vertical" className="h-6 mx-2" />
-           <Button variant="ghost" size="sm" onClick={() => setIsPastingTable(true)}>
+           <Button variant="ghost" size="sm" onClick={() => setIsPastingTable(true)} disabled={disabled}>
             <FileSpreadsheet className="mr-2" />
             Paste from Excel
           </Button>
@@ -130,10 +133,11 @@ export default function CommentsEditor({
             className="min-h-[120px] border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-1"
             value={content.replace(/<[^>]+>/g, '')} // Simplified view
             onChange={(e) => setContent(`<p>${e.target.value}</p>`)}
+            disabled={disabled}
           />
         </div>
         <div className="p-3 border-t bg-muted/50 flex justify-between items-center">
-          <Button variant="outline" size="sm" onClick={handleAttachmentUpload}>
+          <Button variant="outline" size="sm" onClick={handleAttachmentUpload} disabled={disabled}>
             Add Attachment
           </Button>
           {lastSaved && (
@@ -184,3 +188,5 @@ export default function CommentsEditor({
     </div>
   );
 }
+
+    

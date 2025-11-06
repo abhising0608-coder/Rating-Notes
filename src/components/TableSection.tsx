@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition } from 'react';
@@ -154,7 +155,7 @@ export default function TableSection({
   return (
     <div className="mt-4">
       <div className="flex items-center justify-end gap-2 mb-2">
-        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing || readOnly}>
           {isRefreshing ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -163,7 +164,7 @@ export default function TableSection({
           Refresh
         </Button>
         {allowAddRow && (
-          <Button variant="outline" size="sm" onClick={handleAddRow}>
+          <Button variant="outline" size="sm" onClick={handleAddRow} disabled={readOnly}>
             <Plus className="mr-2 h-4 w-4" />
             Add Row
           </Button>
@@ -189,7 +190,7 @@ export default function TableSection({
               <TableRow key={row.id}>
                 {headers.map((header) => {
                   const cellValue = row[header];
-                  const isReadOnly = readOnly && !row.isManual;
+                  const isCellReadOnly = readOnly || (!row.isManual && readOnly);
                   const isNM = NM_ATTRIBUTE_IDS.includes(row.mappedAttributeId ?? '') && typeof cellValue === 'number' && cellValue < 0;
 
                   const displayValue = isNM ? 'NM' : (cellValue ?? '');
@@ -199,16 +200,16 @@ export default function TableSection({
                        <Input
                           type="text"
                           value={displayValue}
-                          readOnly={isReadOnly}
+                          readOnly={isCellReadOnly}
                           onChange={(e) => handleCellChange(row.id, header, e.target.value)}
-                          className={`h-8 border-transparent focus:border-input ${isReadOnly ? 'bg-transparent cursor-default' : 'hover:border-input'}`}
+                          className={`h-8 border-transparent focus:border-input ${isCellReadOnly ? 'bg-transparent cursor-default' : 'hover:border-input'}`}
                        />
                     </TableCell>
                   )
                 })}
                 <TableCell>
                     {row.isManual && (
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemoveRow(row.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleRemoveRow(row.id)} disabled={readOnly}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                     )}
@@ -227,3 +228,5 @@ export default function TableSection({
     </div>
   );
 }
+
+    

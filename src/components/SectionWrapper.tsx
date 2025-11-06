@@ -392,9 +392,11 @@ const AboutCompanySection = ({ initialData, onUpdate, onRefresh, companyName, an
         handleUpdate('industryClassification', { ...data.industryClassification, manualRows: updatedManualRows });
     };
 
-    const handleBriefFinancialsRowChange = (updatedRow: TableRowData) => {
-        const updatedManualRows = data.briefFinancials.manualRows.map(row => row.id === updatedRow.id ? updatedRow : row);
-        handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: updatedManualRows });
+    const handleBriefFinancialsRowChange = (updatedRow: TableRowData, type: 'briefFinancials' | 'combinedBriefFinancials' | 'individualBriefFinancials') => {
+        if (!data[type]) return;
+        const currentData = data[type]!;
+        const updatedManualRows = currentData.manualRows.map(row => row.id === updatedRow.id ? updatedRow : row);
+        handleUpdate(type, { ...currentData, manualRows: updatedManualRows });
     };
     
     return (
@@ -430,7 +432,7 @@ const AboutCompanySection = ({ initialData, onUpdate, onRefresh, companyName, an
                     headers={['Particulars', 'March 31, 2023 (A)', 'March 31, 2024 (A)', ...data.briefFinancials.manualColumns]}
                     onRefresh={async () => { onRefresh(analyticalApproach); return data.briefFinancials.fetchedRows; }}
                     onAddRow={(newRow) => handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: [...data.briefFinancials.manualRows, newRow] })}
-                    onUpdateRow={handleBriefFinancialsRowChange}
+                    onUpdateRow={(row) => handleBriefFinancialsRowChange(row, 'briefFinancials')}
                     onRemoveRow={(rowId) => handleUpdate('briefFinancials', { ...data.briefFinancials, manualRows: data.briefFinancials.manualRows.filter(r => r.id !== rowId) })}
                     allowAddRow={true}
                     sectionKey="about_company_financials"
@@ -2638,6 +2640,31 @@ export default function SectionWrapper({
   const [detailsOfInstrument, setDetailsOfInstrument] = useState(sectionData.detailsOfInstrument);
 
 
+  // Mock current user ID. In a real app, this would come from an auth context.
+  const currentUserId = 'user_001'; 
+
+  const isEditable = useMemo(() => {
+    if (note.template.isAgnostic) {
+      // For Sector-Agnostic, only secondary analyst can edit if assigned.
+      if (note.analysts.length > 1 && note.analysts[1]) {
+        return currentUserId === note.analysts[1];
+      }
+      // Otherwise, only primary can edit.
+      return currentUserId === note.analysts[0];
+    } else {
+      // For Sectorial notes, check section-specific assignments.
+      const sectionAssignment = (note.sections[section.id] as any)?.assignedTo;
+      if (sectionAssignment) {
+        return currentUserId === sectionAssignment;
+      }
+      // If no specific assignment, and no secondary analyst, primary can edit.
+      if (!note.analysts[1]) {
+        return currentUserId === note.analysts[0];
+      }
+      // If a secondary exists but this section is unassigned, no one can edit.
+      return false;
+    }
+  }, [note, section.id, currentUserId]);
 
 
   useEffect(() => {
@@ -3069,7 +3096,7 @@ export default function SectionWrapper({
   }
 
   const handleRowRemove = (rowId: string) => {
-    const updatedRows = tableRows.filter(row => row.id !== rowId);
+    const updatedRows = tableRows.filter(r => r.id !== rowId);
     setTableRows(updatedRows);
     onUpdateSection(section.id, { tableRows: updatedRows });
   }
@@ -3484,6 +3511,7 @@ export default function SectionWrapper({
           <Select
             value={applicability}
             onValueChange={handleApplicabilityChange}
+            disabled={!isEditable}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select applicability" />
@@ -3943,6 +3971,7 @@ export default function SectionWrapper({
             onAddRow={handleRowAdd}
             onUpdateRow={handleRowUpdate}
             onRemoveRow={handleRowRemove}
+            readOnly={!isEditable}
           />
         )}
 
@@ -3958,6 +3987,7 @@ export default function SectionWrapper({
             onAddRow={handleRowAdd}
             onUpdateRow={handleRowUpdate}
             onRemoveRow={handleRowRemove}
+            readOnly={!isEditable}
           />
         )}
 
@@ -3973,6 +4003,7 @@ export default function SectionWrapper({
             onAddRow={handleRowAdd}
             onUpdateRow={handleRowUpdate}
             onRemoveRow={handleRowRemove}
+            readOnly={!isEditable}
           />
         )}
 
@@ -3989,3 +4020,5 @@ export default function SectionWrapper({
     </Card>
   );
 }
+
+    
