@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -30,6 +31,7 @@ import Step1_SelectTemplate from '@/components/new-note/Step1_SelectTemplate';
 import Step2_AddAnalysts from '@/components/new-note/Step2_AddAnalysts';
 import Step3_AddDetails from '@/components/new-note/Step3_AddDetails';
 import Step4_Preview from '@/components/new-note/Step4_Preview';
+import { COMMON_SECTIONS_FOR_CHILD_LOCK } from '@/lib/constants';
 
 export type NewNoteConfig = Partial<
   Omit<RatingNote, 'id' | 'createdAt' | 'company' | 'template'> & {
@@ -38,6 +40,8 @@ export type NewNoteConfig = Partial<
     ratingCycle: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
     individualEntityApproach: 'Standalone' | 'Consolidated' | null;
     combinedGroupId: string | null;
+    entityType?: 'Master' | 'Child';
+    masterEntityName?: string;
   }
 >;
 
@@ -74,6 +78,8 @@ export default function NewNotePage() {
     highlightZeros: true,
     applicableCriteria: [],
     description: '',
+    entityType: 'Master',
+    masterEntityName: '',
   });
 
   const handleNext = () => {
@@ -89,9 +95,36 @@ export default function NewNotePage() {
   }
 
   const handleCreateNote = () => {
-    // In a real app, this would save the config to Firestore and create the note
+    // In a real app, this would save the config to Firestore and create the note.
+    // This simulates the logic from `createChildRatingNote` cloud function.
     console.log('Final Rating Note Configuration:', config);
-    // Navigate to the newly created note's page.
+
+    if (config.financialApproach === 'Combined' && config.entityType === 'Child') {
+        const masterName = config.masterEntityName || 'Master Company';
+        const referenceNote = `Note: Please refer Master Company Note ${masterName}`;
+        
+        const noteData = {
+            ...config,
+            sections: config.template?.sections.reduce((acc, section) => {
+                const isCommonLockedSection = COMMON_SECTIONS_FOR_CHILD_LOCK.includes(section.id);
+                acc[section.id] = {
+                    applicable: isCommonLockedSection ? 'Applicable' : 'Not Applicable',
+                    tableRows: [],
+                    comments: '',
+                    attachments: [],
+                    isReferenceOnly: isCommonLockedSection,
+                    referenceNote: isCommonLockedSection ? referenceNote : undefined,
+                };
+                return acc;
+            }, {} as RatingNote['sections'])
+        };
+        console.log('Creating CHILD note with locked sections:', noteData);
+        // Here you would save the `noteData` to your database.
+    } else {
+        console.log('Creating MASTER or non-combined note.');
+    }
+
+    // For prototype purposes, navigate to a pre-existing note page.
     router.push(`/notes/1`);
   };
   
@@ -99,8 +132,9 @@ export default function NewNotePage() {
   
   const isStep3Valid = useMemo(() => {
     if (config.financialApproach === 'Combined') {
-      if (config.template?.isAgnostic) return false;
-      if (!['Initial', 'Surveillance'].includes(config.ratingCycle!)) return false;
+      if (config.template?.isAgnostic) {
+        if (!['Initial', 'Surveillance'].includes(config.ratingCycle!)) return false;
+      }
       if (!config.individualEntityApproach || !config.combinedGroupId) return false;
     }
     return true;

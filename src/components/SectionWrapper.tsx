@@ -3461,6 +3461,20 @@ export default function SectionWrapper({
   const isContactDetailsAuditorSection = section.id === 's_cpti_contact_auditor';
   const isLastRatingActionSection = section.id === 's_cpti_last_rating_action';
 
+  if (sectionData.isReferenceOnly) {
+    return (
+        <Card id={section.key}>
+            <CardHeader>
+                <CardTitle className="font-headline text-2xl">{section.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="p-4 border rounded-md bg-muted text-muted-foreground italic">
+                    {sectionData.referenceNote}
+                </div>
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <Card id={section.key}>

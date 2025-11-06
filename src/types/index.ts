@@ -1,10 +1,4 @@
 
-
-
-
-
-
-
 export interface Company {
   id: string;
   name: string;
@@ -631,6 +625,8 @@ export interface QuarterlyCashFlowData {
 
 export interface SectionData {
   applicable: 'Applicable' | 'Not Applicable' | 'Not Available';
+  isReferenceOnly?: boolean;
+  referenceNote?: string;
   tableRows: TableRowData[];
   comments: string;
   attachments: Attachment[];
@@ -728,6 +724,8 @@ export interface RatingNote {
   ratingCycle?: 'Initial' | 'Surveillance' | 'Review' | 'Revalidation' | 'Representation' | 'Withdrawal' | 'INC' | 'CPTI';
   individualEntityApproach?: 'Standalone' | 'Consolidated' | null;
   combinedGroupId?: string | null;
+  entityType?: 'Master' | 'Child';
+  masterEntityName?: string;
 }
 
 export interface FinancialData {
