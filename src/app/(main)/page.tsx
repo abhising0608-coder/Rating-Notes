@@ -32,7 +32,7 @@ const statusConfig: { [key: string]: { icon: React.ReactNode, className: string 
   'For Review': { icon: <AlertTriangle className="h-4 w-4 mr-2" />, className: 'bg-orange-100 text-orange-800' },
 };
 
-export default function Home() {
+export default function DashboardPage() {
   const router = useRouter();
   const [notes, setNotes] = useState<RatingNote[]>([]);
   const [user, setUser] = useState<User | null>(null);

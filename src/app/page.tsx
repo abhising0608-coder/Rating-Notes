@@ -2,20 +2,29 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import DashboardPage from './(main)/page';
 
 export default function HomeRedirect() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    // This logic runs on the client-side
     const user = localStorage.getItem('user');
     if (user) {
-      router.replace('/'); // If user is logged in, stay on the dashboard (which is under the (main) group at the root)
+      setIsLoggedIn(true);
     } else {
-      router.replace('/login'); // If not logged in, redirect to login
+      router.replace('/login');
     }
   }, [router]);
 
-  return null; 
+  if (isLoggedIn === null) {
+    return null; // Or a loading spinner
+  }
+
+  if (isLoggedIn) {
+    return <DashboardPage />;
+  }
+
+  return null;
 }
