@@ -119,6 +119,13 @@ export default function Step1_SelectTemplate({ config, onConfigChange }: Step1Pr
 
     return { recommendedTemplates: recommended, otherTemplates: other };
   }, [config.company, templates, mappings]);
+
+  useEffect(() => {
+    if (recommendedTemplates.length > 0 && !config.template) {
+      onConfigChange({ template: recommendedTemplates[0] });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recommendedTemplates]);
   
   const handleCompanyChange = (companyId: string) => {
     const company = companies.find((c) => c.id === companyId) || null;
