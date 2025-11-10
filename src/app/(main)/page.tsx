@@ -1,3 +1,6 @@
+
+'use client';
+
 import Link from 'next/link';
 import {
   Card,
@@ -18,8 +21,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, CheckCircle, AlertTriangle } from 'lucide-react';
 import { getRatingNotes } from '@/lib/data';
-import type { RatingNote } from '@/types';
+import type { RatingNote, User } from '@/types';
 import { format } from 'date-fns';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const statusConfig: { [key: string]: { icon: React.ReactNode, className: string } } = {
   'In Progress': { icon: <Edit className="h-4 w-4 mr-2" />, className: 'bg-blue-100 text-blue-800' },
@@ -27,12 +32,35 @@ const statusConfig: { [key: string]: { icon: React.ReactNode, className: string 
   'For Review': { icon: <AlertTriangle className="h-4 w-4 mr-2" />, className: 'bg-orange-100 text-orange-800' },
 };
 
-export default async function Home() {
-  const notes = await getRatingNotes();
+export default function Home() {
+  const router = useRouter();
+  const [notes, setNotes] = useState<RatingNote[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const loggedInUser = localStorage.getItem('user');
+    if (loggedInUser) {
+      setUser(JSON.parse(loggedInUser));
+    } else {
+      router.push('/login');
+    }
+  }, [router]);
+
+  useEffect(() => {
+    async function fetchNotes() {
+      const allNotes = await getRatingNotes();
+      setNotes(allNotes);
+    }
+    fetchNotes();
+  }, []);
 
   const notesInProgress = notes.filter(n => n.status === 'In Progress').length;
   const notesCompleted = notes.filter(n => n.status === 'Completed').length;
   const notesForReview = notes.filter(n => n.status === 'For Review').length;
+
+  if (!user) {
+    return null; // or a loading spinner
+  }
 
   return (
     <div className="container mx-auto p-4 md:p-8">

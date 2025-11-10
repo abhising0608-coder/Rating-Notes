@@ -1,13 +1,16 @@
+
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { LogOut, Settings, BarChart, FileCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import CareEdgeLogo from './CareEdgeLogo';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useEffect, useState } from 'react';
+import { User } from '@/types';
 
 const navLinks = [
   { href: '/', label: 'Dashboard' },
@@ -19,7 +22,21 @@ const navLinks = [
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const userAvatar = PlaceHolderImages.find(img => img.id === 'user-avatar');
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    router.push('/login');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
@@ -53,7 +70,7 @@ const Header = () => {
             <Settings className="h-5 w-5" />
             <span className="sr-only">Settings</span>
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" onClick={handleLogout}>
             <LogOut className="h-5 w-5" />
             <span className="sr-only">Logout</span>
           </Button>
@@ -61,7 +78,7 @@ const Header = () => {
             {userAvatar && (
                <AvatarImage src={userAvatar.imageUrl} alt="User Avatar" data-ai-hint={userAvatar.imageHint} />
             )}
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarFallback>{user ? user.name.charAt(0).toUpperCase() : 'U'}</AvatarFallback>
           </Avatar>
         </div>
       </div>
