@@ -31,16 +31,12 @@ export default function LoginPage() {
             <CareEdgeLogo />
           </div>
           <CardTitle className="font-headline">Welcome to CREST</CardTitle>
-          <CardDescription>Enter your credentials to access your dashboard.</CardDescription>
+          <CardDescription>Enter any email to proceed to the dashboard.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="user@careedge.in" required />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required />
+            <Input id="email" type="email" placeholder="user@careedge.in (any email works)" required />
           </div>
         </CardContent>
         <CardFooter>
