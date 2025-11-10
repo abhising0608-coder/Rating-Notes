@@ -6,7 +6,7 @@ import { getRatingNoteById } from '@/lib/data';
 import type { RatingNote } from '@/types';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Printer, Download, CheckCircle, Send } from 'lucide-react';
+import { Printer, Download, CheckCircle, Send, RefreshCw, Loader2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -17,10 +17,11 @@ function NotePreviewPage() {
     const noteId = params.noteId as string;
     const [note, setNote] = useState<RatingNote | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
     const { toast } = useToast();
 
     // Mock current user ID. In a real app, this would come from an auth context.
-    const currentUserId = 'u_002'; // Changed to u_002 to test secondary analyst view
+    const currentUserId = 'u_001';
 
     useEffect(() => {
         if (noteId) {
@@ -41,20 +42,17 @@ function NotePreviewPage() {
         }
     }, [noteId, toast]);
 
-    const { canShowMarkAsComplete, isMarkAsCompleteDisabled, isSecondaryAnalyst } = useMemo(() => {
+    const { canShowMarkAsComplete, isMarkAsCompleteDisabled, isSecondaryAnalyst, isNoteCompleted, canShowMasterRefresh } = useMemo(() => {
         if (!note) {
-            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true, isSecondaryAnalyst: false };
+            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true, isSecondaryAnalyst: false, isNoteCompleted: false, canShowMasterRefresh: false };
         }
 
         const isPrimary = note.analysts[0] === currentUserId;
         const localIsSecondary = note.analysts[1] === currentUserId;
-
-        if (!isPrimary && !localIsSecondary) {
-            return { canShowMarkAsComplete: false, isMarkAsCompleteDisabled: true, isSecondaryAnalyst: false };
-        }
+        const localIsNoteCompleted = note.status === 'Completed';
 
         let isCompletable = false;
-        if (isPrimary) {
+        if (isPrimary && !localIsNoteCompleted) {
              if (note.template.isAgnostic) {
                 // For agnostic, primary can only complete if no secondary is assigned
                 isCompletable = !note.analysts[1];
@@ -69,9 +67,11 @@ function NotePreviewPage() {
        
 
         return {
-            canShowMarkAsComplete: isPrimary, // Only primary can ever see the button
-            isMarkAsCompleteDisabled: !isCompletable, // Disabled if conditions aren't met
+            canShowMarkAsComplete: isPrimary && !localIsNoteCompleted, // Only show if primary and note not complete
+            isMarkAsCompleteDisabled: !isCompletable,
             isSecondaryAnalyst: localIsSecondary,
+            isNoteCompleted: localIsNoteCompleted,
+            canShowMasterRefresh: isPrimary && localIsNoteCompleted,
         };
     }, [note, currentUserId]);
 
@@ -90,12 +90,11 @@ function NotePreviewPage() {
     const handleMarkAsComplete = () => {
         // In a real app, this would call the validateAndMarkAsComplete cloud function
         console.log("Marking note as complete...");
+        setNote(prev => prev ? {...prev, status: 'Completed'} : null);
         toast({
             title: 'Success',
             description: 'Rating note has been marked as complete and is now read-only.',
         });
-        // Here you would typically disable editing, e.g., by setting a state
-        // or re-fetching the note with an updated 'completed' status.
     };
     
     const handleReassignCase = () => {
@@ -105,6 +104,18 @@ function NotePreviewPage() {
             title: 'Case Reassigned',
             description: 'The rating note has been successfully transferred.'
         });
+    }
+
+    const handleMasterRefresh = async () => {
+        setIsRefreshing(true);
+        // Simulate API call to masterRefreshRatingNote cloud function
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setIsRefreshing(false);
+        toast({
+            title: 'Master Refresh Completed',
+            description: `All DB-linked data refreshed successfully at ${new Date().toLocaleTimeString()}.`,
+        });
+        // Here you would typically re-fetch the note data to show the refreshed values
     }
 
     if (loading) {
@@ -135,7 +146,7 @@ function NotePreviewPage() {
                     <Button variant="secondary" onClick={handlePrint}>
                         <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
                     </Button>
-                    {isSecondaryAnalyst && (
+                     {isSecondaryAnalyst && (
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button variant="outline">
@@ -152,6 +163,28 @@ function NotePreviewPage() {
                                 <AlertDialogFooter>
                                 <AlertDialogCancel>No</AlertDialogCancel>
                                 <AlertDialogAction onClick={handleReassignCase}>Yes, Assign</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
+                    {canShowMasterRefresh && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button disabled={isRefreshing}>
+                                    {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                                    Master Refresh
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Master Refresh</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Do you want to refresh all DB-linked data (except Model Summary)? This may take a few seconds.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>No</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleMasterRefresh}>Yes, Refresh</AlertDialogAction>
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
@@ -272,5 +305,3 @@ function NotePreviewPage() {
 }
 
 export default NotePreviewPage;
-
-    
