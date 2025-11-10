@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import NoteVerseLogo from '@/components/NoteVerseLogo';
+import CareEdgeLogo from '@/components/CareEdgeLogo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -11,7 +11,7 @@ const Header = () => {
     <header className="bg-card border-b sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link href="/" className="flex items-center gap-2">
-          <NoteVerseLogo />
+          <CareEdgeLogo />
         </Link>
         <div className="flex items-center gap-4">
           <Avatar className="h-9 w-9">

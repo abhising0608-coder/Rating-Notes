@@ -29,19 +29,6 @@ const statusConfig: { [key: string]: { icon: React.ReactNode, className: string 
 };
 
 
-const DashboardCard = ({ title, value, icon }: { title: string, value: number, icon: React.ReactNode }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      {icon}
-    </CardHeader>
-    <CardContent>
-      <div className="text-2xl font-bold">{value}</div>
-      <p className="text-xs text-muted-foreground">notes currently in this state</p>
-    </CardContent>
-  </Card>
-)
-
 export default async function Home() {
   const notes = await getRatingNotes();
 
@@ -60,12 +47,6 @@ export default async function Home() {
               <Plus className="mr-2" /> Create New Note
             </Button>
           </Link>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          <DashboardCard title="Notes in Progress" value={notesInProgress} icon={<Edit className="h-5 w-5 text-yellow-500" />} />
-          <DashboardCard title="Completed Notes" value={completedNotes} icon={<CheckCircle className="h-5 w-5 text-green-500" />} />
-          <DashboardCard title="Notes for Review" value={reviewNotes} icon={<AlertTriangle className="h-5 w-5 text-orange-500" />} />
         </div>
 
         <Card>
