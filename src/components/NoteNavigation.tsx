@@ -51,24 +51,31 @@ export default function NoteNavigation({ note }: { note: RatingNote }) {
                     </Link>
                 </div>
             </div>
-            <Stepper initialStep={0} activeStep={3}>
-                {steps.map((step, index) => (
-                <Step key={index} label={step.label} />
-                ))}
-            </Stepper>
+            <Stepper initialStep={0} activeStep={3} steps={steps} />
             <div className="flex items-center space-x-2 border-t mt-4 pt-2 overflow-x-auto">
             {note.template.sections.map((section) => {
                 const isVisible = note.sections[section.id]?.applicable === 'Applicable';
                 if (!isVisible && section.id !== 's1') return null;
 
+                const currentPath = pathname.split('/').pop();
+                const notePagePath = `/notes/${note.id}`;
+                const sectionPath = currentPath === 'page.tsx' ? `${notePagePath}#${section.id}` : `#${section.id}`;
+                
+                const isSectionActive = section.id === (typeof window !== 'undefined' ? window.location.hash.substring(1) : '');
+
                 return (
-                <a
+                <Link
                     key={section.id}
-                    href={`#${section.id}`}
-                    className="px-3 py-1.5 border-b-2 text-sm font-medium whitespace-nowrap border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    href={sectionPath}
+                    className={cn(
+                        "px-3 py-1.5 border-b-2 text-sm font-medium whitespace-nowrap",
+                        isSectionActive
+                        ? 'border-primary text-primary'
+                        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                    )}
                 >
                     {section.title}
-                </a>
+                </Link>
                 );
             })}
             </div>
