@@ -1,6 +1,7 @@
 
 
 
+
 export interface Company {
   id: string;
   name: string;
@@ -13,8 +14,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    role: 'Analyst' | 'Admin';
-    password?: string;
+    role: 'Rating Analyst' | 'Secondary Analyst' | 'QC' | 'RCM' | 'Compliance' | 'Admin';
 }
 
 export interface Criteria {

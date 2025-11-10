@@ -1,5 +1,6 @@
 
 
+
 import type {
   Company,
   FinancialData,
@@ -97,10 +98,12 @@ const companies: Company[] = [
 ];
 
 const users: User[] = [
-    { id: 'u_001', name: 'Ananlyst 1', email: 'analyst1@example.com', role: 'Analyst', password: 'password123' },
-    { id: 'u_002', name: 'Ananlyst 2', email: 'analyst2@example.com', role: 'Analyst', password: 'password123' },
-    { id: 'u_003', name: 'Ananlyst 3', email: 'analyst3@example.com', role: 'Analyst', password: 'password123' },
-    { id: 'admin_01', name: 'Admin User', email: 'admin@example.com', role: 'Admin', password: 'password123' },
+    { id: 'u_001', name: 'Analyst 1', email: 'analyst1@example.com', role: 'Rating Analyst' },
+    { id: 'u_002', name: 'Analyst 2', email: 'analyst2@example.com', role: 'Secondary Analyst' },
+    { id: 'u_003', name: 'QC Reviewer', email: 'qc1@example.com', role: 'QC' },
+    { id: 'u_004', name: 'RCM Member', email: 'rcm1@example.com', role: 'RCM' },
+    { id: 'u_005', name: 'Compliance Officer', email: 'compliance@example.com', role: 'Compliance' },
+    { id: 'admin_01', name: 'Admin User', email: 'admin@example.com', role: 'Admin' },
 ];
 
 const criteria: Criteria[] = [
@@ -1962,4 +1965,5 @@ export const getDetailsOfInstrumentData = async (noteId: string): Promise<Detail
     }
     return null;
 };
+
 

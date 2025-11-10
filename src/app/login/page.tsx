@@ -12,30 +12,39 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CareEdgeLogo from '@/components/CareEdgeLogo';
 import { getUsers } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import type { User } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    getUsers().then(setUsers);
+  }, []);
 
   const handleLogin = async () => {
     setError('');
-    const users = await getUsers();
-    const user = users.find(u => u.email === email);
+    if (!selectedUserId) {
+      setError('Please select a user to log in.');
+      return;
+    }
+    
+    const user = users.find(u => u.id === selectedUserId);
 
-    if (user && user.password === password) {
-      // In a real app, you would get a token from a server
+    if (user) {
       localStorage.setItem('user', JSON.stringify(user));
       router.push('/');
     } else {
-      setError('Invalid email or password. Please try again.');
+      setError('Selected user not found. Please try again.');
     }
   };
 
@@ -47,7 +56,7 @@ export default function LoginPage() {
             <CareEdgeLogo />
           </div>
           <CardTitle className="font-headline">Welcome to CREST</CardTitle>
-          <CardDescription>Enter your credentials to sign in.</CardDescription>
+          <CardDescription>Select a user profile to sign in.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {error && (
@@ -60,26 +69,19 @@ export default function LoginPage() {
             </Alert>
           )}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input 
-                id="email" 
-                type="email" 
-                placeholder="analyst1@example.com" 
-                required 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input 
-                id="password" 
-                type="password" 
-                placeholder="password123"
-                required 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
+            <Label htmlFor="user-select">Select User Role</Label>
+            <Select onValueChange={setSelectedUserId} value={selectedUserId}>
+                <SelectTrigger id="user-select">
+                    <SelectValue placeholder="Select a user..."/>
+                </SelectTrigger>
+                <SelectContent>
+                    {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                           {user.name} ({user.role})
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
           </div>
         </CardContent>
         <CardFooter>
