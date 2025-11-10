@@ -196,11 +196,7 @@ export default function NewNotePage() {
 
         <Card>
           <CardHeader>
-            <Stepper initialStep={0} activeStep={currentStep}>
-              {steps.map((step, index) => (
-                <Step key={index} label={step.label} />
-              ))}
-            </Stepper>
+            <Stepper initialStep={0} activeStep={currentStep} steps={steps} />
           </CardHeader>
           <CardContent>
             {currentStep === 0 && <Step1_SelectTemplate config={config} onConfigChange={updateConfig} />}
