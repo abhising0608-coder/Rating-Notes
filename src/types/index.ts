@@ -701,6 +701,7 @@ export interface SectionData {
 
 export interface RatingNote {
   id: string;
+  noteName: string;
   companyId: string;
   templateId: string;
   analysts: string[];

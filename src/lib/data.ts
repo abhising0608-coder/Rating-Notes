@@ -1019,8 +1019,9 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
     companyId: '1',
+    noteName: 'GBC Surveillance Note',
     templateId: 'tmpl_001',
-    createdBy: 'user1',
+    createdBy: 'Abhay Singh',
     status: 'In Progress',
     currencyDenomination: 'INR',
     scale: 'Long Term',
@@ -1041,6 +1042,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     description: 'FY22-24 rating note.',
     version: '1.0',
     rcmDate: '2024-08-15',
+    ratingCycle: 'Review',
     sections: {
       s1: {
         applicable: 'Applicable',
