@@ -9,7 +9,7 @@ export default function MainLayout({
   return (
     <div className="flex min-h-screen bg-background">
       <Header />
-      <main className="flex-1 p-8">
+      <main className="flex-1">
         {children}
       </main>
       <Toaster />

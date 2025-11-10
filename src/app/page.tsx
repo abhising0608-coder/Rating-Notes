@@ -23,8 +23,10 @@ export default function HomeRedirect() {
   }
 
   if (isLoggedIn) {
+    // Render the dashboard content directly if logged in
     return <DashboardPage />;
   }
 
+  // This part should ideally not be reached if the redirect works, but it's a fallback.
   return null;
 }

@@ -47,7 +47,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [notes, setNotes] = useState<RatingNote[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [sortConfig, setSortConfig] = useState<{ key: keyof RatingNote | 'noteName'; direction: 'ascending' | 'descending' } | null>({ key: 'createdOn', direction: 'descending' });
+  const [sortConfig, setSortConfig] = useState<{ key: keyof RatingNote | 'noteName'; direction: 'ascending' | 'descending' } | null>({ key: 'createdAt', direction: 'descending' });
   const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export default function DashboardPage() {
         if (sortConfig.key === 'noteName') {
           aValue = a.noteName;
           bValue = b.noteName;
-        } else if (sortConfig.key === 'createdOn') {
+        } else if (sortConfig.key === 'createdAt') {
           aValue = new Date(a.createdAt).getTime();
           bValue = new Date(b.createdAt).getTime();
         } else {
@@ -175,7 +175,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="container mx-auto p-0">
+    <div className="container mx-auto p-8">
       <div className="flex items-center justify-between mb-2">
         <div>
           <h1 className="text-2xl font-bold font-headline">Rating Notes</h1>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
                 <TableHead>Template Type</TableHead>
                 <TableHead>Sector / Industry</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead onClick={() => requestSort('createdOn')} className="cursor-pointer">
+                <TableHead onClick={() => requestSort('createdAt')} className="cursor-pointer">
                     <div className="flex items-center">
                         Created On <ArrowUpDown className="ml-2 h-4 w-4" />
                     </div>
