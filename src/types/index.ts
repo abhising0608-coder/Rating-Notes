@@ -1,7 +1,3 @@
-
-
-
-
 export interface Company {
   id: string;
   name: string;
@@ -14,7 +10,7 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    role: 'Rating Analyst' | 'Secondary Analyst' | 'QC' | 'RCM' | 'Compliance' | 'Admin';
+    role: 'Rating Analyst' | 'Secondary Analyst' | 'Quality Control / Reviewer (QC)' | 'Rating Committee (RCM)' | 'Compliance / Audit Teams' | 'Admin';
 }
 
 export interface Criteria {
