@@ -1025,6 +1025,7 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     scale: 'Long Term',
     decimalPrecision: 2,
     createdAt: '2024-07-29T10:00:00Z',
+    lastModified: '2024-07-30T14:30:00Z',
     analysts: ['u_001', 'u_002'],
     financialApproach: 'Standalone',
     financialYearFrom: 2022,

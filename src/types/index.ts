@@ -725,6 +725,7 @@ export interface RatingNote {
     [sectionId: string]: SectionData;
   };
   createdAt: string;
+  lastModified: string;
   company: Company;
   template: Template;
   version?: string;
