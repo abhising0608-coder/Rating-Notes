@@ -24,12 +24,12 @@ export default function Step2_AddAnalysts({ config, onConfigChange }: Step2Props
   return (
     <div className="space-y-6">
        <div>
-        <h2 className="text-xl font-semibold font-headline mb-2">Assign Secondary Analyst</h2>
+        <h2 className="text-xl font-semibold font-headline mb-2">Assign Analysts</h2>
          <Alert>
           <Info className="h-4 w-4" />
           <AlertTitle>Note on Analyst Assignment</AlertTitle>
           <AlertDescription>
-            The Primary Analyst is the creator of this note. A Secondary Analyst can be assigned after note creation to collaborate on specific sections. This step is for initial clarification only.
+            You are the Primary Analyst for this note. After the note is created, you can assign a Secondary Analyst to collaborate on specific sections. This step is for initial clarification only.
           </AlertDescription>
         </Alert>
       </div>
