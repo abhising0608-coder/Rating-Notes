@@ -154,7 +154,6 @@ export default function ChecklistPage() {
   if (!note || !checklist) {
     return (
         <div className="flex-1 flex flex-col">
-            <NoteNavigation />
              <main className="flex-1 p-8 bg-background">
                 <div>Loading checklist...</div>
             </main>
@@ -164,7 +163,7 @@ export default function ChecklistPage() {
 
   return (
     <div className="flex-1 flex flex-col">
-       <NoteNavigation />
+       <NoteNavigation note={note}/>
        <main className="flex-1 p-8 bg-background">
          <div className="grid md:grid-cols-2 gap-8">
             <Card>

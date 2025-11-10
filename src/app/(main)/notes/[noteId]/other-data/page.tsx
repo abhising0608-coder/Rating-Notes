@@ -5,14 +5,15 @@ import NoteNavigation from '@/components/NoteNavigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AnnexureAttachments from '@/components/AnnexureAttachments';
 import { useState, useEffect } from 'react';
-import type { WithdrawnFacility } from '@/types';
-import { getWithdrawnFacilities } from '@/lib/data';
+import type { WithdrawnFacility, RatingNote } from '@/types';
+import { getWithdrawnFacilities, getRatingNoteById } from '@/lib/data';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { useParams } from 'next/navigation';
 
 const WithdrawnFacilitiesSection = () => {
   const [applicability, setApplicability] = useState<'Applicable' | 'Not Applicable' | 'Not Available'>('Applicable');
@@ -106,9 +107,29 @@ const WithdrawnFacilitiesSection = () => {
 }
 
 export default function OtherDataPage() {
+    const params = useParams();
+    const noteId = params.noteId as string;
+    const [note, setNote] = useState<RatingNote | null>(null);
+
+    useEffect(() => {
+        if(noteId) {
+            getRatingNoteById(noteId).then(setNote);
+        }
+    }, [noteId]);
+
+    if (!note) {
+        return (
+             <div className="flex-1 flex flex-col">
+                <main className="flex-1 p-8 bg-background">
+                    <div>Loading...</div>
+                </main>
+            </div>
+        )
+    }
+
   return (
     <div className="flex-1 flex flex-col">
-      <NoteNavigation />
+      <NoteNavigation note={note} />
       <main className="flex-1 p-8 bg-background">
         <div className="space-y-8">
             <Card>

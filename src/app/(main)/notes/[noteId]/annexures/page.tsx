@@ -120,9 +120,19 @@ export default function AnnexuresPage() {
         </div>
     );
 
+    if (!note) {
+        return (
+             <div className="flex-1 flex flex-col">
+                <main className="flex-1 p-8 bg-background">
+                    <div>Loading...</div>
+                </main>
+            </div>
+        )
+    }
+
     return (
         <div className="flex-1 flex flex-col">
-            <NoteNavigation />
+            <NoteNavigation note={note} />
             <main className="flex-1 p-8 bg-background">
                 <div className="space-y-8">
                     {note && <PressReleaseAnnexure entityName={note.company.name} />}

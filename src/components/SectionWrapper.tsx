@@ -1,5 +1,3 @@
-
-
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
 import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData, AlmStatementData, QuarterlyCashFlowData, DetailsOfInstrumentData } from '@/types';
@@ -3544,523 +3542,520 @@ export default function SectionWrapper({
   }
 
   return (
-    <Card id={section.key}>
-      <CardHeader className="flex flex-row items-start justify-between">
-        <div>
-            <CardTitle className="font-headline text-2xl">{section.title}</CardTitle>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {isSecondaryAnalyst && isEditable && (
-             <Button variant="outline" size="sm" onClick={handleTransferToPrimary}>
-                <Send className="mr-2 h-4 w-4" />
-                Assign to Primary
-            </Button>
-          )}
-          <Select
-            value={applicability}
-            onValueChange={handleApplicabilityChange}
-            disabled={!isEditable}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select applicability" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Applicable">Applicable</SelectItem>
-              <SelectItem value="Not Applicable">Not Applicable</SelectItem>
-              <SelectItem value="Not Available">Not Available</SelectItem>
-            </SelectContent>
-          </Select>
-          {section.tooltipKey && !isCoverPage && <Tooltip tooltipKey={section.tooltipKey} sector={note.template.sector} />}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {!sectionVisible && !isAnalyticalApproachDisplaySection && (
-          <p className="text-muted-foreground p-4 text-center">This section is marked as "{applicability}". Comments can still be added below.</p>
-        )}
-
-        {isCoverPage && sectionVisible && (
-          <div className="space-y-6">
-            {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
-            {summaryHygieneChecks && <Separator />}
-            {summaryHygieneChecks && <SummaryHygieneChecks initialData={summaryHygieneChecks} onUpdate={handleHygieneChecksUpdate} />}
-            {analystDetails && <Separator />}
-            {analystDetails && <AnalystDetailsSection details={analystDetails} />}
-            {ratingRecommendation && <Separator />}
-            {ratingRecommendation && <RatingRecommendationSection ratings={ratingRecommendation} />}
-            {qcSpecialists && <Separator />}
-            {qcSpecialists && <QCSectorSpecialistSection specialists={qcSpecialists} onUpdate={handleSpecialistUpdate} />}
-            {bankFacilitiesData && <Separator />}
-            {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
-            <Separator />
-            <CareAndCrasSection text={careAndCrasText} onTextChange={handleCareAndCrasTextChange} />
-          </div>
-        )}
-
-        {isAboutCompanySection && sectionVisible && aboutCompany && (
-            <AboutCompanySection
-                initialData={aboutCompany}
-                onUpdate={handleAboutCompanyUpdate}
-                onRefresh={handleAboutCompanyRefresh}
-                companyName={note.company.name}
-                analyticalApproach={note.financialApproach}
-            />
-        )}
-        
-        {isKeyUpdatesSection && sectionVisible && keyUpdatesContent && (
-             <KeyUpdatesSection 
-                content={keyUpdatesContent}
-                onUpdate={handleKeyUpdatesContentUpdate}
-                onRefresh={handleKeyUpdatesContentRefresh}
-                sector={note.template.sector}
-             />
-        )}
-        
-         {isAnalyticalApproachSection && sectionVisible && analyticalApproach && (
-          <AnalyticalApproachSection
-            data={analyticalApproach}
-            onUpdate={handleAnalyticalApproachUpdate}
-          />
-        )}
-
-        {isAnalyticalApproachDisplaySection && (
-           <AnalyticalApproachDisplaySection analyticalApproach={note.sections['s_analytical_approach']?.analyticalApproach} />
-        )}
-
-        {isModelSummarySection && sectionVisible && modelSummary && (
-          <ModelSummarySection 
-            initialData={modelSummary}
-            onUpdate={handleModelSummaryUpdate}
-            onRefresh={handleModelSummaryRefresh}
-          />
-        )}
-
-        {isParentGovSupportSection && sectionVisible && parentGovSupport && (
-          <ParentGovSupportSection
-            initialData={parentGovSupport}
-            onUpdate={handleParentGovSupportUpdate}
-          />
-        )}
-
-        {isCEChecklistSection && sectionVisible && ceChecklist && (
-          <CEChecklistSection
-            initialData={ceChecklist}
-            onUpdate={handleCEChecklistUpdate}
-          />
-        )}
-
-        {isBoardCompositionSection && sectionVisible && boardComposition && (
-            <BoardCompositionSection
-                initialData={boardComposition}
-                onUpdate={handleBoardCompositionUpdate}
-                onRefresh={handleBoardCompositionRefresh}
-                tooltipKey={section.tooltipKey}
-            />
-        )}
-
-        {isFinancialsPastProjectedSection && sectionVisible && financials && (
-            <FinancialsPastProjectedSection 
-                initialData={financials}
-                onUpdate={handleFinancialsUpdate}
-                onRefresh={handleFinancialsRefresh}
-                companyName={note.company.name}
-            />
-        )}
-
-        {isInterimResultsSection && sectionVisible && interimResults && (
-            <InterimResultReviewsSection 
-                initialData={interimResults}
-                onUpdate={handleInterimResultsUpdate}
-            />
-        )}
-
-        {isQuarterlyFinancialsSection && sectionVisible && quarterlyFinancials && (
-          <QuarterlyFinancialsSection
-            initialData={quarterlyFinancials}
-            onUpdate={handleQuarterlyFinancialsUpdate}
-            onRefresh={handleQuarterlyFinancialsRefresh}
-            companyName={note.company.name}
-          />
-        )}
-        
-        {isBalanceSheetSection && sectionVisible && balanceSheet && (
-          <>
-            <BalanceSheetSection
-              initialData={balanceSheet}
-              onUpdate={handleBalanceSheetUpdate}
-              onRefresh={handleBalanceSheetRefresh}
-              companyName={note.company.name}
-            />
-            {contingentLiabilities && (
-              <ContingentLiabilitiesSection 
-                initialData={contingentLiabilities}
-                onUpdate={handleContingentLiabilitiesUpdate}
-                onRefresh={handleContingentLiabilitiesRefresh}
-                companyName={note.company.name}
-              />
-            )}
-          </>
-        )}
-        
-        {isProfitAndLossSection && sectionVisible && profitAndLoss && (
-          <ProfitAndLossSection
-            initialData={profitAndLoss}
-            onUpdate={handleProfitAndLossUpdate}
-            onRefresh={handleProfitAndLossRefresh}
-            companyName={note.company.name}
-          />
-        )}
-
-        {isCashFlowStatementSection && sectionVisible && cashFlow && (
-          <CashFlowStatementSection
-            initialData={cashFlow}
-            onUpdate={handleCashFlowUpdate}
-            onRefresh={handleCashFlowRefresh}
-            companyName={note.company.name}
-          />
-        )}
-
-        {isRatioAnalysisSection && sectionVisible && ratioAnalysis && (
-          <RatioAnalysisSection
-            initialData={ratioAnalysis}
-            onUpdate={handleRatioAnalysisUpdate}
-            onRefresh={handleRatioAnalysisRefresh}
-            companyName={note.company.name}
-          />
-        )}
-        
-        {isPreviousRCMMinutesSection && sectionVisible && previousRCMMinutes && (
-          <PreviousRCMMinutesSection
-            initialData={previousRCMMinutes}
-            onUpdate={handlePreviousRCMMinutesUpdate}
-          />
-        )}
-
-        {isAddressedQCObservationsSection && sectionVisible && addressedQCObservations && (
-             <AddressedQCObservationsSection 
-                initialData={addressedQCObservations}
-                onUpdate={handleAddressedQCObservationsUpdate}
-            />
-        )}
-
-        {isPastRatingSensitivitiesSection && sectionVisible && pastRatingSensitivities && (
-            <PastRatingSensitivitiesSection
-                initialData={pastRatingSensitivities}
-                onUpdate={handlePastRatingSensitivitiesUpdate}
-                onRefresh={handlePastRatingSensitivitiesRefresh}
-            />
-        )}
-
-        {isManagementDiscussionSection && sectionVisible && managementDiscussion && (
-          <ManagementDiscussionSection data={managementDiscussion} />
-        )}
-        
-        {isDiscussionWithAuditCommitteeSection && sectionVisible && discussionWithAuditCommittee && (
-          <DiscussionWithAuditCommitteeSection 
-            data={discussionWithAuditCommittee}
-            onRefresh={handleDiscussionWithAuditCommitteeRefresh}
-           />
-        )}
-
-
-        { isAssumptionsForCashFlowSection && sectionVisible && (
-            <Textarea 
-                value={sectionData.assumptionsForCashFlow || ''}
-                onChange={(e) => handleAssumptionsForCashFlowUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter assumptions for cash flow..."
-            />
-        )}
-
-        { isSensitivityAnalysisSection && sectionVisible && (
-            <Textarea 
-                value={sectionData.sensitivityAnalysis || ''}
-                onChange={(e) => handleSensitivityAnalysisUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter sensitivity analysis details..."
-            />
-        )}
-
-        { isGstCalculationSection && sectionVisible && (
-            <Textarea 
-                value={sectionData.gstCalculation || ''}
-                onChange={(e) => handleGstCalculationUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter GST calculation details..."
-            />
-        )}
-        
-        { isAssumptionsForProjectionsSection && sectionVisible && (
-            <Textarea 
-                value={sectionData.assumptionsForProjections || ''}
-                onChange={(e) => handleAssumptionsForProjectionsUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter assumptions for projections..."
-            />
-        )}
-
-        { isRationaleDriversSection && sectionVisible && (
-            <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                    <Label htmlFor={`rationale-${section.id}`} className="text-base">Rationale and Key Rating Drivers</Label>
-                    {section.tooltipKey && <Tooltip tooltipKey={section.tooltipKey} />}
+    <AccordionItem value={section.id} id={section.id}>
+        <AccordionTrigger className="text-2xl font-headline px-6">{section.title}</AccordionTrigger>
+        <AccordionContent>
+            <div className="px-6 pb-6">
+                <div className="flex items-center gap-4 justify-end mb-4">
+                  {isSecondaryAnalyst && isEditable && (
+                     <Button variant="outline" size="sm" onClick={handleTransferToPrimary}>
+                        <Send className="mr-2 h-4 w-4" />
+                        Assign to Primary
+                    </Button>
+                  )}
+                  <Select
+                    value={applicability}
+                    onValueChange={handleApplicabilityChange}
+                    disabled={!isEditable}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select applicability" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Applicable">Applicable</SelectItem>
+                      <SelectItem value="Not Applicable">Not Applicable</SelectItem>
+                      <SelectItem value="Not Available">Not Available</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {section.tooltipKey && !isCoverPage && <Tooltip tooltipKey={section.tooltipKey} sector={note.template.sector} />}
                 </div>
-                <Textarea 
-                    id={`rationale-${section.id}`}
-                    value={sectionData.rationaleAndKeyRatingDrivers || ''}
-                    onChange={(e) => handleRationaleAndKeyRatingDriversUpdate(e.target.value)}
-                    rows={10}
-                    placeholder="Enter rationale and key rating drivers..."
-                />
-            </div>
-        )}
 
-        {isRatingSensitivitiesSection && sectionVisible && ratingSensitivities && (
-            <RatingSensitivitiesSection 
-                initialData={ratingSensitivities}
-                onUpdate={handleRatingSensitivitiesUpdate}
-            />
-        )}
-        
-        {isLiquiditySection && sectionVisible && liquidity && (
-            <LiquiditySection
-                initialData={liquidity}
-                onUpdate={handleLiquidityUpdate}
-                onRefresh={handleLiquidityRefresh}
-            />
-        )}
+                {!sectionVisible && !isAnalyticalApproachDisplaySection && (
+                  <p className="text-muted-foreground p-4 text-center">This section is marked as "{applicability}". Comments can still be added below.</p>
+                )}
 
-        {isAlmStatementSection && sectionVisible && almStatement && (
-            <AlmStatementSection
-                initialData={almStatement}
-                onUpdate={handleAlmStatementUpdate}
-            />
-        )}
+                {isCoverPage && sectionVisible && (
+                  <div className="space-y-6">
+                    {disclosureData && <DisclosureSection disclosure={disclosureData} tooltipKey={section.tooltipKey} sector={note.template.sector} />}
+                    {summaryHygieneChecks && <Separator />}
+                    {summaryHygieneChecks && <SummaryHygieneChecks initialData={summaryHygieneChecks} onUpdate={handleHygieneChecksUpdate} />}
+                    {analystDetails && <Separator />}
+                    {analystDetails && <AnalystDetailsSection details={analystDetails} />}
+                    {ratingRecommendation && <Separator />}
+                    {ratingRecommendation && <RatingRecommendationSection ratings={ratingRecommendation} />}
+                    {qcSpecialists && <Separator />}
+                    {qcSpecialists && <QCSectorSpecialistSection specialists={qcSpecialists} onUpdate={handleSpecialistUpdate} />}
+                    {bankFacilitiesData && <Separator />}
+                    {bankFacilitiesData && <BankFacilitiesSection facilitiesData={bankFacilitiesData} />}
+                    <Separator />
+                    <CareAndCrasSection text={careAndCrasText} onTextChange={handleCareAndCrasTextChange} />
+                  </div>
+                )}
 
-        {isQuarterlyCashFlowSection && sectionVisible && quarterlyCashFlow && (
-            <QuarterlyCashFlowSection
-                initialData={quarterlyCashFlow}
-                onUpdate={handleQuarterlyCashFlowUpdate}
-            />
-        )}
-
-        {isDetailsOfInstrumentSection && sectionVisible && detailsOfInstrument && (
-            <DetailsOfInstrumentSection
-                initialData={detailsOfInstrument}
-                onUpdate={handleDetailsOfInstrumentUpdate}
-            />
-        )}
-        
-        { isDetailedDriversSection && sectionVisible && (
-             <div className="space-y-4">
-                <div>
-                    <Label htmlFor={`detailed-drivers-strengths-${section.id}`} className="text-base font-semibold">Key Strengths</Label>
-                    <Textarea 
-                        id={`detailed-drivers-strengths-${section.id}`}
-                        value={detailedDescriptionOfKeyRatingDrivers?.keyStrengths || ''}
-                        onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyStrengths', e.target.value)}
-                        rows={8}
-                        placeholder="Enter detailed description of key strengths..."
+                {isAboutCompanySection && sectionVisible && aboutCompany && (
+                    <AboutCompanySection
+                        initialData={aboutCompany}
+                        onUpdate={handleAboutCompanyUpdate}
+                        onRefresh={handleAboutCompanyRefresh}
+                        companyName={note.company.name}
+                        analyticalApproach={note.financialApproach}
                     />
-                </div>
-                <div>
-                    <Label htmlFor={`detailed-drivers-weaknesses-${section.id}`} className="text-base font-semibold">Key Weaknesses</Label>
-                    <Textarea 
-                        id={`detailed-drivers-weaknesses-${section.id}`}
-                        value={detailedDescriptionOfKeyRatingDrivers?.keyWeaknesses || ''}
-                        onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyWeaknesses', e.target.value)}
-                        rows={8}
-                        placeholder="Enter detailed description of key weaknesses..."
+                )}
+                
+                {isKeyUpdatesSection && sectionVisible && keyUpdatesContent && (
+                     <KeyUpdatesSection 
+                        content={keyUpdatesContent}
+                        onUpdate={handleKeyUpdatesContentUpdate}
+                        onRefresh={handleKeyUpdatesContentRefresh}
+                        sector={note.template.sector}
+                     />
+                )}
+                
+                 {isAnalyticalApproachSection && sectionVisible && analyticalApproach && (
+                  <AnalyticalApproachSection
+                    data={analyticalApproach}
+                    onUpdate={handleAnalyticalApproachUpdate}
+                  />
+                )}
+
+                {isAnalyticalApproachDisplaySection && (
+                   <AnalyticalApproachDisplaySection analyticalApproach={note.sections['s_analytical_approach']?.analyticalApproach} />
+                )}
+
+                {isModelSummarySection && sectionVisible && modelSummary && (
+                  <ModelSummarySection 
+                    initialData={modelSummary}
+                    onUpdate={handleModelSummaryUpdate}
+                    onRefresh={handleModelSummaryRefresh}
+                  />
+                )}
+
+                {isParentGovSupportSection && sectionVisible && parentGovSupport && (
+                  <ParentGovSupportSection
+                    initialData={parentGovSupport}
+                    onUpdate={handleParentGovSupportUpdate}
+                  />
+                )}
+
+                {isCEChecklistSection && sectionVisible && ceChecklist && (
+                  <CEChecklistSection
+                    initialData={ceChecklist}
+                    onUpdate={handleCEChecklistUpdate}
+                  />
+                )}
+
+                {isBoardCompositionSection && sectionVisible && boardComposition && (
+                    <BoardCompositionSection
+                        initialData={boardComposition}
+                        onUpdate={handleBoardCompositionUpdate}
+                        onRefresh={handleBoardCompositionRefresh}
+                        tooltipKey={section.tooltipKey}
                     />
-                </div>
+                )}
+
+                {isFinancialsPastProjectedSection && sectionVisible && financials && (
+                    <FinancialsPastProjectedSection 
+                        initialData={financials}
+                        onUpdate={handleFinancialsUpdate}
+                        onRefresh={handleFinancialsRefresh}
+                        companyName={note.company.name}
+                    />
+                )}
+
+                {isInterimResultsSection && sectionVisible && interimResults && (
+                    <InterimResultReviewsSection 
+                        initialData={interimResults}
+                        onUpdate={handleInterimResultsUpdate}
+                    />
+                )}
+
+                {isQuarterlyFinancialsSection && sectionVisible && quarterlyFinancials && (
+                  <QuarterlyFinancialsSection
+                    initialData={quarterlyFinancials}
+                    onUpdate={handleQuarterlyFinancialsUpdate}
+                    onRefresh={handleQuarterlyFinancialsRefresh}
+                    companyName={note.company.name}
+                  />
+                )}
+                
+                {isBalanceSheetSection && sectionVisible && balanceSheet && (
+                  <>
+                    <BalanceSheetSection
+                      initialData={balanceSheet}
+                      onUpdate={handleBalanceSheetUpdate}
+                      onRefresh={handleBalanceSheetRefresh}
+                      companyName={note.company.name}
+                    />
+                    {contingentLiabilities && (
+                      <ContingentLiabilitiesSection 
+                        initialData={contingentLiabilities}
+                        onUpdate={handleContingentLiabilitiesUpdate}
+                        onRefresh={handleContingentLiabilitiesRefresh}
+                        companyName={note.company.name}
+                      />
+                    )}
+                  </>
+                )}
+                
+                {isProfitAndLossSection && sectionVisible && profitAndLoss && (
+                  <ProfitAndLossSection
+                    initialData={profitAndLoss}
+                    onUpdate={handleProfitAndLossUpdate}
+                    onRefresh={handleProfitAndLossRefresh}
+                    companyName={note.company.name}
+                  />
+                )}
+
+                {isCashFlowStatementSection && sectionVisible && cashFlow && (
+                  <CashFlowStatementSection
+                    initialData={cashFlow}
+                    onUpdate={handleCashFlowUpdate}
+                    onRefresh={handleCashFlowRefresh}
+                    companyName={note.company.name}
+                  />
+                )}
+
+                {isRatioAnalysisSection && sectionVisible && ratioAnalysis && (
+                  <RatioAnalysisSection
+                    initialData={ratioAnalysis}
+                    onUpdate={handleRatioAnalysisUpdate}
+                    onRefresh={handleRatioAnalysisRefresh}
+                    companyName={note.company.name}
+                  />
+                )}
+                
+                {isPreviousRCMMinutesSection && sectionVisible && previousRCMMinutes && (
+                  <PreviousRCMMinutesSection
+                    initialData={previousRCMMinutes}
+                    onUpdate={handlePreviousRCMMinutesUpdate}
+                  />
+                )}
+
+                {isAddressedQCObservationsSection && sectionVisible && addressedQCObservations && (
+                     <AddressedQCObservationsSection 
+                        initialData={addressedQCObservations}
+                        onUpdate={handleAddressedQCObservationsUpdate}
+                    />
+                )}
+
+                {isPastRatingSensitivitiesSection && sectionVisible && pastRatingSensitivities && (
+                    <PastRatingSensitivitiesSection
+                        initialData={pastRatingSensitivities}
+                        onUpdate={handlePastRatingSensitivitiesUpdate}
+                        onRefresh={handlePastRatingSensitivitiesRefresh}
+                    />
+                )}
+
+                {isManagementDiscussionSection && sectionVisible && managementDiscussion && (
+                  <ManagementDiscussionSection data={managementDiscussion} />
+                )}
+                
+                {isDiscussionWithAuditCommitteeSection && sectionVisible && discussionWithAuditCommittee && (
+                  <DiscussionWithAuditCommitteeSection 
+                    data={discussionWithAuditCommittee}
+                    onRefresh={handleDiscussionWithAuditCommitteeRefresh}
+                   />
+                )}
+
+
+                { isAssumptionsForCashFlowSection && sectionVisible && (
+                    <Textarea 
+                        value={sectionData.assumptionsForCashFlow || ''}
+                        onChange={(e) => handleAssumptionsForCashFlowUpdate(e.target.value)}
+                        rows={10}
+                        placeholder="Enter assumptions for cash flow..."
+                    />
+                )}
+
+                { isSensitivityAnalysisSection && sectionVisible && (
+                    <Textarea 
+                        value={sectionData.sensitivityAnalysis || ''}
+                        onChange={(e) => handleSensitivityAnalysisUpdate(e.target.value)}
+                        rows={10}
+                        placeholder="Enter sensitivity analysis details..."
+                    />
+                )}
+
+                { isGstCalculationSection && sectionVisible && (
+                    <Textarea 
+                        value={sectionData.gstCalculation || ''}
+                        onChange={(e) => handleGstCalculationUpdate(e.target.value)}
+                        rows={10}
+                        placeholder="Enter GST calculation details..."
+                    />
+                )}
+                
+                { isAssumptionsForProjectionsSection && sectionVisible && (
+                    <Textarea 
+                        value={sectionData.assumptionsForProjections || ''}
+                        onChange={(e) => handleAssumptionsForProjectionsUpdate(e.target.value)}
+                        rows={10}
+                        placeholder="Enter assumptions for projections..."
+                    />
+                )}
+
+                { isRationaleDriversSection && sectionVisible && (
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                            <Label htmlFor={`rationale-${section.id}`} className="text-base">Rationale and Key Rating Drivers</Label>
+                            {section.tooltipKey && <Tooltip tooltipKey={section.tooltipKey} />}
+                        </div>
+                        <Textarea 
+                            id={`rationale-${section.id}`}
+                            value={sectionData.rationaleAndKeyRatingDrivers || ''}
+                            onChange={(e) => handleRationaleAndKeyRatingDriversUpdate(e.target.value)}
+                            rows={10}
+                            placeholder="Enter rationale and key rating drivers..."
+                        />
+                    </div>
+                )}
+
+                {isRatingSensitivitiesSection && sectionVisible && ratingSensitivities && (
+                    <RatingSensitivitiesSection 
+                        initialData={ratingSensitivities}
+                        onUpdate={handleRatingSensitivitiesUpdate}
+                    />
+                )}
+                
+                {isLiquiditySection && sectionVisible && liquidity && (
+                    <LiquiditySection
+                        initialData={liquidity}
+                        onUpdate={handleLiquidityUpdate}
+                        onRefresh={handleLiquidityRefresh}
+                    />
+                )}
+
+                {isAlmStatementSection && sectionVisible && almStatement && (
+                    <AlmStatementSection
+                        initialData={almStatement}
+                        onUpdate={handleAlmStatementUpdate}
+                    />
+                )}
+
+                {isQuarterlyCashFlowSection && sectionVisible && quarterlyCashFlow && (
+                    <QuarterlyCashFlowSection
+                        initialData={quarterlyCashFlow}
+                        onUpdate={handleQuarterlyCashFlowUpdate}
+                    />
+                )}
+
+                {isDetailsOfInstrumentSection && sectionVisible && detailsOfInstrument && (
+                    <DetailsOfInstrumentSection
+                        initialData={detailsOfInstrument}
+                        onUpdate={handleDetailsOfInstrumentUpdate}
+                    />
+                )}
+                
+                { isDetailedDriversSection && sectionVisible && (
+                     <div className="space-y-4">
+                        <div>
+                            <Label htmlFor={`detailed-drivers-strengths-${section.id}`} className="text-base font-semibold">Key Strengths</Label>
+                            <Textarea 
+                                id={`detailed-drivers-strengths-${section.id}`}
+                                value={detailedDescriptionOfKeyRatingDrivers?.keyStrengths || ''}
+                                onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyStrengths', e.target.value)}
+                                rows={8}
+                                placeholder="Enter detailed description of key strengths..."
+                            />
+                        </div>
+                        <div>
+                            <Label htmlFor={`detailed-drivers-weaknesses-${section.id}`} className="text-base font-semibold">Key Weaknesses</Label>
+                            <Textarea 
+                                id={`detailed-drivers-weaknesses-${section.id}`}
+                                value={detailedDescriptionOfKeyRatingDrivers?.keyWeaknesses || ''}
+                                onChange={(e) => handleDetailedDescriptionOfKeyRatingDriversUpdate('keyWeaknesses', e.target.value)}
+                                rows={8}
+                                placeholder="Enter detailed description of key weaknesses..."
+                            />
+                        </div>
+                    </div>
+                )}
+
+                { isEsgRisksSection && sectionVisible && (
+                    <Textarea
+                        value={esgRisks || ''}
+                        onChange={(e) => handleEsgRisksUpdate(e.target.value)}
+                        rows={10}
+                        placeholder="Enter ESG-related risks, governance issues, or disclosures..."
+                    />
+                )}
+
+                { isStatusOfNonCooperationSection && sectionVisible && (
+                  <StatusOfNonCooperationSection 
+                    initialData={statusOfNonCooperation}
+                    onRefresh={handleStatusOfNonCooperationRefresh}
+                  />
+                )}
+
+                { isAnyOtherInformationSection && sectionVisible && (
+                  <AnyOtherInformationSection
+                    initialData={anyOtherInformation}
+                    onRefresh={handleAnyOtherInformationRefresh}
+                  />
+                )}
+
+                { isConsolidatedEntitiesSection && sectionVisible && consolidatedEntities && (
+                    <ConsolidatedEntitiesSection 
+                        initialData={consolidatedEntities}
+                        onUpdate={handleConsolidatedEntitiesUpdate}
+                        onRefresh={handleConsolidatedEntitiesRefresh}
+                    />
+                )}
+
+                { isGoodwillAssessmentSection && sectionVisible && goodwillAssessment && (
+                    <GoodwillAssessmentSection
+                        initialData={goodwillAssessment}
+                        onUpdate={handleGoodwillAssessmentUpdate}
+                    />
+                )}
+
+                { isInstrumentDetailsSection && sectionVisible && (
+                    <TableSection
+                        initialRows={tableRows}
+                        headers={['Instrument', 'Amount', 'Rating']}
+                        allowAddRow={true}
+                        instructions={section.instructions}
+                        sectionKey={section.key}
+                        companyName={note.company.name}
+                        onRefresh={async () => []} // No refresh for manual table
+                        onAddRow={handleRowAdd}
+                        onUpdateRow={handleRowUpdate}
+                        onRemoveRow={handleRowRemove}
+                    />
+                )}
+
+                {isMandateDetailsSection && sectionVisible && mandateDetails && (
+                  <MandateDetailsSection
+                    data={mandateDetails}
+                    onUpdate={handleMandateDetailsUpdate}
+                  />
+                )}
+                
+                {isContactDetailsEntitySection && sectionVisible && contactDetailsEntity && (
+                    <ContactDetailsSection title="Contact Details - Rated Entity" contacts={contactDetailsEntity} />
+                )}
+                
+                {isContactDetailsBankersSection && sectionVisible && contactDetailsBankers && (
+                    <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} isBankerSection={true} />
+                )}
+                
+                {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
+                    <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
+                )}
+
+                {isLastRatingActionSection && sectionVisible && lastRatingAction && (
+                  <LastRatingActionSection 
+                    data={lastRatingAction} 
+                    onRefresh={handleLastRatingActionRefresh}
+                  />
+                )}
+                
+                { !isCoverPage && 
+                  !isAboutCompanySection &&
+                  !isKeyUpdatesSection && 
+                  !isAnalyticalApproachSection &&
+                  !isAnalyticalApproachDisplaySection &&
+                  !isModelSummarySection && 
+                  !isParentGovSupportSection && 
+                  !isCEChecklistSection &&
+                  !isBoardCompositionSection &&
+                  !isFinancialsPastProjectedSection &&
+                  !isInterimResultsSection &&
+                  !isQuarterlyFinancialsSection &&
+                  !isBalanceSheetSection &&
+                  !isProfitAndLossSection &&
+                  !isCashFlowStatementSection &&
+                  !isRatioAnalysisSection &&
+                  !isPreviousRCMMinutesSection &&
+                  !isAddressedQCObservationsSection &&
+                  !isPastRatingSensitivitiesSection &&
+                  !isManagementDiscussionSection &&
+                  !isDiscussionWithAuditCommitteeSection &&
+                  !isAssumptionsForCashFlowSection &&
+                  !isSensitivityAnalysisSection &&
+                  !isGstCalculationSection &&
+                  !isAssumptionsForProjectionsSection &&
+                  !isNonInterestIncomeSection &&
+                  !isStressedAssetsSection &&
+                  !isRationaleDriversSection &&
+                  !isRatingSensitivitiesSection &&
+                  !isDetailedDriversSection &&
+                  !isLiquiditySection &&
+                  !isAlmStatementSection &&
+                  !isQuarterlyCashFlowSection &&
+                  !isDetailsOfInstrumentSection &&
+                  !isEsgRisksSection &&
+                  !isStatusOfNonCooperationSection &&
+                  !isAnyOtherInformationSection &&
+                  !isConsolidatedEntitiesSection &&
+                  !isGoodwillAssessmentSection &&
+                  !isInstrumentDetailsSection &&
+                  !isMandateDetailsSection &&
+                  !isContactDetailsEntitySection &&
+                  !isContactDetailsBankersSection &&
+                  !isContactDetailsAuditorSection &&
+                  !isLastRatingActionSection &&
+                  section.hasTable && 
+                  sectionVisible && (
+                  <TableSection
+                    initialRows={isLinkedRatingsSection ? (linkedRatings || []) : tableRows}
+                    headers={isLinkedRatingsSection ? ['Name of Company', 'Date', 'Amount Rated', 'Rating'] : tableHeaders}
+                    allowAddRow={section.allowAddRow ?? false}
+                    instructions={section.instructions}
+                    sectionKey={section.key}
+                    companyName={note.company.name}
+                    onRefresh={() => onRefreshTable(section.key)}
+                    onAddRow={handleRowAdd}
+                    onUpdateRow={handleRowUpdate}
+                    onRemoveRow={handleRowRemove}
+                    readOnly={!isEditable}
+                  />
+                )}
+
+                { isNonInterestIncomeSection && sectionVisible && (
+                   <TableSection
+                    initialRows={tableRows}
+                    headers={['Particulars', 'Y-1', 'Y']}
+                    allowAddRow={true}
+                    instructions={section.instructions}
+                    sectionKey={section.key}
+                    companyName={note.company.name}
+                    onRefresh={async () => tableRows}
+                    onAddRow={handleRowAdd}
+                    onUpdateRow={handleRowUpdate}
+                    onRemoveRow={handleRowRemove}
+                    readOnly={!isEditable}
+                  />
+                )}
+
+                { isStressedAssetsSection && sectionVisible && (
+                   <TableSection
+                    initialRows={tableRows}
+                    headers={['Asset Name', 'Original Value', 'Current Value', 'Status']}
+                    allowAddRow={true}
+                    instructions={section.instructions}
+                    sectionKey={section.key}
+                    companyName={note.company.name}
+                    onRefresh={async () => tableRows}
+                    onAddRow={handleRowAdd}
+                    onUpdateRow={handleRowUpdate}
+                    onRemoveRow={handleRowRemove}
+                    readOnly={!isEditable}
+                  />
+                )}
+
+                { !isAnalyticalApproachDisplaySection && !isManagementDiscussionSection && !isDiscussionWithAuditCommitteeSection && (
+                  <CommentsEditor 
+                    sectionId={section.id} 
+                    initialContent={sectionData.comments}
+                    initialAttachments={sectionData.attachments}
+                    onSave={handleSaveComment}
+                    onTablePaste={handleTablePaste}
+                    disabled={!isEditable}
+                  />
+                )}
             </div>
-        )}
-
-        { isEsgRisksSection && sectionVisible && (
-            <Textarea
-                value={esgRisks || ''}
-                onChange={(e) => handleEsgRisksUpdate(e.target.value)}
-                rows={10}
-                placeholder="Enter ESG-related risks, governance issues, or disclosures..."
-            />
-        )}
-
-        { isStatusOfNonCooperationSection && sectionVisible && (
-          <StatusOfNonCooperationSection 
-            initialData={statusOfNonCooperation}
-            onRefresh={handleStatusOfNonCooperationRefresh}
-          />
-        )}
-
-        { isAnyOtherInformationSection && sectionVisible && (
-          <AnyOtherInformationSection
-            initialData={anyOtherInformation}
-            onRefresh={handleAnyOtherInformationRefresh}
-          />
-        )}
-
-        { isConsolidatedEntitiesSection && sectionVisible && consolidatedEntities && (
-            <ConsolidatedEntitiesSection 
-                initialData={consolidatedEntities}
-                onUpdate={handleConsolidatedEntitiesUpdate}
-                onRefresh={handleConsolidatedEntitiesRefresh}
-            />
-        )}
-
-        { isGoodwillAssessmentSection && sectionVisible && goodwillAssessment && (
-            <GoodwillAssessmentSection
-                initialData={goodwillAssessment}
-                onUpdate={handleGoodwillAssessmentUpdate}
-            />
-        )}
-
-        { isInstrumentDetailsSection && sectionVisible && (
-            <TableSection
-                initialRows={tableRows}
-                headers={['Instrument', 'Amount', 'Rating']}
-                allowAddRow={true}
-                instructions={section.instructions}
-                sectionKey={section.key}
-                companyName={note.company.name}
-                onRefresh={async () => []} // No refresh for manual table
-                onAddRow={handleRowAdd}
-                onUpdateRow={handleRowUpdate}
-                onRemoveRow={handleRowRemove}
-            />
-        )}
-
-        {isMandateDetailsSection && sectionVisible && mandateDetails && (
-          <MandateDetailsSection
-            data={mandateDetails}
-            onUpdate={handleMandateDetailsUpdate}
-          />
-        )}
-        
-        {isContactDetailsEntitySection && sectionVisible && contactDetailsEntity && (
-            <ContactDetailsSection title="Contact Details - Rated Entity" contacts={contactDetailsEntity} />
-        )}
-        
-        {isContactDetailsBankersSection && sectionVisible && contactDetailsBankers && (
-            <ContactDetailsSection title="Contact Details - Bankers / Lenders" contacts={contactDetailsBankers} isBankerSection={true} />
-        )}
-        
-        {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
-            <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
-        )}
-
-        {isLastRatingActionSection && sectionVisible && lastRatingAction && (
-          <LastRatingActionSection 
-            data={lastRatingAction} 
-            onRefresh={handleLastRatingActionRefresh}
-          />
-        )}
-        
-        { !isCoverPage && 
-          !isAboutCompanySection &&
-          !isKeyUpdatesSection && 
-          !isAnalyticalApproachSection &&
-          !isAnalyticalApproachDisplaySection &&
-          !isModelSummarySection && 
-          !isParentGovSupportSection && 
-          !isCEChecklistSection &&
-          !isBoardCompositionSection &&
-          !isFinancialsPastProjectedSection &&
-          !isInterimResultsSection &&
-          !isQuarterlyFinancialsSection &&
-          !isBalanceSheetSection &&
-          !isProfitAndLossSection &&
-          !isCashFlowStatementSection &&
-          !isRatioAnalysisSection &&
-          !isPreviousRCMMinutesSection &&
-          !isAddressedQCObservationsSection &&
-          !isPastRatingSensitivitiesSection &&
-          !isManagementDiscussionSection &&
-          !isDiscussionWithAuditCommitteeSection &&
-          !isAssumptionsForCashFlowSection &&
-          !isSensitivityAnalysisSection &&
-          !isGstCalculationSection &&
-          !isAssumptionsForProjectionsSection &&
-          !isNonInterestIncomeSection &&
-          !isStressedAssetsSection &&
-          !isRationaleDriversSection &&
-          !isRatingSensitivitiesSection &&
-          !isDetailedDriversSection &&
-          !isLiquiditySection &&
-          !isAlmStatementSection &&
-          !isQuarterlyCashFlowSection &&
-          !isDetailsOfInstrumentSection &&
-          !isEsgRisksSection &&
-          !isStatusOfNonCooperationSection &&
-          !isAnyOtherInformationSection &&
-          !isConsolidatedEntitiesSection &&
-          !isGoodwillAssessmentSection &&
-          !isInstrumentDetailsSection &&
-          !isMandateDetailsSection &&
-          !isContactDetailsEntitySection &&
-          !isContactDetailsBankersSection &&
-          !isContactDetailsAuditorSection &&
-          !isLastRatingActionSection &&
-          section.hasTable && 
-          sectionVisible && (
-          <TableSection
-            initialRows={isLinkedRatingsSection ? (linkedRatings || []) : tableRows}
-            headers={isLinkedRatingsSection ? ['Name of Company', 'Date', 'Amount Rated', 'Rating'] : tableHeaders}
-            allowAddRow={section.allowAddRow ?? false}
-            instructions={section.instructions}
-            sectionKey={section.key}
-            companyName={note.company.name}
-            onRefresh={() => onRefreshTable(section.key)}
-            onAddRow={handleRowAdd}
-            onUpdateRow={handleRowUpdate}
-            onRemoveRow={handleRowRemove}
-            readOnly={!isEditable}
-          />
-        )}
-
-        { isNonInterestIncomeSection && sectionVisible && (
-           <TableSection
-            initialRows={tableRows}
-            headers={['Particulars', 'Y-1', 'Y']}
-            allowAddRow={true}
-            instructions={section.instructions}
-            sectionKey={section.key}
-            companyName={note.company.name}
-            onRefresh={async () => tableRows}
-            onAddRow={handleRowAdd}
-            onUpdateRow={handleRowUpdate}
-            onRemoveRow={handleRowRemove}
-            readOnly={!isEditable}
-          />
-        )}
-
-        { isStressedAssetsSection && sectionVisible && (
-           <TableSection
-            initialRows={tableRows}
-            headers={['Asset Name', 'Original Value', 'Current Value', 'Status']}
-            allowAddRow={true}
-            instructions={section.instructions}
-            sectionKey={section.key}
-            companyName={note.company.name}
-            onRefresh={async () => tableRows}
-            onAddRow={handleRowAdd}
-            onUpdateRow={handleRowUpdate}
-            onRemoveRow={handleRowRemove}
-            readOnly={!isEditable}
-          />
-        )}
-
-        { !isAnalyticalApproachDisplaySection && !isManagementDiscussionSection && !isDiscussionWithAuditCommitteeSection && (
-          <CommentsEditor 
-            sectionId={section.id} 
-            initialContent={sectionData.comments}
-            initialAttachments={sectionData.attachments}
-            onSave={handleSaveComment}
-            onTablePaste={handleTablePaste}
-            disabled={!isEditable}
-          />
-        )}
-      </CardContent>
-    </Card>
+        </AccordionContent>
+    </AccordionItem>
   );
 }
-
-    

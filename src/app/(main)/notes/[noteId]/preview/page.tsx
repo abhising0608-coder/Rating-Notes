@@ -121,7 +121,6 @@ function NotePreviewPage() {
     if (loading) {
         return (
             <div className="flex flex-col min-h-screen">
-                <NoteNavigation />
                 <div className="flex-1 p-8 text-center">Loading preview...</div>
             </div>
         )
@@ -133,85 +132,7 @@ function NotePreviewPage() {
 
     return (
         <div className="bg-background">
-            <NoteNavigation />
-            <div className="p-4 sm:p-6 md:p-8 print:hidden flex justify-between items-center bg-card border-b sticky top-0 z-50">
-                <h1 className="text-xl font-bold font-headline">Note Preview</h1>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" onClick={() => handleExport('word')}>
-                        <Download className="mr-2 h-4 w-4" /> Export as Word
-                    </Button>
-                     <Button variant="outline" onClick={() => handleExport('html')}>
-                        <Download className="mr-2 h-4 w-4" /> Export as HTML
-                    </Button>
-                    <Button variant="secondary" onClick={handlePrint}>
-                        <Printer className="mr-2 h-4 w-4" /> Print / Save as PDF
-                    </Button>
-                     {isSecondaryAnalyst && (
-                         <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="outline">
-                                    <Send className="mr-2 h-4 w-4" /> Assign Case to Another Analyst
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Confirm Case Reassignment</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Are you sure you want to assign this case to another analyst? You will lose all access to this note after the transfer is complete.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>No</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleReassignCase}>Yes, Assign</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    )}
-                    {canShowMasterRefresh && (
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button disabled={isRefreshing}>
-                                    {isRefreshing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                                    Master Refresh
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Confirm Master Refresh</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    Do you want to refresh all DB-linked data (except Model Summary)? This may take a few seconds.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>No</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleMasterRefresh}>Yes, Refresh</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    )}
-                    {canShowMarkAsComplete && (
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button disabled={isMarkAsCompleteDisabled}>
-                                    <CheckCircle className="mr-2 h-4 w-4" /> Mark as Complete
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure you want to mark this rating note as complete?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action will freeze the note, and it will become read-only. You will not be able to make any more changes.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>No</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleMarkAsComplete}>Yes</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    )}
-                </div>
-            </div>
+            <NoteNavigation note={note} />
             <div className="max-w-4xl mx-auto p-8 bg-white print:p-0" id="printable-area">
                 <header className="mb-8 print:mb-4">
                      <div className="text-center mb-6">

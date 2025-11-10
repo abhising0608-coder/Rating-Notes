@@ -6,6 +6,7 @@ import SectionWrapper from '@/components/SectionWrapper';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import NoteNavigation from '@/components/NoteNavigation';
+import { Accordion } from '@/components/ui/accordion';
 
 export default async function NotePage({ params }: { params: { noteId: string } }) {
   const note = await getRatingNoteById(params.noteId);
@@ -34,9 +35,9 @@ export default async function NotePage({ params }: { params: { noteId: string } 
 
   return (
     <div className="flex-1 flex flex-col">
-       <NoteNavigation />
+       <NoteNavigation note={note} />
         <main className="flex-1 p-8 bg-background">
-          <div className="space-y-8">
+          <Accordion type="multiple" defaultValue={note.template.sections.map(s => s.id)} className="space-y-8">
             {note.template.sections.map((section) => (
               <SectionWrapper
                 key={section.id}
@@ -46,7 +47,7 @@ export default async function NotePage({ params }: { params: { noteId: string } 
                 onRefreshTable={handleRefreshTable}
               />
             ))}
-          </div>
+          </Accordion>
        </main>
     </div>
   );

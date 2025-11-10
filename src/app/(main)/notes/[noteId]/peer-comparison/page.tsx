@@ -4,8 +4,8 @@ import NoteNavigation from '@/components/NoteNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { getCompanies, getPrefetchedPeers, getOtherAgencyRatings } from '@/lib/data';
-import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction, IpaInteraction, ThirdPartyInteraction } from '@/types';
+import { getCompanies, getPrefetchedPeers, getOtherAgencyRatings, getRatingNoteById } from '@/lib/data';
+import type { Company, PeerCompany, OtherAgencyRating, RatingSensitivity, NdsCibilCheckItem, SiteVisitDetailsData, Interaction, BankerInteraction, AuditorInteraction, DebentureTrusteeInteraction, IpaInteraction, ThirdPartyInteraction, RatingNote } from '@/types';
 import { Plus, Trash2, RefreshCw, Pencil, Check as CheckIcon, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -20,9 +20,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { useParams } from 'next/navigation';
 
 
 export default function PeerComparisonPage() {
+  const params = useParams();
+  const noteId = params.noteId as string;
+  const [note, setNote] = useState<RatingNote | null>(null);
+
   const [allCompanies, setAllCompanies] = useState<Company[]>([]);
   const [selectedCompanies, setSelectedCompanies] = useState<Company[]>([]);
   const [prefetchedPeers, setPrefetchedPeers] = useState<PeerCompany[]>([]);
@@ -133,6 +138,11 @@ export default function PeerComparisonPage() {
     setThirdPartyInteractions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
+  useEffect(() => {
+    if(noteId) {
+        getRatingNoteById(noteId).then(setNote);
+    }
+  }, [noteId]);
 
   useEffect(() => {
     getCompanies().then(companies => {
@@ -263,9 +273,19 @@ export default function PeerComparisonPage() {
       return peer?.rating || 'A+'; // Default mock rating
   }
 
+  if (!note) {
+      return (
+           <div className="flex-1 flex flex-col">
+              <main className="flex-1 p-8 bg-background">
+                  <div>Loading...</div>
+              </main>
+          </div>
+      )
+  }
+
   return (
     <div className="flex-1 flex flex-col">
-       <NoteNavigation />
+       <NoteNavigation note={note} />
        <main className="flex-1 p-8 bg-background">
          <Card>
             <CardHeader>

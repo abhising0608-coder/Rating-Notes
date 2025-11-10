@@ -1,5 +1,3 @@
-
-
 // src/components/NoteNavigation.tsx
 'use client';
 import { useParams, usePathname } from 'next/navigation';
@@ -8,83 +6,69 @@ import { cn } from '@/lib/utils';
 import {
   Step,
   Stepper,
-  useStepper,
 } from '@/components/ui/stepper';
+import type { RatingNote } from '@/types';
+import { Button } from './ui/button';
+import { Download, Printer, RefreshCw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 
 const steps = [
     { label: 'Select Template' },
     { label: 'Add Analyst Details' },
     { label: 'Add Rating Note Details' },
-    { label: 'Preview' },
+    { label: 'Workspace' },
+    { label: 'Preview & Export' },
   ];
 
-const navLinks = [
-  { href: '', label: 'Company Details' },
-  { href: 'risk-assessment', label: 'Risk Assessment Framework / Model Output' },
-  { href: 'draft-pr-rr', label: 'Draft PR & RR' },
-  { href: 'peer-comparison', label: 'Peer Comparison' },
-  { href: 'checklist', label: 'Checklist' },
-  { href: 'important-data', label: 'Important Data, Ratios, etc.' },
-  { href: 'other-data', label: 'Other Data' },
-  { href: 'annexures', label: 'Annexures' },
-  { href: 'preview', label: 'Preview' },
-];
-
-export default function NoteNavigation() {
-  const params = useParams();
+export default function NoteNavigation({ note }: { note: RatingNote }) {
   const pathname = usePathname();
-  const noteId = params.noteId;
+  const { toast } = useToast();
 
-  const currentPathEnd = pathname.split('/').pop();
-  
-  // Handle the base case where the path is just /notes/[noteId]
-  const isBasePage = currentPathEnd === noteId;
-  const activeLink = isBasePage ? '' : (currentPathEnd || '');
-
-  const activeLinkIndex = navLinks.findIndex(link => link.href === activeLink);
-
-  // A simple mapping from nav link to stepper step.
-  // This could be more sophisticated.
-  let currentStep = 0;
-  if (activeLinkIndex >= 0 && activeLinkIndex < 3) {
-      currentStep = 1;
-  } else if (activeLinkIndex >= 3 && activeLinkIndex < 8) {
-      currentStep = 2;
-  } else if (activeLinkIndex === 8) {
-      currentStep = 3;
+  const handleMasterRefresh = async () => {
+    toast({ title: 'Master Refresh Initiated', description: 'Refreshing all sections...' });
+    // In a real app, this would trigger a series of API calls.
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    toast({ title: 'Master Refresh Complete', description: 'All sections have been updated with the latest data.' });
   }
 
-
   return (
-    <div className="bg-card border-b p-4 print:hidden">
+    <div className="bg-card border-b p-4 print:hidden sticky top-0 z-50">
         <div className="max-w-7xl mx-auto">
-            <div className="mb-4">
-                <Stepper initialStep={0} activeStep={currentStep}>
-                    {steps.map((step, index) => (
-                    <Step key={index} label={step.label} />
-                    ))}
-                </Stepper>
+            <div className="flex justify-between items-center mb-4">
+                <div>
+                     <h1 className="text-2xl font-bold font-headline">{note.company.name}</h1>
+                     <p className="text-sm text-muted-foreground">{note.template.name}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={handleMasterRefresh}>
+                        <RefreshCw className="mr-2 h-4 w-4" /> Master Refresh
+                    </Button>
+                    <Link href={`/notes/${note.id}/preview`} passHref>
+                        <Button>
+                            <Printer className="mr-2 h-4 w-4" /> Preview & Export
+                        </Button>
+                    </Link>
+                </div>
             </div>
-            <div className="flex items-center space-x-4 border-b overflow-x-auto pb-2">
-            {navLinks.map((link) => {
-                const fullPath = `/notes/${noteId}/${link.href}`;
-                // Check for active link, special case for the base note page
-                const isActive = activeLink === link.href;
+            <Stepper initialStep={0} activeStep={3}>
+                {steps.map((step, index) => (
+                <Step key={index} label={step.label} />
+                ))}
+            </Stepper>
+            <div className="flex items-center space-x-2 border-t mt-4 pt-2 overflow-x-auto">
+            {note.template.sections.map((section) => {
+                const isVisible = note.sections[section.id]?.applicable === 'Applicable';
+                if (!isVisible && section.id !== 's1') return null;
 
                 return (
-                <Link
-                    key={link.href}
-                    href={fullPath}
-                    className={cn(
-                    'px-3 py-2 border-b-2 text-sm font-medium whitespace-nowrap',
-                    isActive
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                    )}
+                <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className="px-3 py-1.5 border-b-2 text-sm font-medium whitespace-nowrap border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                 >
-                    {link.label}
-                </Link>
+                    {section.title}
+                </a>
                 );
             })}
             </div>

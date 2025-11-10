@@ -35,10 +35,15 @@ const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
       <StepperContext.Provider value={contextValue}>
         <div
           ref={ref}
-          className={cn('flex items-center justify-between p-4', className)}
+          className={cn('flex items-center justify-between gap-4 p-4', className)}
           {...props}
         >
-          {children}
+          {steps.map((step, index) => (
+              <React.Fragment key={step.label}>
+                <Step label={step.label} index={index} />
+                {index < steps.length - 1 && <div className="flex-1 border-t-2 border-dashed border-border"></div>}
+              </React.Fragment>
+          ))}
         </div>
       </StepperContext.Provider>
     );
@@ -49,18 +54,15 @@ Stepper.displayName = 'Stepper';
 const Step = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & { label: string, index?: number }
->(({ className, label, ...props }, ref) => {
-    const { activeStep, steps } = useStepper();
-    const index = React.Children.toArray(props.children).findIndex(c => (c as React.ReactElement).props.label === label);
-    const currentIndex = props.index ?? index;
-
-    const isCompleted = currentIndex < activeStep;
-    const isActive = currentIndex === activeStep;
+>(({ className, label, index, ...props }, ref) => {
+    const { activeStep } = useStepper();
+    const isCompleted = index !== undefined && index < activeStep;
+    const isActive = index === activeStep;
 
   return (
     <div
       ref={ref}
-      className={cn('flex items-center gap-2', className, {
+      className={cn('flex items-center gap-3', className, {
         'text-primary': isActive,
         'text-muted-foreground': !isActive && !isCompleted,
         'text-green-600': isCompleted
@@ -69,7 +71,7 @@ const Step = React.forwardRef<
     >
       <div
         className={cn(
-          'flex h-8 w-8 items-center justify-center rounded-full border-2 font-semibold',
+          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 font-semibold',
           {
             'border-primary text-primary': isActive,
             'border-gray-300': !isActive && !isCompleted,
@@ -77,9 +79,9 @@ const Step = React.forwardRef<
           }
         )}
       >
-        {isCompleted ? <Check className="h-5 w-5" /> : currentIndex + 1}
+        {isCompleted ? <Check className="h-5 w-5" /> : (index ?? 0) + 1}
       </div>
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-sm font-medium hidden md:inline-block">{label}</span>
     </div>
   );
 });

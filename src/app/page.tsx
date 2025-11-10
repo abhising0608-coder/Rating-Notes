@@ -2,31 +2,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import DashboardPage from './(main)/page';
+import { useEffect } from 'react';
+import LandingPage from './(main)/page';
 
-export default function HomeRedirect() {
+export default function Home() {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      setIsLoggedIn(true);
-    } else {
-      router.replace('/login');
-    }
+    // In a real app, you might check for an existing session here.
+    // For this prototype, we always start at the landing page.
   }, [router]);
 
-  if (isLoggedIn === null) {
-    return null; // Or a loading spinner
-  }
-
-  if (isLoggedIn) {
-    // Render the dashboard content directly if logged in
-    return <DashboardPage />;
-  }
-
-  // This part should ideally not be reached if the redirect works, but it's a fallback.
-  return null;
+  return <LandingPage />;
 }
