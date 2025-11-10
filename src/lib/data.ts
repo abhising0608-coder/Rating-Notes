@@ -369,6 +369,26 @@ const templates: Template[] = [
     createdBy: 'system'
   },
   {
+    id: 'tmpl_003',
+    name: 'IT Operations',
+    sector: 'Technology',
+    subSector: 'Software Development',
+    isAgnostic: false,
+    version: 'v1.0',
+    effectiveFrom: '2024-08-01',
+    description: 'Template for rating IT Operations and Software Development companies.',
+    sampleFormatUrl: null,
+    sections: [
+      { id: 's_ito_1', title: 'Client Concentration Analysis', hasTable: true, allowAddRow: false },
+      { id: 's_ito_2', title: 'Service Offering & Geographical Mix', hasTable: true, allowAddRow: true },
+      { id: 's_ito_3', title: 'Employee Attrition Analysis', hasTable: true, allowAddRow: false },
+      { id: 's_ito_4', title: 'Technology Stack & Obsolescence Risk', hasTable: false, allowAddRow: false }
+    ],
+    industryMapping: ['NSE_IT'],
+    createdAt: '2024-07-31T10:00:00Z',
+    createdBy: 'system'
+  },
+  {
     id: 'tmpl_agn_01',
     name: 'Sector-Agnostic General',
     sector: 'Agnostic',
@@ -436,8 +456,8 @@ const sectors: Sector[] = [
   {
     id: 'sector_technology',
     name: 'Technology',
-    subSectors: ['IT Services', 'SaaS', 'Hardware'],
-    templateIds: ['tmpl_002'],
+    subSectors: ['IT Services', 'SaaS', 'Hardware', 'Software Development'],
+    templateIds: ['tmpl_002', 'tmpl_003'],
   },
   {
     id: 'sector_agnostic',
@@ -456,7 +476,7 @@ const industryMappings: IndustryMapping[] = [
   {
     nseIndustryCode: 'NSE_IT',
     description: 'NSE Industry - Information Technology',
-    recommendedTemplateIds: ['tmpl_002'],
+    recommendedTemplateIds: ['tmpl_002', 'tmpl_003'],
   },
   {
     nseIndustryCode: 'NSE_MISCELLANEOUS',
@@ -1724,6 +1744,7 @@ export const getOtherAgencyRatings = async (noteId: string): Promise<OtherAgency
     }
     return [];
 }
+
 
 export const getBoardCompositionData = async (noteId: string): Promise<BoardCompositionData | null> => {
     console.log(`Fetching board composition data for note: ${noteId}`);
