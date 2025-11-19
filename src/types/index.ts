@@ -7,10 +7,10 @@ export interface Company {
 }
 
 export interface User {
-    id: string;
-    name: string;
-    email: string;
-    role: 'Rating Analyst' | 'Secondary Analyst' | 'Quality Control / Reviewer (QC)' | 'Rating Committee (RCM)' | 'Compliance / Audit Teams' | 'Admin';
+  id: string;
+  name: string;
+  email: string;
+  role: 'Rating Analyst' | 'Secondary Analyst' | 'Quality Control / Reviewer (QC)' | 'Rating Committee (RCM)' | 'Compliance / Audit Teams' | 'Admin';
 }
 
 export interface Criteria {
@@ -624,6 +624,23 @@ export interface AlmStatementData {
 export interface QuarterlyCashFlowData {
   applicability: 'Applicable' | 'Not Applicable' | 'Not Available';
   comments: string;
+}
+
+export interface ImportantDataTable {
+  id: string;
+  label: string;
+  ckcModuleUrl: string;
+  tooltip: string;
+  negativeAsNMAttributeIds: string[];
+  columns: { key: string, label: string }[];
+  rows: TableRowData[];
+}
+
+export interface ImportantDataSection {
+  id: string;
+  title: string;
+  sector: string;
+  tables: ImportantDataTable[];
 }
 
 export interface SectionData {
