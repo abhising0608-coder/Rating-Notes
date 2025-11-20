@@ -1,25 +1,24 @@
 // src/components/NoteNavigation.tsx
 'use client';
-import { useParams, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import {
-  Step,
-  Stepper,
-} from '@/components/ui/stepper';
 import type { RatingNote } from '@/types';
 import { Button } from './ui/button';
-import { Download, Printer, RefreshCw } from 'lucide-react';
+import { Download, Printer, RefreshCw, FileText, CheckSquare, BarChart3, Database, FileWarning, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 
-const steps = [
-    { label: 'Select Template' },
-    { label: 'Add Analyst Details' },
-    { label: 'Add Rating Note Details' },
-    { label: 'Workspace' },
-    { label: 'Preview & Export' },
-  ];
+const mainSections = [
+    { href: '', label: 'Workspace', icon: FileText },
+    { href: '/important-data', label: 'Important Data', icon: Database },
+    { href: '/peer-comparison', label: 'Peer Comparison', icon: BarChart3 },
+    { href: '/checklist', label: 'Checklist', icon: CheckSquare },
+    { href: '/risk-assessment', label: 'Risk Assessment', icon: FileWarning },
+    { href: '/draft-pr-rr', label: 'Draft PR/RR', icon: FileText },
+    { href: '/other-data', label: 'Other Data', icon: FileText },
+    { href: '/annexures', label: 'Annexures', icon: FileText },
+];
 
 export default function NoteNavigation({ note }: { note: RatingNote }) {
   const pathname = usePathname();
@@ -31,6 +30,8 @@ export default function NoteNavigation({ note }: { note: RatingNote }) {
     await new Promise(resolve => setTimeout(resolve, 2000));
     toast({ title: 'Master Refresh Complete', description: 'All sections have been updated with the latest data.' });
   }
+
+  const noteBasePath = `/notes/${note.id}`;
 
   return (
     <div className="bg-card border-b p-4 print:hidden sticky top-0 z-50">
@@ -44,37 +45,33 @@ export default function NoteNavigation({ note }: { note: RatingNote }) {
                     <Button variant="outline" size="sm" onClick={handleMasterRefresh}>
                         <RefreshCw className="mr-2 h-4 w-4" /> Master Refresh
                     </Button>
-                    <Link href={`/notes/${note.id}/preview`} passHref>
+                    <Link href={`${noteBasePath}/preview`} passHref>
                         <Button>
-                            <Printer className="mr-2 h-4 w-4" /> Preview & Export
+                            <Eye className="mr-2 h-4 w-4" /> Preview & Export
                         </Button>
                     </Link>
                 </div>
             </div>
-            <Stepper initialStep={0} activeStep={3} steps={steps} />
-            <div className="flex items-center space-x-2 border-t mt-4 pt-2 overflow-x-auto">
-            {note.template.sections.map((section) => {
-                const isVisible = note.sections[section.id]?.applicable === 'Applicable';
-                if (!isVisible && section.id !== 's1') return null;
-
-                const currentPath = pathname.split('/').pop();
-                const notePagePath = `/notes/${note.id}`;
-                const sectionPath = currentPath === 'page.tsx' ? `${notePagePath}#${section.id}` : `#${section.id}`;
-                
-                const isSectionActive = section.id === (typeof window !== 'undefined' ? window.location.hash.substring(1) : '');
+            
+            <div className="flex items-center space-x-1 border-t mt-4 pt-2 overflow-x-auto">
+            {mainSections.map((section) => {
+                const fullPath = `${noteBasePath}${section.href}`;
+                const isActive = pathname === fullPath;
+                const Icon = section.icon;
 
                 return (
                 <Link
-                    key={section.id}
-                    href={sectionPath}
+                    key={section.href}
+                    href={fullPath}
                     className={cn(
-                        "px-3 py-1.5 border-b-2 text-sm font-medium whitespace-nowrap",
-                        isSectionActive
+                        "px-3 py-1.5 border-b-2 text-sm font-medium whitespace-nowrap flex items-center gap-2",
+                        isActive
                         ? 'border-primary text-primary'
                         : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                     )}
                 >
-                    {section.title}
+                    <Icon className="h-4 w-4" />
+                    {section.label}
                 </Link>
                 );
             })}
