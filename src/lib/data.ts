@@ -53,6 +53,8 @@ import type {
   AlmStatementData,
   QuarterlyCashFlowData,
   DetailsOfInstrumentData,
+  ImportantDataSection,
+  ImportantDataTable,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1390,6 +1392,49 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   },
 ];
 
+// Mock data for Important Data sections
+const importantDataSections: ImportantDataSection[] = [
+    {
+        id: 'pharma-1',
+        title: 'Pharma Sector Analysis',
+        sector: 'Pharma',
+        tables: [
+            {
+                id: 'pharma-table-1',
+                label: 'Product Concentration',
+                ckcModuleUrl: '#',
+                tooltip: 'Analysis of top products by revenue.',
+                negativeAsNMAttributeIds: [],
+                columns: [{key: 'product', label: 'Product'}, {key: 'revenue', label: 'Revenue (INR Cr)'}, {key: 'share', label: '% Share'}],
+                rows: [
+                    { id: 'p1', product: 'Product A', revenue: 500, share: '40%' },
+                    { id: 'p2', product: 'Product B', revenue: 300, share: '25%' },
+                ]
+            }
+        ]
+    },
+    {
+        id: 'nbfc-1',
+        title: 'NBFC & HFC Analysis',
+        sector: 'NBFC',
+        tables: [
+            {
+                id: 'nbfc-table-1',
+                label: 'Asset Quality',
+                ckcModuleUrl: '#',
+                tooltip: 'Gross and Net NPA analysis.',
+                negativeAsNMAttributeIds: ['1089'], // Example ID
+                columns: [{key: 'metric', label: 'Metric'}, {key: 'value', label: 'Value (%)'}],
+                rows: [
+                    { id: 'n1', metric: 'Gross NPA', value: 2.5, mappedAttributeId: '1089' },
+                    { id: 'n2', metric: 'Net NPA', value: -1.1, mappedAttributeId: '1089' },
+                ]
+            }
+        ]
+    }
+];
+
+
 // Simulate DB calls
 export const getRatingNotes = async (): Promise<RatingNote[]> => {
   return ratingNotes.map(note => ({
@@ -1985,3 +2030,27 @@ export const getDetailsOfInstrumentData = async (noteId: string): Promise<Detail
     }
     return null;
 };
+
+export const getImportantDataSections = async(noteId: string): Promise<ImportantDataSection[]> => {
+    console.log(`Fetching important data sections for note: ${noteId}`);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    // In a real app, this would depend on the note's company/sector
+    return importantDataSections;
+};
+
+export const getImportantDataTable = async(entityId: string, sectionId: string, tableId: string, period: string, forceRefresh = false): Promise<ImportantDataTable | null> => {
+     console.log(`Fetching important data for table: ${tableId}, entity: ${entityId}, period: ${period}, refresh: ${forceRefresh}`);
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const section = importantDataSections.find(s => s.id === sectionId);
+    const table = section?.tables.find(t => t.id === tableId);
+    if (!table) return null;
+    
+    if (forceRefresh) {
+        // Simulate data change on refresh
+        const refreshedTable = JSON.parse(JSON.stringify(table));
+        refreshedTable.rows[0].revenue = table.rows[0].revenue + 10;
+        return refreshedTable;
+    }
+
+    return table;
+}
