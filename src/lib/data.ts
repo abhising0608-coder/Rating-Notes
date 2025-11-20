@@ -97,12 +97,11 @@ const companies: Company[] = [
 ];
 
 const users: User[] = [
-    { id: 'u_001', name: 'Analyst 1', email: 'analyst1@example.com', role: 'Rating Analyst' },
-    { id: 'u_002', name: 'Analyst 2', email: 'analyst2@example.com', role: 'Secondary Analyst' },
-    { id: 'u_003', name: 'QC Reviewer', email: 'qc1@example.com', role: 'Quality Control / Reviewer (QC)' },
-    { id: 'u_004', name: 'RCM Member', email: 'rcm1@example.com', role: 'Rating Committee (RCM)' },
-    { id: 'u_005', name: 'Compliance Officer', email: 'compliance@example.com', role: 'Compliance / Audit Teams' },
-    { id: 'admin_01', name: 'Admin User', email: 'admin@example.com', role: 'Admin' },
+    { id: 'u_001', name: 'Rating Analyst (RA)', email: 'analyst1@example.com', role: 'Rating Analyst' },
+    { id: 'u_002', name: 'Secondary Analyst (SA)', email: 'analyst2@example.com', role: 'Secondary Analyst' },
+    { id: 'u_003', name: 'Quality Control / Reviewer (QC)', email: 'qc1@example.com', role: 'Quality Control / Reviewer (QC)' },
+    { id: 'u_004', name: 'Rating Committee (RCM)', email: 'rcm1@example.com', role: 'Rating Committee (RCM)' },
+    { id: 'u_005', name: 'Compliance / Audit Teams', email: 'compliance@example.com', role: 'Compliance / Audit Teams' },
 ];
 
 const criteria: Criteria[] = [
@@ -1037,6 +1036,81 @@ const detailsOfInstrumentData: DetailsOfInstrumentData = {
     outstandingCp: []
 };
 
+// Mock data for Important Data sections
+const importantDataSections: ImportantDataSection[] = [
+    {
+        id: 'pharma-op-data',
+        title: 'Operational Data - Pharma',
+        sector: 'Pharma',
+        tables: [
+            {
+                id: '5.1_listManufacturingFacilities',
+                label: '5.1 List of manufacturing facilities',
+                ckcModuleUrl: '#',
+                unit: 'Rs. Crore',
+                tooltip: 'Details of manufacturing sites.',
+                negativeAsNMAttributeIds: [],
+                columns: [
+                    { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
+                    { key: 'location', label: 'Location', type: 'text', editable: true, canHide: false },
+                    { key: 'productSegment', label: 'Product Segment', type: 'text', editable: true, canHide: false },
+                    { key: 'regulatoryApprovals', label: 'Regulatory Approvals', type: 'text', editable: true, canHide: false },
+                    { key: 'lastAudit', label: 'Last Audit (Month/Year)', type: 'date', editable: true, canHide: false },
+                ],
+                rows: [
+                    { id: 'mfg-1', srNo: 1, location: '', productSegment: '', regulatoryApprovals: '', lastAudit: '', canDelete: true, canAddBelow: true },
+                ]
+            },
+            {
+                id: '5.2.1_geographyWiseSales',
+                label: '5.2.1 Geography wise sales',
+                ckcModuleUrl: '#',
+                unit: 'Rs. Crore',
+                tooltip: 'Sales distribution by geography.',
+                negativeAsNMAttributeIds: [],
+                columns: [
+                    { key: 'region', label: 'Region', type: 'text', editable: false, canHide: false },
+                    { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                    { key: 'shareFy22', label: '% Share FY22', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                    { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                    { key: 'shareFy23', label: '% Share FY23', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                    { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                    { key: 'shareFy24', label: '% Share FY24', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                    { key: 'yoyGrowth', label: 'Y-o-Y Growth (%)', type: 'percent', editable: false, canHide: false, formulaId: 'yoy' },
+                    { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                    { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                ],
+                rows: [
+                    { id: 'geo-1', region: 'Domestic', fixedLabel: true },
+                    { id: 'geo-2', region: 'Export', fixedLabel: true, canAddBelow: true },
+                    { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
+                ]
+            },
+            // Add other pharma tables here
+        ]
+    },
+    {
+        id: 'nbfc-1',
+        title: 'NBFC & HFC Analysis',
+        sector: 'NBFC',
+        tables: [
+            {
+                id: 'nbfc-table-1',
+                label: 'Asset Quality',
+                ckcModuleUrl: '#',
+                tooltip: 'Gross and Net NPA analysis.',
+                negativeAsNMAttributeIds: ['1089'], // Example ID
+                columns: [{key: 'metric', label: 'Metric', type: 'text', editable: false, canHide: false }, {key: 'value', label: 'Value (%)', type: 'number', editable: true, canHide: false }],
+                rows: [
+                    { id: 'n1', metric: 'Gross NPA', value: 2.5, mappedAttributeId: '1089' },
+                    { id: 'n2', metric: 'Net NPA', value: -1.1, mappedAttributeId: '1089' },
+                ]
+            }
+        ]
+    }
+];
+
+
 const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   {
     id: '1',
@@ -1391,49 +1465,6 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     },
   },
 ];
-
-// Mock data for Important Data sections
-const importantDataSections: ImportantDataSection[] = [
-    {
-        id: 'pharma-1',
-        title: 'Pharma Sector Analysis',
-        sector: 'Pharma',
-        tables: [
-            {
-                id: 'pharma-table-1',
-                label: 'Product Concentration',
-                ckcModuleUrl: '#',
-                tooltip: 'Analysis of top products by revenue.',
-                negativeAsNMAttributeIds: [],
-                columns: [{key: 'product', label: 'Product'}, {key: 'revenue', label: 'Revenue (INR Cr)'}, {key: 'share', label: '% Share'}],
-                rows: [
-                    { id: 'p1', product: 'Product A', revenue: 500, share: '40%' },
-                    { id: 'p2', product: 'Product B', revenue: 300, share: '25%' },
-                ]
-            }
-        ]
-    },
-    {
-        id: 'nbfc-1',
-        title: 'NBFC & HFC Analysis',
-        sector: 'NBFC',
-        tables: [
-            {
-                id: 'nbfc-table-1',
-                label: 'Asset Quality',
-                ckcModuleUrl: '#',
-                tooltip: 'Gross and Net NPA analysis.',
-                negativeAsNMAttributeIds: ['1089'], // Example ID
-                columns: [{key: 'metric', label: 'Metric'}, {key: 'value', label: 'Value (%)'}],
-                rows: [
-                    { id: 'n1', metric: 'Gross NPA', value: 2.5, mappedAttributeId: '1089' },
-                    { id: 'n2', metric: 'Net NPA', value: -1.1, mappedAttributeId: '1089' },
-                ]
-            }
-        ]
-    }
-];
-
 
 // Simulate DB calls
 export const getRatingNotes = async (): Promise<RatingNote[]> => {
@@ -2048,7 +2079,7 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
     if (forceRefresh) {
         // Simulate data change on refresh
         const refreshedTable = JSON.parse(JSON.stringify(table));
-        refreshedTable.rows[0].revenue = table.rows[0].revenue + 10;
+        refreshedTable.rows[0].revenue = (table.rows[0].revenue || 0) + 10;
         return refreshedTable;
     }
 

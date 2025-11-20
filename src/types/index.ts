@@ -55,6 +55,9 @@ export interface TableRowData {
   isManual?: boolean;
   manualEdit?: boolean;
   mappedAttributeId?: string;
+  fixedLabel?: boolean;
+  canAddBelow?: boolean;
+  canDelete?: boolean;
 }
 
 export interface Attachment {
@@ -626,13 +629,24 @@ export interface QuarterlyCashFlowData {
   comments: string;
 }
 
+export interface ColumnConfig {
+  key: string;
+  label: string;
+  type: "number" | "text" | "date" | "formula" | "percent";
+  editable: boolean;
+  canHide: boolean;
+  isYearColumn?: boolean;
+  formulaId?: string;
+}
+
 export interface ImportantDataTable {
   id: string;
   label: string;
   ckcModuleUrl: string;
   tooltip: string;
+  unit?: string;
   negativeAsNMAttributeIds: string[];
-  columns: { key: string, label: string }[];
+  columns: ColumnConfig[];
   rows: TableRowData[];
 }
 
