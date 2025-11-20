@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -7,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { RefreshCw, Download, ExternalLink, Plus, Trash2 } from 'lucide-react';
 import type { ImportantDataTable, TableRowData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface ImportantDataTableProps {
   table: ImportantDataTable;
@@ -63,7 +65,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
 
 
   const hasNegativeValues = table.rows.some(row =>
-    table.columns.some(col => table.negativeAsNMAttributeIds.includes(row.mappedAttributeId) && row[col.key] < 0)
+    table.columns.some(col => table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0)
   );
 
   return (
@@ -85,36 +87,45 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
         </div>
       </div>
       <div className="border rounded-lg overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              {table.columns.map(col => <TableHead key={col.key}>{col.label}</TableHead>)}
-               <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {allRows.map(row => (
-              <TableRow key={row.id}>
-                {table.columns.map(col => (
-                  <TableCell key={col.key}>
-                    { (row.isManual || (col.editable && !row.fixedLabel)) ? (
-                       <Input 
-                            value={row[col.key] || ''} 
-                            onChange={(e) => handleManualRowChange(row.id, col.key, e.target.value)}
-                            className="h-8"
-                        />
-                    ) : table.negativeAsNMAttributeIds.includes(row.mappedAttributeId) && row[col.key] &lt; 0 ? 'NM'
-                      : row[col.key]}
-                  </TableCell>
+        <TooltipProvider>
+            <Table>
+            <TableHeader>
+                <TableRow>
+                    {table.columns.map(col => (
+                    <Tooltip key={col.key}>
+                        <TooltipTrigger asChild>
+                        <TableHead>{col.label}</TableHead>
+                        </TooltipTrigger>
+                        {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
+                    </Tooltip>
+                    ))}
+                <TableHead>Actions</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {allRows.map(row => (
+                <TableRow key={row.id}>
+                    {table.columns.map(col => (
+                    <TableCell key={col.key}>
+                        { (row.isManual || (col.editable && !row.fixedLabel)) ? (
+                        <Input 
+                                value={row[col.key] || ''} 
+                                onChange={(e) => handleManualRowChange(row.id, col.key, e.target.value)}
+                                className="h-8"
+                            />
+                        ) : table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0 ? 'NM'
+                        : row[col.key]}
+                    </TableCell>
+                    ))}
+                    <TableCell>
+                        {row.canAddBelow && <Button variant="ghost" size="icon" onClick={handleAddRow}><Plus className="h-4 w-4" /></Button>}
+                        {row.canDelete && <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+                    </TableCell>
+                </TableRow>
                 ))}
-                <TableCell>
-                    {row.canAddBelow && <Button variant="ghost" size="icon" onClick={handleAddRow}><Plus className="h-4 w-4" /></Button>}
-                    {row.canDelete && <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableBody>
+            </Table>
+        </TooltipProvider>
       </div>
       {hasNegativeValues && (
         <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
