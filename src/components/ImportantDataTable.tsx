@@ -1,26 +1,87 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RefreshCw, Download, ExternalLink, Plus, Trash2 } from 'lucide-react';
-import type { ImportantDataTable, TableRowData } from '@/types';
+import type { ImportantDataTable, TableRowData, ColumnConfig } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface ImportantDataTableProps {
   table: ImportantDataTable;
   onRefresh: () => void;
 }
 
+const formatNumber = (num: number | string | undefined | null) => {
+    if (num === undefined || num === null || num === '') return '0.00';
+    const number = typeof num === 'string' ? parseFloat(num) : num;
+    if (isNaN(number)) return '0.00';
+    return new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(number);
+};
+
 export default function ImportantDataTableComponent({ table, onRefresh }: ImportantDataTableProps) {
-  const [manualRows, setManualRows] = useState<TableRowData[]>([]);
+  const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
 
-  const handleAddRow = () => {
-    const manualRowsCount = manualRows.filter(r => r.isManual).length;
+  const getColumnTotal = useCallback((colKey: string) => {
+      return tableRows.reduce((sum, row) => {
+          if (row.fixedLabel) return sum; // Exclude other total/fixed rows
+          const value = parseFloat(row[colKey]);
+          return sum + (isNaN(value) ? 0 : value);
+      }, 0);
+  }, [tableRows]);
+
+  const allRows = useMemo(() => {
+    return tableRows.map(row => {
+      let newRow = { ...row };
+
+      if (row.formulaId === 'total') {
+        table.columns.forEach(col => {
+          if (col.isYearColumn && col.type === 'number') {
+            newRow[col.key] = getColumnTotal(col.key);
+          }
+        });
+      }
+
+      table.columns.forEach(col => {
+        if (col.formulaId === 'share') {
+          const yearKey = col.key.replace('share', '').toLowerCase(); // e.g., fy22
+          const yearCol = table.columns.find(c => c.key.toLowerCase() === yearKey && c.type === 'number');
+          if (yearCol) {
+            const total = getColumnTotal(yearCol.key);
+            const rowValue = parseFloat(newRow[yearCol.key]);
+            if (total > 0 && !isNaN(rowValue)) {
+              newRow[col.key] = ((rowValue / total) * 100).toFixed(2) + '%';
+            } else {
+              newRow[col.key] = '0.00%';
+            }
+          }
+        } else if (col.formulaId === 'yoy') {
+            const currentYearKey = 'fy24';
+            const prevYearKey = 'fy23';
+            const currentVal = parseFloat(newRow[currentYearKey]);
+            const prevVal = parseFloat(newRow[prevYearKey]);
+            if (!isNaN(currentVal) && !isNaN(prevVal) && prevVal !== 0) {
+                 newRow[col.key] = (((currentVal - prevVal) / prevVal) * 100).toFixed(2) + '%';
+            } else {
+                 newRow[col.key] = 'N/A';
+            }
+        }
+      });
+      return newRow;
+    });
+  }, [tableRows, table.columns, getColumnTotal]);
+
+  const handleAddRow = (afterRowId?: string) => {
+    const manualRowsCount = tableRows.filter(r => r.isManual).length;
     if (manualRowsCount >= 10) {
       toast({
         variant: 'destructive',
@@ -33,36 +94,25 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
     table.columns.forEach(col => {
       newRow[col.key] = '';
     });
-    setManualRows(prev => [...prev, newRow]);
+    
+    if (afterRowId) {
+        const index = tableRows.findIndex(r => r.id === afterRowId);
+        const newRows = [...tableRows];
+        newRows.splice(index + 1, 0, newRow);
+        setTableRows(newRows);
+    } else {
+        setTableRows(prev => [...prev, newRow]);
+    }
   };
 
   const handleRemoveRow = (id: string) => {
-    setManualRows(prev => prev.filter(row => row.id !== id));
+    setTableRows(prev => prev.filter(row => row.id !== id && row.isManual));
   };
   
-  const handleManualRowChange = (id: string, key: string, value: string) => {
-    setManualRows(prev => prev.map(row => row.id === id ? { ...row, [key]: value } : row));
+  const handleRowChange = (id: string, key: string, value: string) => {
+    setTableRows(prev => prev.map(row => row.id === id ? { ...row, [key]: value } : row));
     // Here you would call a debounced function to save the change
   }
-  
-  const allRows = useMemo(() => {
-    const dbRows = table.rows || [];
-    const combined = [...dbRows];
-    
-    // For specific tables, handle dynamic rows differently
-    if (table.id === '5.2.1_geographyWiseSales') {
-        const exportIndex = combined.findIndex(r => r.id === 'geo-2');
-        if (exportIndex !== -1) {
-            const dynamicRows = manualRows.filter(r => r.isManual);
-            combined.splice(exportIndex + 1, 0, ...dynamicRows);
-        }
-    } else {
-        // Default behavior for other tables, e.g., reference tables
-    }
-    
-    return combined;
-  }, [table.rows, manualRows, table.id]);
-
 
   const hasNegativeValues = table.rows.some(row =>
     table.columns.some(col => table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0)
@@ -94,7 +144,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
                     {table.columns.map(col => (
                     <Tooltip key={col.key}>
                         <TooltipTrigger asChild>
-                        <TableHead>{col.label}</TableHead>
+                           <TableHead className={cn(col.formulaId && "italic")}>{col.label}</TableHead>
                         </TooltipTrigger>
                         {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
                     </Tooltip>
@@ -104,24 +154,33 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
             </TableHeader>
             <TableBody>
                 {allRows.map(row => (
-                <TableRow key={row.id}>
-                    {table.columns.map(col => (
-                    <TableCell key={col.key}>
-                        { (row.isManual || (col.editable && !row.fixedLabel)) ? (
-                        <Input 
-                                value={row[col.key] || ''} 
-                                onChange={(e) => handleManualRowChange(row.id, col.key, e.target.value)}
-                                className="h-8"
-                            />
-                        ) : table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0 ? 'NM'
-                        : row[col.key]}
-                    </TableCell>
-                    ))}
+                  <TableRow key={row.id} className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold')}>
+                    {table.columns.map(col => {
+                        const cellValue = row[col.key];
+                        const isNM = table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
+                        const displayValue = isNM ? 'NM' : cellValue;
+                        const isEditable = col.editable && (row.isManual || !row.fixedLabel);
+                        
+                        return (
+                           <TableCell key={col.key}>
+                            { isEditable ? (
+                                <Input 
+                                    type={col.type === 'date' ? 'date' : 'text'}
+                                    value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
+                                    onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
+                                    className="h-8"
+                                />
+                            ) : (
+                                <span>{col.type === 'number' ? formatNumber(displayValue) : displayValue}</span>
+                            )}
+                           </TableCell>
+                        )
+                    })}
                     <TableCell>
-                        {row.canAddBelow && <Button variant="ghost" size="icon" onClick={handleAddRow}><Plus className="h-4 w-4" /></Button>}
+                        {row.canAddBelow && <Button variant="ghost" size="icon" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>}
                         {row.canDelete && <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
                     </TableCell>
-                </TableRow>
+                  </TableRow>
                 ))}
             </TableBody>
             </Table>
@@ -131,44 +190,11 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
         <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
       )}
 
-      { table.id !== '5.1_listManufacturingFacilities' && table.id !== '5.2.1_geographyWiseSales' && (
-        <div className="space-y-4">
-            <h5 className="font-semibold">Reference Table (Manual Rows)</h5>
-            <div className="flex justify-end">
-                <Button variant="outline" size="sm" onClick={handleAddRow}>
-                    <Plus className="mr-2 h-4 w-4" /> Add Row
-                </Button>
-            </div>
-            <div className="border rounded-lg overflow-x-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            {table.columns.map(col => <TableHead key={col.key}>{col.label}</TableHead>)}
-                            <TableHead>Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {manualRows.filter(r => r.isManual).map(row => (
-                            <TableRow key={row.id}>
-                                {table.columns.map(col => (
-                                    <TableCell key={col.key}>
-                                        <Input 
-                                            value={row[col.key]} 
-                                            onChange={(e) => handleManualRowChange(row.id, col.key, e.target.value)}
-                                            className="h-8"
-                                        />
-                                    </TableCell>
-                                ))}
-                                <TableCell>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}>
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </div>
+      { !table.rows.some(r => r.canAddBelow) && (
+        <div className="flex justify-end mt-4">
+            <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
+                <Plus className="mr-2 h-4 w-4" /> Add Row
+            </Button>
         </div>
       )}
     </div>

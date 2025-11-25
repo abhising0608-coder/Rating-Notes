@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 
 const sectorOptions = [
-    "Paper", "EPC", "Pharma", "Cement", "Renewable", "NBFC", "HFC", 
-    "General Manufacturing BIG", "Real Estate", "Toll including ToT", "HAM", 
+    "Paper", "EPC", "Pharma", "Cement", "Renewable", "NBFC", 
+    "HFC", "General Manufacturing BIG", "Real Estate", "Toll including ToT", "HAM", 
     "Iron and Steel", "General Manufacturing", "Sugar", "Broking", "Bank", 
     "Infra General", "Ports", "Power", "Insurance", "Power Transmission", 
     "Airport", "Gas", "Hospitality/Hotel", "LRD", "Wholesale Trading", 
@@ -72,14 +72,17 @@ export default function ImportantDataPage() {
 
   useEffect(() => {
     if (noteId) {
-      getRatingNoteById(noteId).then(setNote);
-      getImportantDataSections(noteId)
-        .then(data => {
-          setSections(data);
-          setLoading(false);
-        });
+      getRatingNoteById(noteId).then(noteData => {
+        setNote(noteData);
+        if (noteData) {
+          getImportantDataSections(noteId, selectedSector).then(data => {
+            setSections(data);
+            setLoading(false);
+          });
+        }
+      });
     }
-  }, [noteId]);
+  }, [noteId, selectedSector]);
 
   const handleSectorChange = (sector: string) => {
     setSelectedSector(sector);
@@ -160,12 +163,28 @@ export default function ImportantDataPage() {
             </div>
           </CardHeader>
           <CardContent>
-             <p className="text-muted-foreground">
-                No operational data sections are configured for this entity.
+            {loading ? (
+              <p>Loading sections...</p>
+            ) : sections.length > 0 ? (
+              <Accordion type="multiple" defaultValue={sections.map(s => s.id)}>
+                {sections.map(section => (
+                  <ImportantDataAccordion
+                    key={section.id}
+                    section={section}
+                    entityId={note.companyId}
+                    period={period}
+                  />
+                ))}
+              </Accordion>
+            ) : (
+              <p className="text-muted-foreground">
+                Please select a sector to view operational data sections.
               </p>
+            )}
           </CardContent>
         </Card>
       </main>
     </div>
   );
 }
+
