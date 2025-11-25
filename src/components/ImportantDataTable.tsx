@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -233,7 +234,6 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
     )
   }
 
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -261,7 +261,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
                       <TooltipProvider>
                           <Tooltip>
                               <TooltipTrigger asChild>
-                                  <span>{col.label}</span>
+                                  <div>{col.label}</div>
                               </TooltipTrigger>
                               {(table.tooltip || col.formulaId) && <TooltipContent>
                                   {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
