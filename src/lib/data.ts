@@ -1,4 +1,3 @@
-
 import type {
   Company,
   FinancialData,
@@ -1045,19 +1044,28 @@ const pharmaImportantDataSection: ImportantDataSection = {
     tables: [
         {
             id: '5.1_listManufacturingFacilities',
-            label: '5.1 List of manufacturing facilities',
+            label: '5.1  List of manufacturing facilities',
             ckcModuleUrl: '#',
             tooltip: 'Details of manufacturing sites.',
             negativeAsNMAttributeIds: [],
+            developerGuidance: [
+                'Headers are fixed',
+                'Rows can be inserted',
+                'Rows can be hidden / deleted',
+                'Location -> Text',
+                'Product Segment -> Text',
+                'Regulatory Approvals -> Text',
+                'Last Audit -> MM-YY; provide calendar',
+            ],
             columns: [
                 { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
                 { key: 'location', label: 'Location', type: 'text', editable: true, canHide: false },
                 { key: 'productSegment', label: 'Product Segment', type: 'text', editable: true, canHide: false },
-                { key: 'regulatoryApprovals', label: 'Regulatory Approvals', type: 'text', editable: true, canHide: false },
+                { key: 'regApprovals', label: 'Regulatory Approvals', type: 'text', editable: true, canHide: false },
                 { key: 'lastAudit', label: 'Last Audit (Month/Year)', type: 'date', editable: true, canHide: false },
             ],
             rows: [
-                { id: 'mfg-1', srNo: 1, location: '', productSegment: '', regulatoryApprovals: '', lastAudit: '', canDelete: true, canAddBelow: true },
+                { id: 'mfg-1', srNo: 1, location: '', productSegment: '', regApprovals: '', lastAudit: '', canDelete: true, canHide: true, canAddBelow: true },
             ]
         },
         {
@@ -1085,7 +1093,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
             ]
         },
-        // Add other pharma tables here based on the prompt
     ]
 };
 
@@ -2082,7 +2089,9 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
     if (forceRefresh) {
         // Simulate data change on refresh
         const refreshedTable = JSON.parse(JSON.stringify(table));
-        refreshedTable.rows[0].fy22 = (table.rows[0].fy22 || 0) + 10;
+        if (refreshedTable.rows[0]?.fy22) {
+          refreshedTable.rows[0].fy22 = (refreshedTable.rows[0].fy22 || 0) + 10;
+        }
         return refreshedTable;
     }
 

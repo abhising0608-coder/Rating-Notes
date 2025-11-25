@@ -59,6 +59,9 @@ export interface TableRowData {
   fixedLabel?: boolean;
   canAddBelow?: boolean;
   canDelete?: boolean;
+  canHide?: boolean;
+  deleted?: boolean;
+  hidden?: boolean;
   formulaId?: string;
 }
 
@@ -647,6 +650,7 @@ export interface ImportantDataTable {
   ckcModuleUrl: string;
   tooltip: string;
   unit?: string;
+  developerGuidance?: string[];
   negativeAsNMAttributeIds: string[];
   columns: ColumnConfig[];
   rows: TableRowData[];

@@ -1,12 +1,11 @@
-
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { RefreshCw, Download, ExternalLink, Plus, Trash2 } from 'lucide-react';
-import type { ImportantDataTable, TableRowData, ColumnConfig } from '@/types';
+import { RefreshCw, Download, ExternalLink, Plus, Trash2, EyeOff } from 'lucide-react';
+import type { ImportantDataTable, TableRowData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -30,10 +29,10 @@ const formatNumber = (num: number | string | undefined | null) => {
 export default function ImportantDataTableComponent({ table, onRefresh }: ImportantDataTableProps) {
   const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
-
+  
   const getColumnTotal = useCallback((colKey: string) => {
       return tableRows.reduce((sum, row) => {
-          if (row.fixedLabel) return sum; // Exclude other total/fixed rows
+          if (row.fixedLabel || row.deleted) return sum; 
           const value = parseFloat(row[colKey]);
           return sum + (isNaN(value) ? 0 : value);
       }, 0);
@@ -53,7 +52,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
 
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
-          const yearKey = col.key.replace('share', '').toLowerCase(); // e.g., fy22
+          const yearKey = col.key.replace('share', '').toLowerCase();
           const yearCol = table.columns.find(c => c.key.toLowerCase() === yearKey && c.type === 'number');
           if (yearCol) {
             const total = getColumnTotal(yearCol.key);
@@ -81,16 +80,15 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   }, [tableRows, table.columns, getColumnTotal]);
 
   const handleAddRow = (afterRowId?: string) => {
-    const manualRowsCount = tableRows.filter(r => r.isManual).length;
-    if (manualRowsCount >= 10) {
+    if (tableRows.filter(r => !r.deleted).length >= 200) {
       toast({
         variant: 'destructive',
         title: 'Row Limit Reached',
-        description: 'You can only add a maximum of 10 manual reference rows.',
+        description: 'You can add a maximum of 200 rows.',
       });
       return;
     }
-    const newRow: TableRowData = { id: `manual-${Date.now()}`, isManual: true };
+    const newRow: TableRowData = { id: `manual-${Date.now()}` };
     table.columns.forEach(col => {
       newRow[col.key] = '';
     });
@@ -105,18 +103,27 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
     }
   };
 
-  const handleRemoveRow = (id: string) => {
-    setTableRows(prev => prev.filter(row => row.id !== id && row.isManual));
-  };
-  
   const handleRowChange = (id: string, key: string, value: string) => {
     setTableRows(prev => prev.map(row => row.id === id ? { ...row, [key]: value } : row));
     // Here you would call a debounced function to save the change
   }
 
+  const handleRowAction = (id: string, action: 'hide' | 'delete') => {
+    setTableRows(prev => prev.map(row => {
+        if (row.id === id) {
+            return { ...row, [action === 'hide' ? 'hidden' : 'deleted']: true };
+        }
+        return row;
+    }));
+  };
+
   const hasNegativeValues = table.rows.some(row =>
     table.columns.some(col => table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0)
   );
+
+  const visibleRows = allRows.filter(row => !row.hidden && !row.deleted);
+  
+  let srNoCounter = 1;
 
   return (
     <div className="space-y-4">
@@ -137,56 +144,64 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
         </div>
       </div>
       <div className="border rounded-lg overflow-x-auto">
-        <TooltipProvider>
-            <Table>
-            <TableHeader>
-                <TableRow>
-                    {table.columns.map(col => (
-                    <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <span>{col.label}</span>
-                            </TooltipTrigger>
-                            {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
-                        </Tooltip>
-                    </TableHead>
-                    ))}
-                <TableHead>Actions</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {allRows.map(row => (
-                  <TableRow key={row.id} className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold')}>
-                    {table.columns.map(col => {
-                        const cellValue = row[col.key];
-                        const isNM = table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
-                        const displayValue = isNM ? 'NM' : cellValue;
-                        const isEditable = col.editable && (row.isManual || !row.fixedLabel);
-                        
-                        return (
-                           <TableCell key={col.key}>
-                            { isEditable ? (
-                                <Input 
-                                    type={col.type === 'date' ? 'date' : 'text'}
-                                    value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
-                                    onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
-                                    className="h-8"
-                                />
-                            ) : (
-                                <span>{col.type === 'number' ? formatNumber(displayValue) : displayValue}</span>
-                            )}
-                           </TableCell>
-                        )
-                    })}
-                    <TableCell>
-                        {row.canAddBelow && <Button variant="ghost" size="icon" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>}
-                        {row.canDelete && <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-            </Table>
-        </TooltipProvider>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {table.columns.map(col => (
+                <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                   <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>{col.label}</div>
+                      </TooltipTrigger>
+                      {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
+                    </Tooltip>
+                  </TooltipProvider>
+                </TableHead>
+              ))}
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {visibleRows.map(row => (
+              <TableRow key={row.id} className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold')}>
+                {table.columns.map(col => {
+                    const cellValue = row[col.key];
+                    const isNM = table.negativeAsNMAttributeIds.includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
+                    const displayValue = isNM ? 'NM' : cellValue;
+                    const isEditable = col.editable && (!row.fixedLabel);
+                    
+                    if (col.key === 'srNo') {
+                      return <TableCell key={col.key}>{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
+                    }
+
+                    return (
+                       <TableCell key={col.key}>
+                        { isEditable ? (
+                            <Input 
+                                type={col.type === 'date' ? 'date' : 'text'}
+                                value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
+                                onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
+                                className="h-8"
+                                placeholder={col.type === 'date' ? 'MM-YY' : undefined}
+                            />
+                        ) : (
+                            <span>{col.type === 'number' ? formatNumber(displayValue) : displayValue}</span>
+                        )}
+                       </TableCell>
+                    )
+                })}
+                <TableCell>
+                  <div className='flex'>
+                    {row.canAddBelow && <Button variant="ghost" size="icon" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>}
+                    {row.canDelete && <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'delete')}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+                    {row.canHide && <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'hide')}><EyeOff className="h-4 w-4 text-muted-foreground" /></Button>}
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
       {hasNegativeValues && (
         <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
@@ -197,6 +212,15 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
             <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
                 <Plus className="mr-2 h-4 w-4" /> Add Row
             </Button>
+        </div>
+      )}
+      
+      {table.developerGuidance && (
+        <div className="mt-4 p-3 border rounded-md bg-rose-50 text-rose-800">
+          <p className="text-sm font-bold">🔴 Guidance for Developers</p>
+          <ul className="list-disc list-inside text-xs">
+            {table.developerGuidance.map((line, index) => <li key={index}>{line}</li>)}
+          </ul>
         </div>
       )}
     </div>
