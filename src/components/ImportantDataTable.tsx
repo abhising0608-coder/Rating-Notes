@@ -142,12 +142,14 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
             <TableHeader>
                 <TableRow>
                     {table.columns.map(col => (
-                    <Tooltip key={col.key}>
-                        <TooltipTrigger asChild>
-                           <TableHead className={cn(col.formulaId && "italic")}>{col.label}</TableHead>
-                        </TooltipTrigger>
-                        {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
-                    </Tooltip>
+                    <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div>{col.label}</div>
+                            </TooltipTrigger>
+                            {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
+                        </Tooltip>
+                    </TableHead>
                     ))}
                 <TableHead>Actions</TableHead>
                 </TableRow>
