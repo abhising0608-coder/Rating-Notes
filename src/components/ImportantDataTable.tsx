@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { RefreshCw, Download, ExternalLink, Plus, Trash2, EyeOff } from 'lucide-react';
+import { RefreshCw, Download, ExternalLink, Plus, Trash2, EyeOff, ChevronDown, ChevronRight } from 'lucide-react';
 import type { ImportantDataTable, TableRowData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -31,16 +31,35 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
   
-  const getColumnTotal = useCallback((colKey: string) => {
+  const getColumnTotal = useCallback((colKey: string, parentId?: string) => {
       return tableRows.reduce((sum, row) => {
-          if (row.fixedLabel || row.deleted) return sum; 
+          if (row.fixedLabel || row.deleted) return sum;
+          if (parentId && row.parentId !== parentId) return sum;
+          if (!parentId && row.parentId) return sum; // Exclude children from main total
           const value = parseFloat(row[colKey]);
           return sum + (isNaN(value) ? 0 : value);
       }, 0);
   }, [tableRows]);
 
   const allRows = useMemo(() => {
-    return tableRows.map(row => {
+    let processedRows = [...tableRows];
+    
+    // Calculate parent totals first
+    processedRows = processedRows.map(row => {
+        if(row.isParent) {
+            let newRow = { ...row };
+            table.columns.forEach(col => {
+                if (col.isYearColumn && col.type === 'number') {
+                    newRow[col.key] = getColumnTotal(col.key, row.id);
+                }
+            });
+            return newRow;
+        }
+        return row;
+    });
+
+    // Then calculate final totals and percentages
+    return processedRows.map(row => {
       let newRow: TableRowData = { ...row };
 
       if (row.formulaId === 'total') {
@@ -54,19 +73,12 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
           const yearKey = col.key.replace('shareFy', 'fy').replace('share6mfy', '6mfy');
-          const yearCol = table.columns.find(c => c.key.toLowerCase() === yearKey.toLowerCase() && c.type === 'number');
-
-          if (yearCol) {
-            const totalRow = tableRows.find(r => r.formulaId === 'total');
-            if (totalRow) {
-                const total = getColumnTotal(yearCol.key);
-                const rowValue = parseFloat(newRow[yearCol.key]);
-                if (total > 0 && !isNaN(rowValue)) {
-                  newRow[col.key] = ((rowValue / total) * 100);
-                } else {
-                  newRow[col.key] = 0;
-                }
-            }
+          const total = getColumnTotal(yearKey);
+          const rowValue = parseFloat(newRow[yearKey]);
+          if (total > 0 && !isNaN(rowValue)) {
+            newRow[col.key] = ((rowValue / total) * 100);
+          } else {
+            newRow[col.key] = 0;
           }
         } else if (col.formulaId === 'yoy') {
             const currentYearKey = 'fy24';
@@ -84,7 +96,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
     });
   }, [tableRows, table.columns, getColumnTotal]);
 
-  const handleAddRow = (afterRowId?: string) => {
+  const handleAddRow = (parentId?: string) => {
     if (table.id === '5.1_listManufacturingFacilities' && tableRows.filter(r => !r.deleted).length >= 200) {
       toast({
         variant: 'destructive',
@@ -98,25 +110,28 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
       newRow[col.key] = '';
     });
     
-    if (afterRowId) {
-        const index = tableRows.findIndex(r => r.id === afterRowId);
-        const newRows = [...tableRows];
-        newRows.splice(index + 1, 0, newRow);
-        setTableRows(newRows);
+    if (parentId) {
+      newRow.parentId = parentId;
+      newRow.editableLabel = true;
+      newRow.canDelete = true;
+      const parentIndex = tableRows.findIndex(r => r.id === parentId);
+      const childCount = tableRows.filter(r => r.parentId === parentId).length;
+      const newRows = [...tableRows];
+      newRows.splice(parentIndex + 1 + childCount, 0, newRow);
+      setTableRows(newRows);
     } else {
-        setTableRows(prev => [...prev, newRow]);
+      setTableRows(prev => [...prev, newRow]);
     }
   };
 
   const handleRowChange = (id: string, key: string, value: string) => {
     setTableRows(prev => prev.map(row => row.id === id ? { ...row, [key]: value } : row));
-    // Here you would call a debounced function to save the change
   }
 
   const handleRowAction = (id: string, action: 'hide' | 'delete') => {
     setTableRows(prev => prev.map(row => {
         if (row.id === id) {
-            return { ...row, [action === 'hide' ? 'hidden' : 'deleted']: !(row[action === 'hide' ? 'hidden' : 'deleted']) };
+            return { ...row, [action]: !(row[action]) };
         }
         return row;
     }));
@@ -129,6 +144,95 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   const visibleRows = allRows.filter(row => !row.hidden && !row.deleted);
   
   let srNoCounter = 1;
+
+  const renderRow = (row: TableRowData, level = 0) => {
+    const isParent = row.isParent;
+    const children = isParent ? visibleRows.filter(child => child.parentId === row.id) : [];
+
+    return (
+      <React.Fragment key={row.id}>
+        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
+            {table.columns.map(col => {
+                const cellValue = row[col.key];
+                const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
+                
+                let displayValue: any = cellValue;
+                if(isNM) displayValue = 'NM';
+                else if (col.type === 'number') displayValue = formatNumber(cellValue);
+                else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
+
+                const isEditable = (col.editable && !row.fixedLabel) || (row.editableLabel && col.key === 'region');
+                
+                if (col.key === 'srNo') {
+                  return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
+                }
+
+                if (col.key === 'region' && row.parentId) {
+                  return (
+                    <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
+                      <Input 
+                        type='text'
+                        value={displayValue || ''}
+                        onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
+                        className="h-8"
+                      />
+                    </TableCell>
+                  )
+                }
+                
+                if (col.key === 'region' && isParent) {
+                   return (
+                     <TableCell key={col.key} className="flex items-center gap-2">
+                       {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>}
+                       <span>{displayValue}</span>
+                     </TableCell>
+                   )
+                }
+
+                return (
+                <TableCell key={col.key} className={cn(col.formulaId && "italic", (row.isParent || row.parentId) && "py-1")}>
+                    { isEditable ? (
+                        <Input 
+                            type={col.type === 'date' ? 'date' : 'text'}
+                            value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
+                            onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
+                            className="h-8"
+                            placeholder={col.type === 'date' ? 'MM-YY' : undefined}
+                        />
+                    ) : (
+                        <span className={cn(col.type === 'number' && "text-right block")}>{displayValue}</span>
+                    )}
+                </TableCell>
+                )
+            })}
+             {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && (
+              <TableCell>
+                  <div className='flex'>
+                      {row.canHide && (
+                          <Tooltip>
+                              <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'hide')}><EyeOff className="h-4 w-4 text-muted-foreground" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
+                          </Tooltip>
+                      )}
+                      {row.canDelete && (
+                          <Tooltip>
+                              <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'delete')}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>{row.deleted ? 'Undo Delete' : 'Delete'} Row</p></TooltipContent>
+                          </Tooltip>
+                      )}
+                  </div>
+              </TableCell>
+             )}
+        </TableRow>
+        {isParent && children.map(child => renderRow(child, level + 1))}
+      </React.Fragment>
+    )
+  }
+
 
   return (
     <div className="space-y-4">
@@ -149,88 +253,38 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
         </div>
       </div>
        <div className="border rounded-lg overflow-x-auto">
-        <TooltipProvider>
-            <Table>
-            <TableHeader>
-                <TableRow>
-                {table.columns.map(col => (
-                     <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <div>{col.label}</div>
-                            </TooltipTrigger>
-                            {(table.tooltip || col.formulaId) && <TooltipContent>
-                                {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
-                                {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
-                                {table.tooltip && <p>{table.tooltip}</p>}
-                            </TooltipContent>}
-                        </Tooltip>
-                    </TableHead>
-                ))}
-                {table.id === '5.1_listManufacturingFacilities' && <TableHead>Actions</TableHead>}
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {visibleRows.map(row => (
-                <TableRow key={row.id} className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold')}>
-                    {table.columns.map(col => {
-                        const cellValue = row[col.key];
-                        const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
-                        
-                        let displayValue: any = cellValue;
-                        if(isNM) displayValue = 'NM';
-                        else if (col.type === 'number') displayValue = formatNumber(cellValue);
-                        else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
-
-                        const isEditable = col.editable && (!row.fixedLabel);
-                        
-                        if (col.key === 'srNo') {
-                          return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
-                        }
-
-                        return (
-                        <TableCell key={col.key}>
-                            { isEditable ? (
-                                <Input 
-                                    type={col.type === 'date' ? 'date' : 'text'}
-                                    value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
-                                    onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
-                                    className="h-8"
-                                    placeholder={col.type === 'date' ? 'MM-YY' : undefined}
-                                />
-                            ) : (
-                                <span>{displayValue}</span>
-                            )}
-                        </TableCell>
-                        )
-                    })}
-                     {table.id === '5.1_listManufacturingFacilities' && <TableCell>
-                        <div className='flex'>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'hide')}><EyeOff className="h-4 w-4 text-muted-foreground" /></Button>
-                                </TooltipTrigger>
-                                <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
-                            </Tooltip>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'delete')}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                </TooltipTrigger>
-                                <TooltipContent><p>{row.deleted ? 'Undo Delete' : 'Delete'} Row</p></TooltipContent>
-                            </Tooltip>
-                        </div>
-                    </TableCell>}
-                </TableRow>
-                ))}
-            </TableBody>
-            </Table>
-        </TooltipProvider>
+        <Table>
+          <TableHeader>
+              <TableRow>
+              {table.columns.map(col => (
+                  <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                      <TooltipProvider>
+                          <Tooltip>
+                              <TooltipTrigger asChild>
+                                  <span>{col.label}</span>
+                              </TooltipTrigger>
+                              {(table.tooltip || col.formulaId) && <TooltipContent>
+                                  {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
+                                  {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
+                                  {table.tooltip && <p>{table.tooltip}</p>}
+                              </TooltipContent>}
+                          </Tooltip>
+                      </TooltipProvider>
+                  </TableHead>
+              ))}
+              {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && <TableHead>Actions</TableHead>}
+              </TableRow>
+          </TableHeader>
+          <TableBody>
+              {visibleRows.filter(r => !r.parentId).map(row => renderRow(row))}
+          </TableBody>
+        </Table>
       </div>
       {hasNegativeValues && (
         <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
       )}
 
-      { table.rows.some(r => r.canAddBelow) && !visibleRows.some(r => r.canAddBelow) && (
+      { table.rows.some(r => r.canAddBelow) && (
         <div className="flex justify-end mt-4">
             <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
                 <Plus className="mr-2 h-4 w-4" /> Add Row

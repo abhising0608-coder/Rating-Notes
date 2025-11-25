@@ -63,6 +63,10 @@ export interface TableRowData {
   deleted?: boolean;
   hidden?: boolean;
   formulaId?: string;
+  isParent?: boolean;
+  parentId?: string;
+  canAddChild?: boolean;
+  editableLabel?: boolean;
 }
 
 export interface Attachment {

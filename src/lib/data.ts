@@ -55,6 +55,7 @@ import type {
   DetailsOfInstrumentData,
   ImportantDataSection,
   ImportantDataTable,
+  TableRowData,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1048,15 +1049,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             ckcModuleUrl: '#',
             tooltip: 'Details of manufacturing sites.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                'Headers are fixed',
-                'Rows can be inserted',
-                'Rows can be hidden / deleted',
-                'Location -> Text',
-                'Product Segment -> Text',
-                'Regulatory Approvals -> Text',
-                'Last Audit -> MM-YY; provide calendar',
-            ],
             columns: [
                 { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
                 { key: 'location', label: 'Location', type: 'text', editable: true, canHide: false },
@@ -1078,18 +1070,21 @@ const pharmaImportantDataSection: ImportantDataSection = {
             columns: [
                 { key: 'region', label: 'Region', type: 'text', editable: false, canHide: false },
                 { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
-                { key: 'shareFy22', label: '% Share FY22', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                { key: 'shareFy22', label: '% Share FY22', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
                 { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
-                { key: 'shareFy23', label: '% Share FY23', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                { key: 'shareFy23', label: '% Share FY23', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
                 { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
-                { key: 'shareFy24', label: '% Share FY24', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                { key: 'shareFy24', label: '% Share FY24', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
                 { key: 'yoyGrowth', label: 'Y-o-Y Growth (%)', type: 'percent', editable: false, canHide: false, formulaId: 'yoy' },
                 { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
-                { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, isYearColumn: true, formulaId: 'share' },
+                { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
             ],
             rows: [
                 { id: 'geo-1', region: 'Domestic', fixedLabel: true, fy22: 100, fy23: 120, fy24: 140, '6mfy25': 80 },
-                { id: 'geo-2', region: 'Export', fixedLabel: true, canAddBelow: true, fy22: 50, fy23: 60, fy24: 70, '6mfy25': 40 },
+                { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true },
+                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 20, fy23: 25, fy24: 30, '6mfy25': 18, canDelete: true },
+                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 25, fy23: 30, fy24: 35, '6mfy25': 20, canDelete: true },
+                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 5, fy23: 5, fy24: 5, '6mfy25': 2, canDelete: true },
                 { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
             ]
         },
