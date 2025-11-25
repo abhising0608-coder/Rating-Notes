@@ -160,28 +160,12 @@ export default function ImportantDataPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <p>Loading sections...</p>
-            ) : sections.length > 0 ? (
-                <Accordion type="multiple" className="w-full">
-                    {sections.map(section => (
-                        <ImportantDataAccordion
-                            key={section.id}
-                            section={section}
-                            entityId={note.companyId}
-                            period={period}
-                        />
-                    ))}
-                </Accordion>
-            ) : (
-              <p className="text-muted-foreground">
+             <p className="text-muted-foreground">
                 No operational data sections are configured for this entity.
               </p>
-            )}
           </CardContent>
         </Card>
       </main>
     </div>
   );
 }
-
