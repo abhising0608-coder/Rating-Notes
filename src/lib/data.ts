@@ -1045,7 +1045,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
     tables: [
         {
             id: '5.1_listManufacturingFacilities',
-            label: '5.1  List of manufacturing facilities',
+            label: '5.1 — List of Manufacturing Facilities',
             ckcModuleUrl: '#',
             tooltip: 'Details of manufacturing sites.',
             negativeAsNMAttributeIds: [],
@@ -1057,7 +1057,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'lastAudit', label: 'Last Audit (Month/Year)', type: 'date', editable: true, canHide: false },
             ],
             rows: [
-                { id: 'mfg-1', srNo: 1, location: '', productSegment: '', regApprovals: '', lastAudit: '', canDelete: true, canHide: true, canAddBelow: true },
+                { id: 'mfg-1', srNo: 1, location: 'Mumbai', productSegment: 'API', regApprovals: 'FDA, EMA', lastAudit: '2023-10-01', canDelete: true, canHide: true, canAddBelow: true },
             ]
         },
         {
@@ -1080,11 +1080,11 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
             ],
             rows: [
-                { id: 'geo-1', region: 'Domestic', fixedLabel: true, fy22: 100, fy23: 120, fy24: 140, '6mfy25': 80 },
-                { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true },
-                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 20, fy23: 25, fy24: 30, '6mfy25': 18, canDelete: true },
-                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 25, fy23: 30, fy24: 35, '6mfy25': 20, canDelete: true },
-                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 5, fy23: 5, fy24: 5, '6mfy25': 2, canDelete: true },
+                { id: 'geo-1', region: 'Domestic', fixedLabel: true, fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 },
+                { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true, formulaId: 'subtotal' },
+                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800, canDelete: true },
+                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300, canDelete: true },
+                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 375, fy23: 352, fy24: 452, '6mfy25': 150, canDelete: true },
                 { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
             ]
         },
@@ -2086,6 +2086,8 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
         const refreshedTable = JSON.parse(JSON.stringify(table));
         if (refreshedTable.rows[0]?.fy22) {
           refreshedTable.rows[0].fy22 = (refreshedTable.rows[0].fy22 || 0) + 10;
+        } else if (refreshedTable.rows[0]?.location) {
+          refreshedTable.rows[0].location = refreshedTable.rows[0].location + " (Refreshed)";
         }
         return refreshedTable;
     }

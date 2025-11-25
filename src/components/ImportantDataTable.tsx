@@ -1,12 +1,10 @@
-
 'use client';
-
 import * as React from 'react';
 import { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { RefreshCw, Download, ExternalLink, Plus, Trash2, EyeOff, ChevronDown, ChevronRight } from 'lucide-react';
+import { RefreshCw, Download, ExternalLink, Plus, Trash2, EyeOff } from 'lucide-react';
 import type { ImportantDataTable, TableRowData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
@@ -36,7 +34,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
       return tableRows.reduce((sum, row) => {
           if (row.fixedLabel || row.deleted) return sum;
           if (parentId && row.parentId !== parentId) return sum;
-          if (!parentId && row.parentId) return sum; // Exclude children from main total
+          if (!parentId && row.parentId) return sum;
           const value = parseFloat(row[colKey]);
           return sum + (isNaN(value) ? 0 : value);
       }, 0);
@@ -45,35 +43,38 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   const allRows = useMemo(() => {
     let processedRows = [...tableRows];
     
-    // Calculate parent totals first
     processedRows = processedRows.map(row => {
+        let newRow: TableRowData = { ...row };
         if(row.isParent) {
-            let newRow = { ...row };
             table.columns.forEach(col => {
                 if (col.isYearColumn && col.type === 'number') {
                     newRow[col.key] = getColumnTotal(col.key, row.id);
                 }
             });
-            return newRow;
         }
-        return row;
+        if (row.formulaId === 'total') {
+            table.columns.forEach(col => {
+                if (col.isYearColumn && col.type === 'number') {
+                    newRow[col.key] = getColumnTotal(col.key);
+                }
+            });
+        }
+         if(row.formulaId === 'subtotal'){
+            const children = tableRows.filter(r => r.parentId === row.id && !r.deleted);
+            table.columns.forEach(col => {
+                if (col.isYearColumn && col.type === 'number') {
+                    newRow[col.key] = children.reduce((acc, child) => acc + (Number(child[col.key]) || 0), 0);
+                }
+            });
+        }
+        return newRow;
     });
 
-    // Then calculate final totals and percentages
     return processedRows.map(row => {
       let newRow: TableRowData = { ...row };
-
-      if (row.formulaId === 'total') {
-        table.columns.forEach(col => {
-          if (col.isYearColumn && col.type === 'number') {
-            newRow[col.key] = getColumnTotal(col.key);
-          }
-        });
-      }
-
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
-          const yearKey = col.key.replace('shareFy', 'fy').replace('share6mfy', '6mfy');
+          const yearKey = col.key.replace('share', '').toLowerCase();
           const total = getColumnTotal(yearKey);
           const rowValue = parseFloat(newRow[yearKey]);
           if (total > 0 && !isNaN(rowValue)) {
@@ -111,17 +112,26 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
       newRow[col.key] = '';
     });
     
+    newRow.canDelete = true;
+    newRow.canHide = true;
+    
     if (parentId) {
       newRow.parentId = parentId;
       newRow.editableLabel = true;
-      newRow.canDelete = true;
       const parentIndex = tableRows.findIndex(r => r.id === parentId);
       const childCount = tableRows.filter(r => r.parentId === parentId).length;
       const newRows = [...tableRows];
       newRows.splice(parentIndex + 1 + childCount, 0, newRow);
       setTableRows(newRows);
     } else {
-      setTableRows(prev => [...prev, newRow]);
+      const totalRowIndex = tableRows.findIndex(r => r.formulaId === 'total');
+      if (totalRowIndex !== -1) {
+        const newRows = [...tableRows];
+        newRows.splice(totalRowIndex, 0, newRow);
+        setTableRows(newRows);
+      } else {
+        setTableRows(prev => [...prev, newRow]);
+      }
     }
   };
 
@@ -153,7 +163,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
 
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', (row.isParent || row.formulaId === 'subtotal') && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
                 const cellValue = row[col.key];
                 const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
@@ -285,14 +295,6 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
         )}
 
         { table.rows.some(r => r.canAddBelow) && (
-          <div className="flex justify-end mt-4">
-              <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
-                  <Plus className="mr-2 h-4 w-4" /> Add Row
-              </Button>
-          </div>
-        )}
-        
-        {table.id === '5.1_listManufacturingFacilities' && (
           <div className="flex justify-end mt-4">
               <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
                   <Plus className="mr-2 h-4 w-4" /> Add Row
