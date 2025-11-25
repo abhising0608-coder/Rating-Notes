@@ -82,6 +82,7 @@ export default function ImportantDataAccordion({ section, entityId, period }: Im
                   <ImportantDataTableComponent
                     table={tableData[tableMeta.id]!}
                     onRefresh={() => handleRefresh(tableMeta.id)}
+                    allTables={section.tables}
                   />
                 ) : (
                   <p className="text-destructive">Could not load table data.</p>

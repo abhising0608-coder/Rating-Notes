@@ -1049,6 +1049,15 @@ const pharmaImportantDataSection: ImportantDataSection = {
             ckcModuleUrl: '#',
             tooltip: 'Details of manufacturing sites.',
             negativeAsNMAttributeIds: [],
+            developerGuidance: [
+                "Headers are fixed",
+                "Rows can be inserted",
+                "Rows can be hidden / deleted",
+                "Location → Text",
+                "Product Segment → Text",
+                "Regulatory Approvals → Text",
+                "Last Audit → MM-YY; provide calendar",
+            ],
             columns: [
                 { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
                 { key: 'location', label: 'Location', type: 'text', editable: true, canHide: false },
@@ -1067,6 +1076,13 @@ const pharmaImportantDataSection: ImportantDataSection = {
             unit: 'Rs. Crore',
             tooltip: 'Sales distribution by geography.',
             negativeAsNMAttributeIds: [],
+            developerGuidance: [
+                "Headers are fixed; years can be added/hidden",
+                "Year Range to be provided",
+                "Any rows can be added under Export",
+                "Indian numbering system with decimal option",
+                "Formula in Export and Total sales; percentage to be displayed, Font Italics",
+            ],
             columns: [
                 { key: 'region', label: 'Region', type: 'text', editable: false, canHide: false },
                 { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
@@ -1082,10 +1098,49 @@ const pharmaImportantDataSection: ImportantDataSection = {
             rows: [
                 { id: 'geo-1', region: 'Domestic', fixedLabel: true, fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 },
                 { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true, formulaId: 'subtotal' },
-                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800, canDelete: true },
-                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300, canDelete: true },
-                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 375, fy23: 352, fy24: 452, '6mfy25': 150, canDelete: true },
+                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800, canDelete: true, canHide: true },
+                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300, canDelete: true, canHide: true },
+                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 375, fy23: 352, fy24: 452, '6mfy25': 150, canDelete: true, canHide: true },
                 { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
+            ]
+        },
+        {
+            id: '5.2.2_therapeuticSegmentWise',
+            label: '5.2.2 Therapeutic segment wise',
+            ckcModuleUrl: '#',
+            unit: 'Rs. Crore',
+            tooltip: 'Sales distribution by therapeutic segment.',
+            negativeAsNMAttributeIds: [],
+            developerGuidance: [
+                "Headers are fixed; years can be added/hidden",
+                "Any column can be hidden",
+                "5 rows by default (for top therapies)",
+                "Rows can be added/deleted",
+                "Indian numbering system with decimal option",
+                "Formula; with percentage to be displayed, Font Italics",
+            ],
+            columns: [
+                { key: 'therapy', label: 'Therapy', type: 'text', editable: true, canHide: false },
+                { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'yoyGrowth', label: 'Y-o-Y Growth (%)', type: 'percent', editable: false, canHide: false, formulaId: 'yoy' },
+                { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
+            ],
+            rows: [
+                // Top 5 Therapies
+                { id: 'thr-1', therapy: 'Anti-Infective', group: 'top', fixedLabel: true, fy22: 503, fy23: 456, fy24: 448, '6mfy25': 205 },
+                { id: 'thr-2', therapy: 'Veterinary', group: 'top', fixedLabel: true, fy22: 232, fy23: 278, fy24: 310, '6mfy25': 180 },
+                { id: 'thr-3', therapy: 'Cardiology', group: 'top', fixedLabel: true, fy22: 242, fy23: 288, fy24: 325, '6mfy25': 195 },
+                { id: 'thr-4', therapy: 'Gastroenterology', group: 'top', fixedLabel: true, fy22: 235, fy23: 260, fy24: 295, '6mfy25': 170 },
+                { id: 'thr-5', therapy: 'Gynaecology', group: 'top', fixedLabel: true, fy22: 204, fy23: 208, fy24: 235, '6mfy25': 140 },
+                // Computed Rows for Top Therapies
+                { id: 'thr-total-top', therapy: 'Total of top therapies', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top' },
+                { id: 'thr-total-sales', therapy: 'Total Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales' },
+                { id: 'thr-top-pct', therapy: 'Top therapies in the total sale (%)', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top', sourceTableId: '5.2.1_geographyWiseSales' },
+                // "Others" section
+                { id: 'thr-others-label', therapy: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
+                { id: 'thr-6', therapy: 'Cold & Cough', group: 'others', parentId: 'thr-others-label', editableLabel: false, canDelete: true, canHide: true, fy22: 150, fy23: 160, fy24: 170, '6mfy25': 90 },
             ]
         },
     ]
@@ -2093,4 +2148,12 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
     }
 
     return table;
+}
+
+export const getImportantDataTableById = (tableId: string): ImportantDataTable | undefined => {
+    for (const section of importantDataSections) {
+        const foundTable = section.tables.find(t => t.id === tableId);
+        if (foundTable) return foundTable;
+    }
+    return undefined;
 }
