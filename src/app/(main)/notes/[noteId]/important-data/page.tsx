@@ -8,6 +8,18 @@ import { useParams } from 'next/navigation';
 import { Accordion } from '@/components/ui/accordion';
 import ImportantDataAccordion from '@/components/ImportantDataAccordion';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+
+const sectorOptions = [
+    "Paper", "EPC", "Pharma", "Cement", "Renewable", "NBFC", "HFC", 
+    "General Manufacturing BIG", "Real Estate", "Toll including ToT", "HAM", 
+    "Iron and Steel", "General Manufacturing", "Sugar", "Broking", "Bank", 
+    "Infra General", "Ports", "Power", "Insurance", "Power Transmission", 
+    "Airport", "Gas", "Hospitality/Hotel", "LRD", "Wholesale Trading", 
+    "Retailing", "Healthcare/ Hospital", "Textile", "Educational Institution", 
+    "Auto Component", "Auto", "Chemical", "Fertilizer"
+];
+
 
 export default function ImportantDataPage() {
   const params = useParams();
@@ -16,6 +28,7 @@ export default function ImportantDataPage() {
   const [sections, setSections] = useState<ImportantDataSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<string>('FY24');
+  const [selectedSector, setSelectedSector] = useState<string>('');
 
   useEffect(() => {
     if (noteId) {
@@ -27,6 +40,13 @@ export default function ImportantDataPage() {
         });
     }
   }, [noteId]);
+
+  const handleSectorChange = (sector: string) => {
+    setSelectedSector(sector);
+    // In a real app, this would trigger an autosave to Firestore:
+    // e.g., updateNoteInFirestore({ operationalData: { sector: sector } });
+    console.log('Sector saved (simulated):', sector);
+  };
   
   if (!note) {
       return (
@@ -44,9 +64,32 @@ export default function ImportantDataPage() {
       <main className="flex-1 p-8 bg-background">
         <Card>
           <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Section 5 — Important data, ratios etc.</CardTitle>
+            <div className="flex justify-between items-start">
+              <div className="space-y-4 w-full">
+                <CardTitle>Section 5 — Important data, ratios etc.</CardTitle>
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                    <Label htmlFor="select-sector">Select Sector</Label>
+                    <Select
+                        value={selectedSector}
+                        onValueChange={handleSectorChange}
+                        required
+                    >
+                        <SelectTrigger id="select-sector">
+                            <SelectValue placeholder="Please Select Sector" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {sectorOptions.map(sector => (
+                                <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                     <p className="text-sm text-muted-foreground">
+                        Choose the sector to load relevant operational formulas.
+                    </p>
+                </div>
+              </div>
               <div className="w-48">
+                <Label>Select Period</Label>
                 <Select value={period} onValueChange={setPeriod}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select Period" />
