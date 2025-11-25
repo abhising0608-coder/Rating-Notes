@@ -139,7 +139,8 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   };
 
   const hasNegativeValues = tableRows.some(row =>
-    table.columns.some(col => (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (row[col.key] as number) < 0)
+    (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') &&
+    table.columns.some(col => (row[col.key] as number) < 0)
   );
 
   const visibleRows = allRows.filter(row => !row.hidden && !row.deleted);
@@ -235,70 +236,70 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-         <h5 className="font-semibold">{table.unit && `(Unit: ${table.unit})`}</h5>
-        <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={onRefresh}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-            </Button>
-            <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" /> Download
-            </Button>
-            {table.ckcModuleUrl && <a href={table.ckcModuleUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" size="sm">
-                <ExternalLink className="mr-2 h-4 w-4" /> Navigate to CKC
-                </Button>
-            </a>}
+    <TooltipProvider>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h5 className="font-semibold">{table.unit && `(Unit: ${table.unit})`}</h5>
+          <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={onRefresh}>
+              <RefreshCw className="mr-2 h-4 w-4" /> Refresh
+              </Button>
+              <Button variant="outline" size="sm">
+              <Download className="mr-2 h-4 w-4" /> Download
+              </Button>
+              {table.ckcModuleUrl && <a href={table.ckcModuleUrl} target="_blank" rel="noopener noreferrer">
+                  <Button variant="outline" size="sm">
+                  <ExternalLink className="mr-2 h-4 w-4" /> Navigate to CKC
+                  </Button>
+              </a>}
+          </div>
         </div>
-      </div>
-       <div className="border rounded-lg overflow-x-auto">
-        <Table>
-          <TableHeader>
-              <TableRow>
-              {table.columns.map(col => (
-                  <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
-                      <TooltipProvider>
-                          <Tooltip>
-                              <TooltipTrigger asChild>
-                                  <div>{col.label}</div>
-                              </TooltipTrigger>
-                              {(table.tooltip || col.formulaId) && <TooltipContent>
-                                  {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
-                                  {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
-                                  {table.tooltip && <p>{table.tooltip}</p>}
-                              </TooltipContent>}
-                          </Tooltip>
-                      </TooltipProvider>
-                  </TableHead>
-              ))}
-              {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && <TableHead>Actions</TableHead>}
-              </TableRow>
-          </TableHeader>
-          <TableBody>
-              {visibleRows.filter(r => !r.parentId).map(row => renderRow(row))}
-          </TableBody>
-        </Table>
-      </div>
-      {hasNegativeValues && (
-        <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
-      )}
+        <div className="border rounded-lg overflow-x-auto">
+          <Table>
+            <TableHeader>
+                <TableRow>
+                {table.columns.map(col => (
+                    <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div>{col.label}</div>
+                            </TooltipTrigger>
+                            {(table.tooltip || col.formulaId) && <TooltipContent>
+                                {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
+                                {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
+                                {table.tooltip && <p>{table.tooltip}</p>}
+                            </TooltipContent>}
+                        </Tooltip>
+                    </TableHead>
+                ))}
+                {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && <TableHead>Actions</TableHead>}
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {visibleRows.filter(r => !r.parentId).map(row => renderRow(row))}
+            </TableBody>
+          </Table>
+        </div>
+        {hasNegativeValues && (
+          <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
+        )}
 
-      { table.rows.some(r => r.canAddBelow) && (
-        <div className="flex justify-end mt-4">
-            <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
-                <Plus className="mr-2 h-4 w-4" /> Add Row
-            </Button>
-        </div>
-      )}
-      
-       {table.id === '5.1_listManufacturingFacilities' && (
-        <div className="flex justify-end mt-4">
-            <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
-                <Plus className="mr-2 h-4 w-4" /> Add Row
-            </Button>
-        </div>
-      )}
-    </div>
+        { table.rows.some(r => r.canAddBelow) && (
+          <div className="flex justify-end mt-4">
+              <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
+                  <Plus className="mr-2 h-4 w-4" /> Add Row
+              </Button>
+          </div>
+        )}
+        
+        {table.id === '5.1_listManufacturingFacilities' && (
+          <div className="flex justify-end mt-4">
+              <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
+                  <Plus className="mr-2 h-4 w-4" /> Add Row
+              </Button>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
