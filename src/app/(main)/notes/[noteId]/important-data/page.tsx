@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import NoteNavigation from '@/components/NoteNavigation';
@@ -9,6 +10,7 @@ import { Accordion } from '@/components/ui/accordion';
 import ImportantDataAccordion from '@/components/ImportantDataAccordion';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 const sectorOptions = [
     "Paper", "EPC", "Pharma", "Cement", "Renewable", "NBFC", "HFC", 
@@ -20,6 +22,43 @@ const sectorOptions = [
     "Auto Component", "Auto", "Chemical", "Fertilizer"
 ];
 
+const sectorToVerticalMap: { [key: string]: string } = {
+  "Paper": "Corporate",
+  "EPC": "Infrastructure",
+  "Pharma": "Corporate",
+  "Cement": "Corporate",
+  "Renewable": "Infrastructure",
+  "NBFC": "BFSI",
+  "HFC": "BFSI",
+  "General Manufacturing BIG": "Corporate",
+  "Real Estate": "Infrastructure",
+  "Toll including ToT": "Infrastructure",
+  "HAM": "Infrastructure",
+  "Iron and Steel": "Corporate",
+  "General Manufacturing": "Corporate",
+  "Sugar": "Corporate",
+  "Broking": "BFSI",
+  "Bank": "BFSI",
+  "Infra General": "Infrastructure",
+  "Ports": "Infrastructure",
+  "Power": "Infrastructure",
+  "Insurance": "BFSI",
+  "Power Transmission": "Infrastructure",
+  "Airport": "Infrastructure",
+  "Gas": "Infrastructure",
+  "Hospitality/Hotel": "Corporate",
+  "LRD": "Infrastructure",
+  "Wholesale Trading": "Corporate",
+  "Retailing": "Corporate",
+  "Healthcare/ Hospital": "Corporate",
+  "Textile": "Corporate",
+  "Educational Institution": "Corporate",
+  "Auto Component": "Corporate",
+  "Auto": "Corporate",
+  "Chemical": "Corporate",
+  "Fertilizer": "Corporate"
+};
+
 
 export default function ImportantDataPage() {
   const params = useParams();
@@ -29,6 +68,7 @@ export default function ImportantDataPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<string>('FY24');
   const [selectedSector, setSelectedSector] = useState<string>('');
+  const [vertical, setVertical] = useState<string>('');
 
   useEffect(() => {
     if (noteId) {
@@ -43,9 +83,12 @@ export default function ImportantDataPage() {
 
   const handleSectorChange = (sector: string) => {
     setSelectedSector(sector);
+    const derivedVertical = sectorToVerticalMap[sector] || "";
+    setVertical(derivedVertical);
     // In a real app, this would trigger an autosave to Firestore:
-    // e.g., updateNoteInFirestore({ operationalData: { sector: sector } });
+    // e.g., updateNoteInFirestore({ operationalData: { sector: sector, vertical: derivedVertical } });
     console.log('Sector saved (simulated):', sector);
+    console.log('Vertical derived:', derivedVertical);
   };
   
   if (!note) {
@@ -67,25 +110,37 @@ export default function ImportantDataPage() {
             <div className="flex justify-between items-start">
               <div className="space-y-4 w-full">
                 <CardTitle>Section 5 — Important data, ratios etc.</CardTitle>
-                <div className="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="select-sector">Select Sector</Label>
-                    <Select
-                        value={selectedSector}
-                        onValueChange={handleSectorChange}
-                        required
-                    >
-                        <SelectTrigger id="select-sector">
-                            <SelectValue placeholder="Please Select Sector" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {sectorOptions.map(sector => (
-                                <SelectItem key={sector} value={sector}>{sector}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                     <p className="text-sm text-muted-foreground">
-                        Choose the sector to load relevant operational formulas.
-                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 w-full max-w-lg">
+                    <div className="space-y-1.5">
+                        <Label htmlFor="select-sector">Select Sector</Label>
+                        <Select
+                            value={selectedSector}
+                            onValueChange={handleSectorChange}
+                            required
+                        >
+                            <SelectTrigger id="select-sector">
+                                <SelectValue placeholder="Please Select Sector" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {sectorOptions.map(sector => (
+                                    <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                         <p className="text-sm text-muted-foreground">
+                            Choose the sector to load relevant operational formulas.
+                        </p>
+                    </div>
+                     <div className="space-y-1.5">
+                        <Label htmlFor="vertical">Vertical</Label>
+                        <Input
+                            id="vertical"
+                            value={vertical}
+                            readOnly
+                            placeholder="Auto-populated"
+                            className="bg-muted/50 border-transparent"
+                        />
+                    </div>
                 </div>
               </div>
               <div className="w-48">
@@ -129,3 +184,4 @@ export default function ImportantDataPage() {
     </div>
   );
 }
+
