@@ -145,7 +145,7 @@ export default function ImportantDataTableComponent({ table, onRefresh }: Import
                     <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <div>{col.label}</div>
+                                <span>{col.label}</span>
                             </TooltipTrigger>
                             {table.tooltip && <TooltipContent>{table.tooltip}</TooltipContent>}
                         </Tooltip>
