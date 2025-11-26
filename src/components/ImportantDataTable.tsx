@@ -81,6 +81,16 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 }
             });
         }
+        if (row.formulaId === 'totalRM') {
+            table.columns.forEach(col => {
+                if (col.isYearColumn) {
+                    const importVal = tableRows.find(r => r.id === 'rm-1')?.values?.[col.key] || 0;
+                    const chinaVal = tableRows.find(r => r.id === 'rm-2')?.values?.[col.key] || 0;
+                    const domesticVal = tableRows.find(r => r.id === 'rm-3')?.values?.[col.key] || 0;
+                    newRow.values[col.key] = Number(importVal) + Number(chinaVal) + Number(domesticVal);
+                }
+            });
+        }
         return newRow;
     });
 
@@ -125,6 +135,20 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                             .reduce((sum, r) => sum + (Number(r.values?.[col.key]) || 0), 0);
                         
                         newRow.values[col.key] = netSales > 0 ? (totalRD / netSales) * 100 : 0;
+                    }
+                });
+            }
+        }
+        if (row.formulaId === 'importAsPctOfRM') {
+            const totalRMRaw = processedRows.find(r => r.formulaId === 'totalRM');
+            const importRMRaw = tableRows.find(r => r.id === 'rm-1');
+
+            if(totalRMRaw && importRMRaw) {
+                table.columns.forEach(col => {
+                    if (col.isYearColumn) {
+                        const totalRM = Number(totalRMRaw.values?.[col.key]) || 0;
+                        const importRM = Number(importRMRaw.values?.[col.key]) || 0;
+                        newRow.values[col.key] = totalRM > 0 ? (importRM / totalRM) * 100 : 0;
                     }
                 });
             }
@@ -242,7 +266,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId === 'total' || row.formulaId === 'totalRD' || row.formulaId === 'pctOfNetSales' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.formulaId && 'bg-muted/80 font-bold', (row.formulaId === 'importAsPctOfRM' || col.formulaId === 'share') && 'italic', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
                 const isFormulaField = row.formulaId || col.formulaId;
                 const cellValue = row.values?.[col.key] ?? row[col.key];
@@ -251,7 +275,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 let displayValue: any = cellValue;
                 if(isNM) displayValue = 'NM';
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
-                else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
+                else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM') displayValue = `${formatNumber(cellValue)}%`;
 
                 const isEditable = !row.fixedLabel && (col.editable || row.editableLabel) && !isFormulaField;
                 
@@ -259,7 +283,9 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                if (['name', 'region', 'therapy', 'brandName', 'particulars'].includes(col.key)) {
+                const fieldKey = ['name', 'region', 'therapy', 'brandName', 'particulars'].find(k => k === col.key);
+
+                if (fieldKey) {
                     return (
                         <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
                           <div className='flex items-center gap-2'>
@@ -290,7 +316,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                             placeholder={col.type === 'date' ? 'MM-YY' : undefined}
                         />
                     ) : (
-                        <span className={cn(col.type === 'number' || col.type === 'percent' ? "text-right block" : "")}>{displayValue}</span>
+                        <span className={cn(col.type === 'number' || col.type === 'percent' || row.formulaId === 'importAsPctOfRM' ? "text-right block" : "")}>{displayValue}</span>
                     )}
                 </TableCell>
                 )
@@ -347,18 +373,18 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
             <TableHeader>
                 <TableRow>
                 {table.columns.map(col => (
-                    <Tooltip key={col.key}>
-                        <TooltipTrigger asChild>
-                           <TableHead className={cn(col.formulaId && "italic")}>
-                                {col.label}
-                           </TableHead>
-                        </TooltipTrigger>
-                        {(table.tooltip || col.formulaId) && <TooltipContent>
-                            {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
-                            {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
-                            {table.tooltip && <p>{table.tooltip}</p>}
-                        </TooltipContent>}
-                    </Tooltip>
+                     <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <div>{col.label}</div>
+                            </TooltipTrigger>
+                            {(table.tooltip || col.formulaId) && <TooltipContent>
+                                {col.formulaId === 'share' && <p>Calculated as (Row Value / Total) * 100</p>}
+                                {col.formulaId === 'yoy' && <p>Calculated as ((Current Year / Previous Year) - 1) * 100</p>}
+                                {table.tooltip && <p>{table.tooltip}</p>}
+                            </TooltipContent>}
+                        </Tooltip>
+                    </TableHead>
                 ))}
                 {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild) || table.rows.some(r => r.canAddBelow)) && <TableHead>Actions</TableHead>}
                 </TableRow>

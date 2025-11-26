@@ -1222,7 +1222,28 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { id: 'rd-1', particulars: 'Capital R&D Expenses', values: { fy22: 80, fy23: 100, fy24: 105 } },
                 { id: 'rd-2', particulars: 'Recurring R&D Expenses', values: { fy22: 200, fy23: 210, fy24: 220 } },
                 { id: 'rd-total', particulars: 'Total R&D Spend', fixedLabel: true, formulaId: 'totalRD' },
-                { id: 'rd-pct-sales', particulars: 'R&D Expenses as % of net sales', fixedLabel: true, formulaId: 'pctOfNetSales' },
+                { id: 'rd-pct-sales', particulars: 'R&D Expenses as % of net sales', fixedLabel: true, formulaId: 'pctOfNetSales', sourceTableId: '5.2.1_geographyWiseSales' },
+            ]
+        },
+         {
+            id: '5.2.7_rawMaterialImport',
+            label: '5.2.7 Raw Material Import details',
+            ckcModuleUrl: '',
+            unit: '',
+            tooltip: 'Details of raw material imports.',
+            negativeAsNMAttributeIds: [],
+            columns: [
+                { key: 'particulars', label: 'Particulars', type: 'text', editable: true, canHide: false },
+                { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+            ],
+            rows: [
+                { id: 'rm-1', particulars: 'Import of Raw Material', values: { fy22: 1100, fy23: 1300, fy24: 1600 }, editableLabel: false, isFixed: true },
+                { id: 'rm-2', particulars: 'China', values: { fy22: 800, fy23: 825, fy24: 900 }, editableLabel: true },
+                { id: 'rm-3', particulars: 'Domestic Procurement', values: { fy22: 300, fy23: 325, fy24: 350 }, editableLabel: false, isFixed: true },
+                { id: 'rm-total', particulars: 'Total Raw Material Cost', fixedLabel: true, formulaId: 'totalRM' },
+                { id: 'rm-pct-import', particulars: 'Import as a % of RM Cost', fixedLabel: true, formulaId: 'importAsPctOfRM' }
             ]
         }
     ]
@@ -2037,7 +2058,7 @@ export const getAddressedQCObservations = async (noteId: string): Promise<Addres
   console.log(`Fetching addressed QC observations for note: ${noteId}`);
   await new Promise(resolve => setTimeout(resolve, 300));
   if (noteId === '1') {
-    return addressedQCObservationsData;
+    return addressedQCObservationData;
   }
   return [];
 }
