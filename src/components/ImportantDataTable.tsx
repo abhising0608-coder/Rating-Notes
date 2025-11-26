@@ -10,8 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { getImportantDataTableById } from '@/lib/data';
-
 
 interface ImportantDataTableProps {
   table: ImportantDataTable;
@@ -48,7 +46,6 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   const allRows = useMemo(() => {
     let processedRows = [...tableRows];
     
-    // First pass for simple totals and subtotals
     processedRows = processedRows.map(row => {
         let newRow: TableRowData = { ...row };
         if (!newRow.values) newRow.values = {};
@@ -75,30 +72,28 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 }
             })
         }
+        if(row.formulaId === 'totalRD'){
+             table.columns.forEach(col => {
+                if (col.isYearColumn) {
+                    const capital = tableRows.find(r => r.id === 'rd-1')?.values?.[col.key] || 0;
+                    const recurring = tableRows.find(r => r.id === 'rd-2')?.values?.[col.key] || 0;
+                    newRow.values[col.key] = Number(capital) + Number(recurring);
+                }
+            });
+        }
         return newRow;
     });
 
-    // Second pass for cross-table and percentage calculations
     return processedRows.map(row => {
       let newRow = { ...row };
       if (!newRow.values) newRow.values = {};
        if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
             const sourceTable = allTables.find(t => t.id === row.sourceTableId);
             if (sourceTable) {
+                const sourceRows = sourceTable.rows.filter(r => !r.parentId);
                 table.columns.forEach(col => {
                     if(col.isYearColumn) {
-                        const total = sourceTable.rows.reduce((acc, sourceRow) => {
-                             if(row.subTotalRowId && sourceRow.id !== row.subTotalRowId) return acc;
-                             if(!row.subTotalRowId && sourceRow.formulaId === 'total') {
-                                // Find the total row in processedRows to get its computed value
-                                const totalGeoRow = processedRows.find(pr => pr.id === sourceRow.id);
-                                return totalGeoRow?.values?.[col.key] || 0;
-                             }
-                             if(row.subTotalRowId && sourceRow.id === row.subTotalRowId){
-                                 return sourceRow.values?.[col.key] || 0;
-                             }
-                             return acc;
-                        }, 0);
+                         const total = sourceRows.reduce((acc, sr) => acc + (Number(sr.values?.[col.key]) || 0), 0);
                         newRow.values[col.key] = total;
                     }
                 });
@@ -118,11 +113,27 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 });
             }
         }
+        if(row.formulaId === 'pctOfNetSales'){
+            const totalRDRow = processedRows.find(r => r.formulaId === 'totalRD');
+            const geographyTable = allTables.find(t => t.id === '5.2.1_geographyWiseSales');
+            if (totalRDRow && geographyTable) {
+                table.columns.forEach(col => {
+                    if (col.isYearColumn) {
+                        const totalRD = Number(totalRDRow.values?.[col.key]) || 0;
+                        const netSales = geographyTable.rows
+                            .filter(r => !r.isParent && !r.parentId && !r.formulaId)
+                            .reduce((sum, r) => sum + (Number(r.values?.[col.key]) || 0), 0);
+                        
+                        newRow.values[col.key] = netSales > 0 ? (totalRD / netSales) * 100 : 0;
+                    }
+                });
+            }
+        }
 
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
           const yearKey = col.key.replace('share', '').toLowerCase();
-          const total = getColumnTotal(yearKey);
+          const total = getColumnTotal(yearKey, undefined, processedRows);
           const rowValue = parseFloat(newRow.values[yearKey]);
           if (total > 0 && !isNaN(rowValue)) {
             newRow.values[col.key] = ((rowValue / total) * 100);
@@ -192,11 +203,11 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   const handleRowChange = (id: string, key: string, value: string) => {
     setTableRows(prev => prev.map(row => {
         if (row.id === id) {
-            let updatedRow = { ...row };
-            if (['location', 'productSegment', 'regApprovals', 'lastAudit', 'therapy', 'brandName', 'therapeuticSegment', 'name', 'creditRatings'].includes(key)) {
+            let updatedRow: TableRowData = { ...row };
+             if (!updatedRow.values) updatedRow.values = {};
+            if (['name', 'region', 'therapy', 'brandName', 'particulars'].includes(key)) {
                 updatedRow[key] = value;
             } else {
-                if (!updatedRow.values) updatedRow.values = {};
                 updatedRow.values[key] = value;
             }
             return updatedRow;
@@ -216,7 +227,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
 
   const hasNegativeValues = tableRows.some(row =>
     (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') &&
-    table.columns.some(col => (row[col.key] as number) < 0)
+    table.columns.some(col => (row.values?.[col.key] as number) < 0)
   );
 
   const visibleRows = allRows.filter(row => !row.hidden && !row.deleted);
@@ -229,12 +240,11 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     const isParent = row.isParent;
     const children = isParent ? visibleRows.filter(child => child.parentId === row.id) : [];
     
-    const rowKey = row.name || row.region || row.therapy || row.brandName || row.id;
-
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.fixedLabel && 'font-bold', (row.formulaId === 'total' || row.formulaId === 'groupTotal') && 'bg-muted/80', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.formulaId === 'total' || row.formulaId === 'totalRD' || row.formulaId === 'pctOfNetSales' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
+                const isFormulaField = row.formulaId || col.formulaId;
                 const cellValue = row.values?.[col.key] ?? row[col.key];
                 const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
                 
@@ -243,13 +253,13 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
                 else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel);
+                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel) && !isFormulaField;
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                if (['name', 'region', 'therapy', 'brandName'].includes(col.key)) {
+                if (['name', 'region', 'therapy', 'brandName', 'particulars'].includes(col.key)) {
                     return (
                         <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
                           <div className='flex items-center gap-2'>
@@ -270,8 +280,8 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 }
                 
                 return (
-                <TableCell key={col.key} className={cn(col.formulaId && "italic", (row.isParent || row.parentId) && "py-1")}>
-                    { isEditable && !col.formulaId ? (
+                <TableCell key={col.key} className={cn(isFormulaField && "italic", (row.isParent || row.parentId) && "py-1")}>
+                    { isEditable ? (
                         <Input 
                             type={col.type === 'date' ? 'date' : 'text'}
                             value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
@@ -337,7 +347,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
             <TableHeader>
                 <TableRow>
                 {table.columns.map(col => (
-                     <Tooltip key={col.key}>
+                    <Tooltip key={col.key}>
                         <TooltipTrigger asChild>
                            <TableHead className={cn(col.formulaId && "italic")}>
                                 {col.label}

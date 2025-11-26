@@ -935,7 +935,7 @@ const previousRCMMinutesData: RCMMinute[] = [
   { id: 'rcm-3', rcmDate: '2023-12-10', ratingCommitteeReference: 'RCM/2023/Q4/089', keyDiscussionPoints: 'Annual performance review.', preparedBy: 'Analyst A', fullContent: 'Full text content of the RCM minute from December 10, 2023...' },
 ];
 
-const addressedQCObservationsData: AddressedQCObservationData[] = [
+const addressedQCObservationData: AddressedQCObservationData[] = [
     { id: 'qc-obs-1', 'Sr. No.': '1', 'QC Observation': '', 'Comments of Rating Team': '' }
 ];
 
@@ -1200,9 +1200,29 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { id: 'cust-9', group: 'top10', name: 'DIL', creditRatings: '', values: { fy23: 30, fy24: 35, '6mfy25': 20 }, isFixed: true },
                 { id: 'cust-10', group: 'top10', name: 'NMN', creditRatings: '', values: { fy23: 10, fy24: 12, '6mfy25': 8 }, isFixed: true },
                 { id: 'cust-total-top', name: 'Total of Top 10 Customers', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top10'},
-                { id: 'cust-total-sales', name: 'Total Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales' },
+                { id: 'cust-total-sales', name: 'Total Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales'},
                 { id: 'cust-share-top', name: '% of Top 10 Customers', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top10', sourceTableId: '5.2.1_geographyWiseSales' },
                 { id: 'cust-others-label', name: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
+            ]
+        },
+        {
+            id: '5.2.6_rdDetails',
+            label: '5.2.6 R&D Details',
+            ckcModuleUrl: '#',
+            unit: '₹ Crore',
+            tooltip: 'Research and Development expenditure.',
+            negativeAsNMAttributeIds: [],
+            columns: [
+                { key: 'particulars', label: 'Particulars', type: 'text', editable: true, canHide: false },
+                { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+            ],
+            rows: [
+                { id: 'rd-1', particulars: 'Capital R&D Expenses', values: { fy22: 80, fy23: 100, fy24: 105 } },
+                { id: 'rd-2', particulars: 'Recurring R&D Expenses', values: { fy22: 200, fy23: 210, fy24: 220 } },
+                { id: 'rd-total', particulars: 'Total R&D Spend', fixedLabel: true, formulaId: 'totalRD' },
+                { id: 'rd-pct-sales', particulars: 'R&D Expenses as % of net sales', fixedLabel: true, formulaId: 'pctOfNetSales' },
             ]
         }
     ]
@@ -1221,8 +1241,8 @@ const nbfcImportantDataSection: ImportantDataSection = {
             negativeAsNMAttributeIds: ['1089'], // Example ID
             columns: [{key: 'metric', label: 'Metric', type: 'text', editable: false, canHide: false }, {key: 'value', label: 'Value (%)', type: 'number', editable: true, canHide: false }],
             rows: [
-                { id: 'n1', metric: 'Gross NPA', value: 2.5, mappedAttributeId: '1089' },
-                { id: 'n2', metric: 'Net NPA', value: -1.1, mappedAttributeId: '1089' },
+                { id: 'n1', metric: 'Gross NPA', values: { value: 2.5 }, mappedAttributeId: '1089' },
+                { id: 'n2', metric: 'Net NPA', values: { value: -1.1 }, mappedAttributeId: '1089' },
             ]
         }
     ]
