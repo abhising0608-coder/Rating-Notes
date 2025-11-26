@@ -1,4 +1,3 @@
-
 'use client';
 import * as React from 'react';
 import { useState, useMemo, useCallback } from 'react';
@@ -34,12 +33,14 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
   
- const getColumnTotal = useCallback((colKey: string, parentId?: string, rowsToSum: TableRowData[] = tableRows) => {
+ const getColumnTotal = useCallback((colKey: string, parentId?: string, rowsToSum: TableRowData[] = tableRows, group?: string) => {
       return rowsToSum.reduce((sum, row) => {
           if (row.fixedLabel || row.deleted) return sum;
           if (parentId && row.parentId !== parentId) return sum;
           if (!parentId && row.parentId) return sum;
-          const value = parseFloat(row[colKey]);
+           if (group && row.group !== group) return sum;
+
+          const value = parseFloat(row.values?.[colKey]);
           return sum + (isNaN(value) ? 0 : value);
       }, 0);
   }, [tableRows]);
@@ -47,27 +48,15 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   const allRows = useMemo(() => {
     let processedRows = [...tableRows];
     
+    // First pass for simple totals and subtotals
     processedRows = processedRows.map(row => {
         let newRow: TableRowData = { ...row };
-        if(row.isParent) {
-            table.columns.forEach(col => {
-                if (col.isYearColumn && col.type === 'number') {
-                    newRow[col.key] = getColumnTotal(col.key, row.id);
-                }
-            });
-        }
-        if (row.formulaId === 'total') {
-            table.columns.forEach(col => {
-                if (col.isYearColumn && col.type === 'number') {
-                    newRow[col.key] = getColumnTotal(col.key);
-                }
-            });
-        }
+        if (!newRow.values) newRow.values = {};
         if(row.formulaId === 'subtotal'){
             const children = tableRows.filter(r => r.parentId === row.id && !r.deleted);
             table.columns.forEach(col => {
-                if (col.isYearColumn && col.type === 'number') {
-                    newRow[col.key] = children.reduce((acc, child) => acc + (Number(child[col.key]) || 0), 0);
+                if (col.isYearColumn) {
+                    newRow.values[col.key] = children.reduce((acc, child) => acc + (Number(child.values?.[col.key]) || 0), 0);
                 }
             });
         }
@@ -75,67 +64,80 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
             const groupRows = tableRows.filter(r => r.group === row.formulaGroup && !r.deleted);
             table.columns.forEach(col => {
                 if (col.isYearColumn) {
-                    newRow[col.key] = groupRows.reduce((acc, r) => acc + (Number(r[col.key]) || 0), 0);
+                    newRow.values[col.key] = groupRows.reduce((acc, r) => acc + (Number(r.values?.[col.key]) || 0), 0);
                 }
             });
         }
-        if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
+        if(row.formulaId === 'total'){
+            table.columns.forEach(col => {
+                if(col.isYearColumn) {
+                    newRow.values[col.key] = getColumnTotal(col.key, undefined, tableRows);
+                }
+            })
+        }
+        return newRow;
+    });
+
+    // Second pass for cross-table and percentage calculations
+    return processedRows.map(row => {
+      let newRow = { ...row };
+      if (!newRow.values) newRow.values = {};
+       if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
             const sourceTable = allTables.find(t => t.id === row.sourceTableId);
-            if(sourceTable) {
-                let total = 0;
-                 sourceTable.rows.forEach(sourceRow => {
-                    if (row.subTotalRowId && sourceRow.id !== row.subTotalRowId) return;
-                    if (!row.subTotalRowId && sourceRow.formulaId === 'total') return;
-                    
-                    table.columns.forEach(col => {
-                        if (col.isYearColumn && sourceRow[col.key]) {
-                            total += Number(sourceRow[col.key]) || 0;
-                        }
-                    });
-                });
+            if (sourceTable) {
                 table.columns.forEach(col => {
-                   if (col.isYearColumn) newRow[col.key] = total;
+                    if(col.isYearColumn) {
+                        const total = sourceTable.rows.reduce((acc, sourceRow) => {
+                             if(row.subTotalRowId && sourceRow.id !== row.subTotalRowId) return acc;
+                             if(!row.subTotalRowId && sourceRow.formulaId === 'total') {
+                                // Find the total row in processedRows to get its computed value
+                                const totalGeoRow = processedRows.find(pr => pr.id === sourceRow.id);
+                                return totalGeoRow?.values?.[col.key] || 0;
+                             }
+                             if(row.subTotalRowId && sourceRow.id === row.subTotalRowId){
+                                 return sourceRow.values?.[col.key] || 0;
+                             }
+                             return acc;
+                        }, 0);
+                        newRow.values[col.key] = total;
+                    }
                 });
             }
         }
         if (row.formulaId === 'groupTotalAsPctOfCrossTableTotal' && row.sourceTableId) {
             const groupTotalRow = processedRows.find(r => r.formulaId === 'groupTotal' && r.formulaGroup === row.formulaGroup);
             const crossTableTotalRow = processedRows.find(r => r.formulaId === 'crossTableTotal' && r.sourceTableId === row.sourceTableId && r.subTotalRowId === row.subTotalRowId);
-
+            
             if (groupTotalRow && crossTableTotalRow) {
                 table.columns.forEach(col => {
                     if (col.isYearColumn) {
-                        const groupTotal = Number(groupTotalRow[col.key]) || 0;
-                        const crossTableTotal = Number(crossTableTotalRow[col.key]) || 0;
-                        newRow[col.key] = crossTableTotal !== 0 ? (groupTotal / crossTableTotal) * 100 : 0;
+                        const groupTotal = Number(groupTotalRow.values?.[col.key]) || 0;
+                        const crossTableTotal = Number(crossTableTotalRow.values?.[col.key]) || 0;
+                        newRow.values[col.key] = crossTableTotal !== 0 ? (groupTotal / crossTableTotal) * 100 : 0;
                     }
                 });
             }
         }
-        return newRow;
-    });
 
-    return processedRows.map(row => {
-      let newRow: TableRowData = { ...row };
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
           const yearKey = col.key.replace('share', '').toLowerCase();
           const total = getColumnTotal(yearKey);
-          const rowValue = parseFloat(newRow[yearKey]);
+          const rowValue = parseFloat(newRow.values[yearKey]);
           if (total > 0 && !isNaN(rowValue)) {
-            newRow[col.key] = ((rowValue / total) * 100);
+            newRow.values[col.key] = ((rowValue / total) * 100);
           } else {
-            newRow[col.key] = 0;
+            newRow.values[col.key] = 0;
           }
         } else if (col.formulaId === 'yoy') {
             const currentYearKey = 'fy24';
             const prevYearKey = 'fy23';
-            const currentVal = parseFloat(newRow[currentYearKey]);
-            const prevVal = parseFloat(newRow[prevYearKey]);
+            const currentVal = parseFloat(newRow.values[currentYearKey]);
+            const prevVal = parseFloat(newRow.values[prevYearKey]);
             if (!isNaN(currentVal) && !isNaN(prevVal) && prevVal !== 0) {
-                 newRow[col.key] = (((currentVal - prevVal) / prevVal) * 100);
+                 newRow.values[col.key] = (((currentVal - prevVal) / prevVal) * 100);
             } else {
-                 newRow[col.key] = 'N/A';
+                 newRow.values[col.key] = 'N/A';
             }
         }
       });
@@ -153,8 +155,9 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
       return;
     }
     const newRow: TableRowData = { id: `manual-${Date.now()}` };
+    newRow.values = {};
     table.columns.forEach(col => {
-      newRow[col.key] = '';
+      newRow.values[col.key] = '';
     });
     
     newRow.canDelete = true;
@@ -175,10 +178,10 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
       newRows.splice(lastChildIndex + 1, 0, newRow);
       setTableRows(newRows);
     } else {
-      const totalRowIndex = tableRows.findIndex(r => r.formulaId === 'total' || r.formulaId === 'groupTotal');
-      if (totalRowIndex !== -1) {
+       const insertIndex = tableRows.findIndex(r => r.canAddBelow || r.formulaId === 'total' || r.formulaId === 'groupTotal');
+      if (insertIndex !== -1) {
         const newRows = [...tableRows];
-        newRows.splice(totalRowIndex, 0, newRow);
+        newRows.splice(insertIndex, 0, newRow);
         setTableRows(newRows);
       } else {
         setTableRows(prev => [...prev, newRow]);
@@ -187,7 +190,19 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   };
 
   const handleRowChange = (id: string, key: string, value: string) => {
-    setTableRows(prev => prev.map(row => row.id === id ? { ...row, [key]: value } : row));
+    setTableRows(prev => prev.map(row => {
+        if (row.id === id) {
+            let updatedRow = { ...row };
+            if (['location', 'productSegment', 'regApprovals', 'lastAudit', 'therapy', 'brandName', 'therapeuticSegment', 'name', 'creditRatings'].includes(key)) {
+                updatedRow[key] = value;
+            } else {
+                if (!updatedRow.values) updatedRow.values = {};
+                updatedRow.values[key] = value;
+            }
+            return updatedRow;
+        }
+        return row;
+    }));
   }
 
   const handleRowAction = (id: string, action: 'hide' | 'delete') => {
@@ -213,12 +228,14 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
 
     const isParent = row.isParent;
     const children = isParent ? visibleRows.filter(child => child.parentId === row.id) : [];
+    
+    const rowKey = row.name || row.region || row.therapy || row.brandName || row.id;
 
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.fixedLabel && 'font-bold', (row.formulaId === 'total' || row.formulaId === 'groupTotal') && 'bg-muted/80', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
-                const cellValue = row[col.key];
+                const cellValue = row.values?.[col.key] ?? row[col.key];
                 const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
                 
                 let displayValue: any = cellValue;
@@ -226,40 +243,35 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
                 else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = (col.editable && !row.fixedLabel) || (row.editableLabel && (col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name'));
+                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel);
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name') && row.parentId) {
-                  return (
-                    <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
-                       {isEditable ? (
-                        <Input 
-                            type='text'
-                            value={displayValue || ''}
-                            onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
-                            className="h-8"
-                        /> ) : (
-                            <span>{displayValue}</span>
-                        )}
-                    </TableCell>
-                  )
+                if (['name', 'region', 'therapy', 'brandName'].includes(col.key)) {
+                    return (
+                        <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
+                          <div className='flex items-center gap-2'>
+                           {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
+                           {isEditable ? (
+                                <Input
+                                    type='text'
+                                    value={cellValue || ''}
+                                    onChange={(e) => handleRowChange(row.id, col.key, e.target.value)}
+                                    className="h-8"
+                                />
+                            ) : (
+                                <span>{cellValue}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                    );
                 }
                 
-                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name') && isParent) {
-                   return (
-                     <TableCell key={col.key} className="flex items-center gap-2">
-                       {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
-                       <span>{displayValue}</span>
-                     </TableCell>
-                   )
-                }
-
                 return (
                 <TableCell key={col.key} className={cn(col.formulaId && "italic", (row.isParent || row.parentId) && "py-1")}>
-                    { isEditable ? (
+                    { isEditable && !col.formulaId ? (
                         <Input 
                             type={col.type === 'date' ? 'date' : 'text'}
                             value={col.type === 'date' && cellValue ? format(new Date(cellValue), 'yyyy-MM-dd') : (cellValue || '')}
@@ -268,7 +280,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                             placeholder={col.type === 'date' ? 'MM-YY' : undefined}
                         />
                     ) : (
-                        <span className={cn(col.type === 'number' && "text-right block")}>{displayValue}</span>
+                        <span className={cn(col.type === 'number' || col.type === 'percent' ? "text-right block" : "")}>{displayValue}</span>
                     )}
                 </TableCell>
                 )
@@ -328,7 +340,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                      <Tooltip key={col.key}>
                         <TooltipTrigger asChild>
                            <TableHead className={cn(col.formulaId && "italic")}>
-                                <div>{col.label}</div>
+                                {col.label}
                            </TableHead>
                         </TooltipTrigger>
                         {(table.tooltip || col.formulaId) && <TooltipContent>

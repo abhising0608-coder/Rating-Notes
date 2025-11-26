@@ -1049,15 +1049,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             ckcModuleUrl: '#',
             tooltip: 'Details of manufacturing sites.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                "Headers are fixed",
-                "Rows can be inserted",
-                "Rows can be hidden / deleted",
-                "Location → Text",
-                "Product Segment → Text",
-                "Regulatory Approvals → Text",
-                "Last Audit → MM-YY; provide calendar",
-            ],
             columns: [
                 { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
                 { key: 'location', label: 'Location', type: 'text', editable: true, canHide: false },
@@ -1076,13 +1067,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             unit: 'Rs. Crore',
             tooltip: 'Sales distribution by geography.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                "Headers are fixed; years can be added/hidden",
-                "Year Range to be provided",
-                "Any rows can be added under Export",
-                "Indian numbering system with decimal option",
-                "Formula in Export and Total sales; percentage to be displayed, Font Italics",
-            ],
             columns: [
                 { key: 'region', label: 'Region', type: 'text', editable: false, canHide: false },
                 { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
@@ -1096,11 +1080,11 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
             ],
             rows: [
-                { id: 'geo-1', region: 'Domestic', fixedLabel: true, fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 },
+                { id: 'geo-1', region: 'Domestic', fixedLabel: true, values: { fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 } },
                 { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true, formulaId: 'subtotal' },
-                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800, canDelete: true, canHide: true },
-                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300, canDelete: true, canHide: true },
-                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, fy22: 375, fy23: 352, fy24: 452, '6mfy25': 150, canDelete: true, canHide: true },
+                { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, values: { fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800 }, canDelete: true, canHide: true },
+                { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, values: { fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300 }, canDelete: true, canHide: true },
+                { id: 'geo-2-3', region: 'Others', parentId: 'geo-2', editableLabel: true, values: { fy22: 375, fy23: 352, fy24: 452, '6mfy25': 150 }, canDelete: true, canHide: true },
                 { id: 'geo-total', region: 'Total Sales', fixedLabel: true, formulaId: 'total' },
             ]
         },
@@ -1111,14 +1095,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             unit: 'Rs. Crore',
             tooltip: 'Sales distribution by therapeutic segment.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                "Headers are fixed; years can be added/hidden",
-                "Any column can be hidden",
-                "5 rows by default (for top therapies)",
-                "Rows can be added/deleted",
-                "Indian numbering system with decimal option",
-                "Formula; with percentage to be displayed, Font Italics",
-            ],
             columns: [
                 { key: 'therapy', label: 'Therapy', type: 'text', editable: true, canHide: false },
                 { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
@@ -1128,19 +1104,16 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
             ],
             rows: [
-                // Top 5 Therapies
-                { id: 'thr-1', therapy: 'Anti-Infective', group: 'top', isFixed: true, fy22: 503, fy23: 456, fy24: 448, '6mfy25': 205 },
-                { id: 'thr-2', therapy: 'Veterinary', group: 'top', isFixed: true, fy22: 232, fy23: 278, fy24: 310, '6mfy25': 180 },
-                { id: 'thr-3', therapy: 'Cardiology', group: 'top', isFixed: true, fy22: 242, fy23: 288, fy24: 325, '6mfy25': 195 },
-                { id: 'thr-4', therapy: 'Gastroenterology', group: 'top', isFixed: true, fy22: 235, fy23: 260, fy24: 295, '6mfy25': 170 },
-                { id: 'thr-5', therapy: 'Gynaecology', group: 'top', isFixed: true, fy22: 204, fy23: 208, fy24: 235, '6mfy25': 140 },
-                // Computed Rows for Top Therapies
+                { id: 'thr-1', therapy: 'Anti-Infective', group: 'top', isFixed: true, values: { fy22: 503, fy23: 456, fy24: 448, '6mfy25': 205 } },
+                { id: 'thr-2', therapy: 'Veterinary', group: 'top', isFixed: true, values: { fy22: 232, fy23: 278, fy24: 310, '6mfy25': 180 } },
+                { id: 'thr-3', therapy: 'Cardiology', group: 'top', isFixed: true, values: { fy22: 242, fy23: 288, fy24: 325, '6mfy25': 195 } },
+                { id: 'thr-4', therapy: 'Gastroenterology', group: 'top', isFixed: true, values: { fy22: 235, fy23: 260, fy24: 295, '6mfy25': 170 } },
+                { id: 'thr-5', therapy: 'Gynaecology', group: 'top', isFixed: true, values: { fy22: 204, fy23: 208, fy24: 235, '6mfy25': 140 } },
                 { id: 'thr-total-top', therapy: 'Total of top therapies', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top' },
                 { id: 'thr-total-sales', therapy: 'Total Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales' },
                 { id: 'thr-top-pct', therapy: 'Top therapies in the total sale (%)', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top', sourceTableId: '5.2.1_geographyWiseSales' },
-                // "Others" section
                 { id: 'thr-others-label', therapy: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
-                { id: 'thr-6', therapy: 'Cold & Cough', group: 'others', parentId: 'thr-others-label', editableLabel: true, canDelete: true, canHide: true, fy22: 150, fy23: 160, fy24: 170, '6mfy25': 90 },
+                { id: 'thr-6', therapy: 'Cold & Cough', group: 'others', parentId: 'thr-others-label', editableLabel: true, canDelete: true, canHide: true, values: { fy22: 150, fy23: 160, fy24: 170, '6mfy25': 90 } },
             ]
         },
         {
@@ -1150,14 +1123,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             unit: 'Rs. Crore',
             tooltip: 'Sales distribution by brand.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                "Headers are fixed; years can be added/hidden.",
-                "Any column can be hidden.",
-                "10 rows by default (for top products).",
-                "Rows can be added/deleted for the 'others' group.",
-                "Indian numbering system with decimal option.",
-                "Formula; with percentage to be displayed, Font Italics.",
-            ],
             columns: [
                 { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
                 { key: 'brandName', label: 'Name of the brand', type: 'text', editable: true, canHide: false },
@@ -1169,21 +1134,19 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
             ],
             rows: [
-                { id: 'brand-1', group: 'top', brandName: 'Azithral', therapeuticSegment: 'Anti-infective', fy22: 355, fy23: 291, fy24: 285, '6mfy25': 140, isFixed: true },
-                { id: 'brand-2', group: 'top', brandName: 'Taxim', therapeuticSegment: 'Anti-infective', fy22: 121, fy23: 135, fy24: 140, '6mfy25': 75, isFixed: true },
-                { id: 'brand-3', group: 'top', brandName: 'Pansec', therapeuticSegment: 'Gastro-Intestinal', fy22: 90, fy23: 100, fy24: 105, '6mfy25': 55, isFixed: true },
-                { id: 'brand-4', group: 'top', brandName: 'Cefix', therapeuticSegment: 'Anti-infective', fy22: 85, fy23: 95, fy24: 100, '6mfy25': 50, isFixed: true },
-                { id: 'brand-5', group: 'top', brandName: 'Mahacef', therapeuticSegment: 'Anti-infective', fy22: 80, fy23: 90, fy24: 95, '6mfy25': 48, isFixed: true },
-                { id: 'brand-6', group: 'top', brandName: 'Zincovit', therapeuticSegment: 'Vitamins', fy22: 70, fy23: 75, fy24: 80, '6mfy25': 42, isFixed: true },
-                { id: 'brand-7', group: 'top', brandName: 'Clavam', therapeuticSegment: 'Anti-infective', fy22: 65, fy23: 70, fy24: 75, '6mfy25': 38, isFixed: true },
-                { id: 'brand-8', group: 'top', brandName: 'Monocef', therapeuticSegment: 'Anti-infective', fy22: 60, fy23: 65, fy24: 70, '6mfy25': 35, isFixed: true },
-                { id: 'brand-9', group: 'top', brandName: 'Telma', therapeuticSegment: 'Cardiology', fy22: 55, fy23: 60, fy24: 65, '6mfy25': 32, isFixed: true },
-                { id: 'brand-10', group: 'top', brandName: 'Meronem', therapeuticSegment: 'Anti-infective', fy22: 50, fy23: 55, fy24: 60, '6mfy25': 30, isFixed: true },
-
-                { id: 'brand-total-top', brandName: 'Total of top products', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top'},
+                { id: 'brand-1', group: 'top10', isFixed: true, brandName: 'Azithral', therapeuticSegment: 'Anti-infective', values: { fy22: 355, fy23: 291, fy24: 285, '6mfy25': 140 } },
+                { id: 'brand-2', group: 'top10', isFixed: true, brandName: 'Taxim', therapeuticSegment: 'Anti-infective', values: { fy22: 121, fy23: 135, fy24: 140, '6mfy25': 75 } },
+                { id: 'brand-3', group: 'top10', isFixed: true, brandName: 'Pansec', therapeuticSegment: 'Gastro-Intestinal', values: { fy22: 90, fy23: 100, fy24: 105, '6mfy25': 55 } },
+                { id: 'brand-4', group: 'top10', isFixed: true, brandName: 'Cefix', therapeuticSegment: 'Anti-infective', values: { fy22: 85, fy23: 95, fy24: 100, '6mfy25': 50 } },
+                { id: 'brand-5', group: 'top10', isFixed: true, brandName: 'Mahacef', therapeuticSegment: 'Anti-infective', values: { fy22: 80, fy23: 90, fy24: 95, '6mfy25': 48 } },
+                { id: 'brand-6', group: 'top10', isFixed: true, brandName: 'Zincovit', therapeuticSegment: 'Vitamins', values: { fy22: 70, fy23: 75, fy24: 80, '6mfy25': 42 } },
+                { id: 'brand-7', group: 'top10', isFixed: true, brandName: 'Clavam', therapeuticSegment: 'Anti-infective', values: { fy22: 65, fy23: 70, fy24: 75, '6mfy25': 38 } },
+                { id: 'brand-8', group: 'top10', isFixed: true, brandName: 'Monocef', therapeuticSegment: 'Anti-infective', values: { fy22: 60, fy23: 65, fy24: 70, '6mfy25': 35 } },
+                { id: 'brand-9', group: 'top10', isFixed: true, brandName: 'Telma', therapeuticSegment: 'Cardiology', values: { fy22: 55, fy23: 60, fy24: 65, '6mfy25': 32 } },
+                { id: 'brand-10', group: 'top10', isFixed: true, brandName: 'Meronem', therapeuticSegment: 'Anti-infective', values: { fy22: 50, fy23: 55, fy24: 60, '6mfy25': 30 } },
+                { id: 'brand-total-top', brandName: 'Total of top products', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top10'},
                 { id: 'brand-total-domestic', brandName: 'Total Domestic Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales', subTotalRowId: 'geo-1' },
-                { id: 'brand-share-top', brandName: 'Share of top products in domestic sales (%)', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top', sourceTableId: '5.2.1_geographyWiseSales', subTotalRowId: 'geo-1' },
-                
+                { id: 'brand-share-top', brandName: 'Share of top products in domestic sales (%)', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top10', sourceTableId: '5.2.1_geographyWiseSales', subTotalRowId: 'geo-1' },
                 { id: 'brand-others-label', brandName: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
             ]
         },
@@ -1194,11 +1157,6 @@ const pharmaImportantDataSection: ImportantDataSection = {
             unit: '₹ Lakh',
             tooltip: 'Sales distribution by manufacturing facility.',
             negativeAsNMAttributeIds: [],
-            developerGuidance: [
-                "Headers are fixed",
-                "Rows can be added, hidden, or deleted",
-                "Total Sales is a computed row",
-            ],
             columns: [
                 { key: 'name', label: 'Manufacturing Unit & Location', type: 'text', editable: true, canHide: false },
                 { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
@@ -1206,13 +1164,45 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
             ],
             rows: [
-                { id: 'fac-1', name: 'Ahmedabad, Gujarat', fy23: 1200, fy24: 1410, '6mfy25': 600, canDelete: true, canHide: true },
-                { id: 'fac-2', name: 'Vapi, Gujarat', fy23: 800, fy24: 850, '6mfy25': 450, canDelete: true, canHide: true },
-                { id: 'fac-3', name: 'Pune, Maharashtra', fy23: 500, fy24: 535, '6mfy25': 250, canDelete: true, canHide: true },
-                { id: 'fac-4', name: 'Indore, Madhya Pradesh', fy23: 400, fy24: 470, '6mfy25': 240, canDelete: true, canHide: true },
-                { id: 'fac-5', name: 'Jaipur, Rajasthan', fy23: 1000, fy24: 1100, '6mfy25': 610, canDelete: true, canHide: true },
-                { id: 'fac-6', name: 'Jammu, J&K', fy23: 587, fy24: 617, '6mfy25': 200, canDelete: true, canHide: true },
+                { id: 'fac-1', name: 'Ahmedabad, Gujarat', values: { fy23: 1200, fy24: 1410, '6mfy25': 600 }, canDelete: true, canHide: true },
+                { id: 'fac-2', name: 'Vapi, Gujarat', values: { fy23: 800, fy24: 850, '6mfy25': 450 }, canDelete: true, canHide: true },
+                { id: 'fac-3', name: 'Pune, Maharashtra', values: { fy23: 500, fy24: 535, '6mfy25': 250 }, canDelete: true, canHide: true },
+                { id: 'fac-4', name: 'Indore, Madhya Pradesh', values: { fy23: 400, fy24: 470, '6mfy25': 240 }, canDelete: true, canHide: true },
+                { id: 'fac-5', name: 'Jaipur, Rajasthan', values: { fy23: 1000, fy24: 1100, '6mfy25': 610 }, canDelete: true, canHide: true },
+                { id: 'fac-6', name: 'Jammu, J&K', values: { fy23: 587, fy24: 617, '6mfy25': 200 }, canDelete: true, canHide: true },
                 { id: 'fac-total', name: 'Total Sales', fixedLabel: true, formulaId: 'total', canAddBelow: true },
+            ]
+        },
+         {
+            id: '5.2.5_customerWiseSales',
+            label: '5.2.5 — Customer Wise Sales',
+            ckcModuleUrl: '#',
+            unit: '₹ Crore',
+            tooltip: 'Sales distribution by customer.',
+            negativeAsNMAttributeIds: [],
+            columns: [
+                { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
+                { key: 'name', label: 'Name of the customer', type: 'text', editable: true, canHide: false },
+                { key: 'creditRatings', label: 'Credit Ratings', type: 'text', editable: true, canHide: false },
+                { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
+            ],
+            rows: [
+                { id: 'cust-1', group: 'top10', name: 'ABC', creditRatings: '', values: { fy23: 170, fy24: 180, '6mfy25': 95 }, isFixed: true },
+                { id: 'cust-2', group: 'top10', name: 'XYZ', creditRatings: '', values: { fy23: 150, fy24: 160, '6mfy25': 85 }, isFixed: true },
+                { id: 'cust-3', group: 'top10', name: 'PQR', creditRatings: '', values: { fy23: 120, fy24: 120, '6mfy25': 63 }, isFixed: true },
+                { id: 'cust-4', group: 'top10', name: 'KEC', creditRatings: '', values: { fy23: 90, fy24: 90, '6mfy25': 47 }, isFixed: true },
+                { id: 'cust-5', group: 'top10', name: 'KPL', creditRatings: '', values: { fy23: 75, fy24: 80, '6mfy25': 43 }, isFixed: true },
+                { id: 'cust-6', group: 'top10', name: 'INC', creditRatings: '', values: { fy23: 60, fy24: 65, '6mfy25': 35 }, isFixed: true },
+                { id: 'cust-7', group: 'top10', name: 'JKI', creditRatings: '', values: { fy23: 50, fy24: 55, '6mfy25': 30 }, isFixed: true },
+                { id: 'cust-8', group: 'top10', name: 'POL', creditRatings: '', values: { fy23: 40, fy24: 45, '6mfy25': 25 }, isFixed: true },
+                { id: 'cust-9', group: 'top10', name: 'DIL', creditRatings: '', values: { fy23: 30, fy24: 35, '6mfy25': 20 }, isFixed: true },
+                { id: 'cust-10', group: 'top10', name: 'NMN', creditRatings: '', values: { fy23: 10, fy24: 12, '6mfy25': 8 }, isFixed: true },
+                { id: 'cust-total-top', name: 'Total of Top 10 Customers', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top10'},
+                { id: 'cust-total-sales', name: 'Total Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales' },
+                { id: 'cust-share-top', name: '% of Top 10 Customers', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top10', sourceTableId: '5.2.1_geographyWiseSales' },
+                { id: 'cust-others-label', name: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
             ]
         }
     ]
@@ -2211,8 +2201,8 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
     if (forceRefresh) {
         // Simulate data change on refresh
         const refreshedTable = JSON.parse(JSON.stringify(table));
-        if (refreshedTable.rows[0]?.fy22 !== undefined) {
-          refreshedTable.rows[0].fy22 = (refreshedTable.rows[0].fy22 || 0) + 10;
+        if (refreshedTable.rows[0]?.values?.fy22 !== undefined) {
+          refreshedTable.rows[0].values.fy22 = (refreshedTable.rows[0].values.fy22 || 0) + 10;
         } else if (refreshedTable.rows[0]?.location) {
           refreshedTable.rows[0].location = refreshedTable.rows[0].location + " (Refreshed)";
         }
