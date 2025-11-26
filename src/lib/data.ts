@@ -1143,6 +1143,50 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { id: 'thr-6', therapy: 'Cold & Cough', group: 'others', parentId: 'thr-others-label', editableLabel: false, canDelete: true, canHide: true, fy22: 150, fy23: 160, fy24: 170, '6mfy25': 90 },
             ]
         },
+        {
+            id: '5.2.3_brandWiseSales',
+            label: '5.2.3 Brand wise sales',
+            ckcModuleUrl: '#',
+            unit: 'Rs. Crore',
+            tooltip: 'Sales distribution by brand.',
+            negativeAsNMAttributeIds: [],
+            developerGuidance: [
+                "Headers are fixed; years can be added/hidden.",
+                "Any column can be hidden.",
+                "10 rows by default (for top products).",
+                "Rows can be added/deleted for the 'others' group.",
+                "Indian numbering system with decimal option.",
+                "Formula; with percentage to be displayed, Font Italics.",
+            ],
+            columns: [
+                { key: 'srNo', label: 'Sr. No.', type: 'number', editable: false, canHide: false },
+                { key: 'brandName', label: 'Name of the brand', type: 'text', editable: true, canHide: false },
+                { key: 'therapeuticSegment', label: 'Therapeutic Segment', type: 'text', editable: true, canHide: false },
+                { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
+                { key: 'yoyGrowth', label: 'Y-o-Y Growth (%)', type: 'percent', editable: false, canHide: false, formulaId: 'yoy' },
+                { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, canHide: true, isYearColumn: true },
+            ],
+            rows: [
+                { id: 'brand-1', group: 'top', brandName: 'Azithral', therapeuticSegment: 'Anti-infective', fy22: 355, fy23: 291, fy24: 285, '6mfy25': 140, isFixed: true },
+                { id: 'brand-2', group: 'top', brandName: 'Taxim', therapeuticSegment: 'Anti-infective', fy22: 121, fy23: 135, fy24: 140, '6mfy25': 75, isFixed: true },
+                { id: 'brand-3', group: 'top', brandName: 'Pansec', therapeuticSegment: 'Gastro-Intestinal', fy22: 90, fy23: 100, fy24: 105, '6mfy25': 55, isFixed: true },
+                { id: 'brand-4', group: 'top', brandName: 'Cefix', therapeuticSegment: 'Anti-infective', fy22: 85, fy23: 95, fy24: 100, '6mfy25': 50, isFixed: true },
+                { id: 'brand-5', group: 'top', brandName: 'Mahacef', therapeuticSegment: 'Anti-infective', fy22: 80, fy23: 90, fy24: 95, '6mfy25': 48, isFixed: true },
+                { id: 'brand-6', group: 'top', brandName: 'Zincovit', therapeuticSegment: 'Vitamins', fy22: 70, fy23: 75, fy24: 80, '6mfy25': 42, isFixed: true },
+                { id: 'brand-7', group: 'top', brandName: 'Clavam', therapeuticSegment: 'Anti-infective', fy22: 65, fy23: 70, fy24: 75, '6mfy25': 38, isFixed: true },
+                { id: 'brand-8', group: 'top', brandName: 'Monocef', therapeuticSegment: 'Anti-infective', fy22: 60, fy23: 65, fy24: 70, '6mfy25': 35, isFixed: true },
+                { id: 'brand-9', group: 'top', brandName: 'Telma', therapeuticSegment: 'Cardiology', fy22: 55, fy23: 60, fy24: 65, '6mfy25': 32, isFixed: true },
+                { id: 'brand-10', group: 'top', brandName: 'Meronem', therapeuticSegment: 'Anti-infective', fy22: 50, fy23: 55, fy24: 60, '6mfy25': 30, isFixed: true },
+
+                { id: 'brand-total-top', brandName: 'Total of top products', fixedLabel: true, formulaId: 'groupTotal', formulaGroup: 'top'},
+                { id: 'brand-total-domestic', brandName: 'Total Domestic Sales', fixedLabel: true, formulaId: 'crossTableTotal', sourceTableId: '5.2.1_geographyWiseSales', subTotalRowId: 'geo-1' },
+                { id: 'brand-share-top', brandName: 'Share of top products in domestic sales (%)', fixedLabel: true, formulaId: 'groupTotalAsPctOfCrossTableTotal', formulaGroup: 'top', sourceTableId: '5.2.1_geographyWiseSales', subTotalRowId: 'geo-1' },
+                
+                { id: 'brand-others-label', brandName: 'Others', fixedLabel: true, isParent: true, canAddChild: true },
+            ]
+        }
     ]
 };
 
@@ -2139,7 +2183,7 @@ export const getImportantDataTable = async(entityId: string, sectionId: string, 
     if (forceRefresh) {
         // Simulate data change on refresh
         const refreshedTable = JSON.parse(JSON.stringify(table));
-        if (refreshedTable.rows[0]?.fy22) {
+        if (refreshedTable.rows[0]?.fy22 !== undefined) {
           refreshedTable.rows[0].fy22 = (refreshedTable.rows[0].fy22 || 0) + 10;
         } else if (refreshedTable.rows[0]?.location) {
           refreshedTable.rows[0].location = refreshedTable.rows[0].location + " (Refreshed)";

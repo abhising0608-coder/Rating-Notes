@@ -81,19 +81,25 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
         if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
             const sourceTable = allTables.find(t => t.id === row.sourceTableId);
             if(sourceTable) {
-                const totalRow = sourceTable.rows.find(r => r.formulaId === 'total');
-                if(totalRow) {
-                     table.columns.forEach(col => {
-                        if (col.isYearColumn) {
-                           newRow[col.key] = totalRow[col.key]
+                let total = 0;
+                 sourceTable.rows.forEach(sourceRow => {
+                    if (row.subTotalRowId && sourceRow.id !== row.subTotalRowId) return;
+                    if (!row.subTotalRowId && sourceRow.formulaId === 'total') return;
+                    
+                    table.columns.forEach(col => {
+                        if (col.isYearColumn && sourceRow[col.key]) {
+                            total += Number(sourceRow[col.key]) || 0;
                         }
                     });
-                }
+                });
+                table.columns.forEach(col => {
+                   if (col.isYearColumn) newRow[col.key] = total;
+                });
             }
         }
         if (row.formulaId === 'groupTotalAsPctOfCrossTableTotal' && row.sourceTableId) {
             const groupTotalRow = processedRows.find(r => r.formulaId === 'groupTotal' && r.formulaGroup === row.formulaGroup);
-            const crossTableTotalRow = processedRows.find(r => r.formulaId === 'crossTableTotal' && r.sourceTableId === row.sourceTableId);
+            const crossTableTotalRow = processedRows.find(r => r.formulaId === 'crossTableTotal' && r.sourceTableId === row.sourceTableId && r.subTotalRowId === row.subTotalRowId);
 
             if (groupTotalRow && crossTableTotalRow) {
                 table.columns.forEach(col => {
@@ -136,7 +142,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     });
   }, [tableRows, table.columns, getColumnTotal, allTables]);
 
-  const handleAddRow = (parentId?: string) => {
+  const handleAddRow = (parentId?: string, group?: string) => {
     if (table.id === '5.1_listManufacturingFacilities' && tableRows.filter(r => !r.deleted).length >= 200) {
       toast({
         variant: 'destructive',
@@ -157,7 +163,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     if (parentId) {
       const parentRow = table.rows.find(r => r.id === parentId);
       newRow.parentId = parentId;
-      newRow.group = parentRow?.group || 'others';
+      newRow.group = group || parentRow?.group || 'others';
       newRow.editableLabel = true;
 
       const parentIndex = allRows.findIndex(r => r.id === parentId);
@@ -168,7 +174,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
       newRows.splice(lastChildIndex + 1, 0, newRow);
       setTableRows(newRows);
     } else {
-      const totalRowIndex = tableRows.findIndex(r => r.formulaId === 'total');
+      const totalRowIndex = tableRows.findIndex(r => r.formulaId === 'total' || r.formulaId === 'groupTotal');
       if (totalRowIndex !== -1) {
         const newRows = [...tableRows];
         newRows.splice(totalRowIndex, 0, newRow);
@@ -209,7 +215,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
 
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId && 'bg-muted/80 font-bold', (row.isParent) && 'bg-muted/50 font-medium', row.formulaId === 'groupTotalAsPctOfCrossTableTotal' && 'italic')}>
+        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
                 const cellValue = row[col.key];
                 const isNM = (table.negativeAsNMAttributeIds || []).includes(row.mappedAttributeId || '') && (cellValue as number) < 0;
@@ -225,7 +231,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                if ((col.key === 'region' || col.key === 'therapy') && row.parentId) {
+                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName') && row.parentId) {
                   return (
                     <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
                        {row.editableLabel ? (
@@ -241,10 +247,10 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                   )
                 }
                 
-                if ((col.key === 'region' || col.key === 'therapy') && isParent) {
+                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName') && isParent) {
                    return (
                      <TableCell key={col.key} className="flex items-center gap-2">
-                       {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>}
+                       {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
                        <span>{displayValue}</span>
                      </TableCell>
                    )
@@ -342,15 +348,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
         {hasNegativeValues && (
           <p className="text-xs text-muted-foreground">NM – Not Meaningful</p>
         )}
-        { table.developerGuidance && (
-            <div className="mt-4 p-3 border rounded-md bg-muted/30">
-                <h6 className="font-semibold text-destructive mb-2">Guidance for Developers</h6>
-                <ul className="text-xs text-destructive list-disc list-inside space-y-1">
-                    {table.developerGuidance.map((line, i) => <li key={i}>{line}</li>)}
-                </ul>
-            </div>
-        )}
-
+        
         { table.rows.some(r => r.canAddBelow) && (
           <div className="flex justify-end mt-4">
               <Button variant="outline" size="sm" onClick={() => handleAddRow()}>
