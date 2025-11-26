@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import type { Attachment, TableRowData } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Bold, Italic, Underline, List, Link, Image as ImageIcon, FileSpreadsheet } from 'lucide-react';
+import { Bold, Italic, Underline, List, Link, Image as ImageIcon, FileSpreadsheet, MessageSquare } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import AttachmentList from './AttachmentList';
@@ -14,6 +14,7 @@ import { Label } from './ui/label';
 import { extractTable } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from './ui/alert';
+import { Tooltip, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 type CommentsEditorProps = {
   sectionId: string;
@@ -24,6 +25,8 @@ type CommentsEditorProps = {
   disabled?: boolean;
 };
 
+const MAX_COMMENT_LENGTH = 500;
+
 export default function CommentsEditor({
   sectionId,
   initialContent,
@@ -32,7 +35,7 @@ export default function CommentsEditor({
   onTablePaste,
   disabled = false,
 }: CommentsEditorProps) {
-  const [content, setContent] = useState(initialContent);
+  const [content, setContent] = useState(initialContent.replace(/<[^>]+>/g, ''));
   const [attachments, setAttachments] = useState(initialAttachments);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isPastingTable, setIsPastingTable] = useState(false);
@@ -44,14 +47,15 @@ export default function CommentsEditor({
   const debouncedSave = useMemo(
     () =>
       debounce((sId: string, newContent: string, newAttachments: Attachment[]) => {
-        onSave(sId, newContent, newAttachments);
+        onSave(sId, `<p>${newContent}</p>`, newAttachments);
         setLastSaved(new Date());
-      }, 1000),
+      }, 800),
     [onSave]
   );
   
   useEffect(() => {
-    if(content !== initialContent || attachments !== initialAttachments) {
+    // Check against the raw initial content, not the stripped version
+    if(content !== initialContent.replace(/<[^>]+>/g, '') || attachments !== initialAttachments) {
       debouncedSave(sectionId, content, attachments);
     }
   }, [content, attachments, sectionId, debouncedSave, initialContent, initialAttachments]);
@@ -109,32 +113,61 @@ export default function CommentsEditor({
     }
   }
 
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value.length <= MAX_COMMENT_LENGTH) {
+      setContent(e.target.value);
+    }
+  };
+
+  const handleBlur = () => {
+    // Trigger save on blur
+    onSave(sectionId, `<p>${content}</p>`, attachments);
+    setLastSaved(new Date());
+  };
+
   return (
-    <div className="mt-6">
-      <h3 className="text-lg font-semibold font-headline mb-2">Comments</h3>
+    <div className="mt-4 space-y-2">
+      <h3 className="text-lg font-semibold font-headline">Comments</h3>
       <div className="rounded-lg border bg-card">
         <div className="p-2 border-b flex items-center gap-1 flex-wrap">
-          <Button variant="ghost" size="icon" disabled={disabled}><Bold /></Button>
-          <Button variant="ghost" size="icon" disabled={disabled}><Italic /></Button>
-          <Button variant="ghost" size="icon" disabled={disabled}><Underline /></Button>
-          <Button variant="ghost" size="icon" disabled={disabled}><List /></Button>
-          <Button variant="ghost" size="icon" disabled={disabled}><Link /></Button>
-          <Button variant="ghost" size="icon" onClick={handleImageUpload} disabled={disabled}><ImageIcon /></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Bold className="h-4 w-4"/></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Italic className="h-4 w-4"/></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Underline className="h-4 w-4"/></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><List className="h-4 w-4"/></Button>
+          <Button variant="ghost" size="icon" disabled={disabled}><Link className="h-4 w-4"/></Button>
+          <Button variant="ghost" size="icon" onClick={handleImageUpload} disabled={disabled}><ImageIcon className="h-4 w-4"/></Button>
           <Separator orientation="vertical" className="h-6 mx-2" />
            <Button variant="ghost" size="sm" onClick={() => setIsPastingTable(true)} disabled={disabled}>
-            <FileSpreadsheet className="mr-2" />
+            <FileSpreadsheet className="mr-2 h-4 w-4" />
             Paste from Excel
           </Button>
         </div>
         <div className="p-2">
-          {/* A simplified rich text editor using textarea */}
-          <Textarea
-            placeholder="Add your comments here..."
-            className="min-h-[120px] border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-1"
-            value={content.replace(/<[^>]+>/g, '')} // Simplified view
-            onChange={(e) => setContent(`<p>${e.target.value}</p>`)}
-            disabled={disabled}
-          />
+            <TooltipProvider>
+              <Tooltip>
+                  <TooltipTrigger className="w-full">
+                    <div className="relative">
+                        <Textarea
+                          placeholder="Add Comments..."
+                          className="w-full bg-[#FAFAFA] rounded-[10px] pl-2.5 pr-8 py-2 text-[13px] min-h-[40px] transition-all duration-150 ease-in-out focus-visible:ring-offset-0"
+                          value={content}
+                          onChange={handleContentChange}
+                          onBlur={handleBlur}
+                          disabled={disabled}
+                          style={{ height: content ? 'auto' : '40px' }}
+                          rows={1}
+                        />
+                        <MessageSquare className="absolute right-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter your observations or remarks</p>
+                  </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+             <div className="text-right text-xs text-muted-foreground mt-1">
+                {content.length} / {MAX_COMMENT_LENGTH}
+            </div>
         </div>
         <div className="p-3 border-t bg-muted/50 flex justify-between items-center">
           <Button variant="outline" size="sm" onClick={handleAttachmentUpload} disabled={disabled}>
@@ -188,5 +221,3 @@ export default function CommentsEditor({
     </div>
   );
 }
-
-    
