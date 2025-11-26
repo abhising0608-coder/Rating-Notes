@@ -69,9 +69,14 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
             });
         }
         if(row.formulaId === 'total'){
+            const domesticRow = tableRows.find(r => r.id === 'geo-1' && !r.deleted);
+            const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && !r.deleted);
+            
             table.columns.forEach(col => {
-                if(col.isYearColumn) {
-                    newRow.values[col.key] = getColumnTotal(col.key, undefined, tableRows);
+                if (col.isYearColumn) {
+                    const domesticValue = Number(domesticRow?.values?.[col.key]) || 0;
+                    const exportValue = Number(exportSubtotalRow?.values?.[col.key]) || 0;
+                    newRow.values[col.key] = domesticValue + exportValue;
                 }
             })
         }
@@ -142,9 +147,11 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 table.columns.forEach(col => {
                     if (col.isYearColumn) {
                         const totalRD = Number(totalRDRow.values?.[col.key]) || 0;
-                        const netSales = geographyTable.rows
-                            .filter(r => !r.isParent && !r.parentId && !r.formulaId)
-                            .reduce((sum, r) => sum + (Number(r.values?.[col.key]) || 0), 0);
+                        const domesticRow = geographyTable.rows.find(r => r.id === 'geo-1');
+                        const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && r.formulaId === 'subtotal');
+                        const domesticValue = Number(domesticRow?.values?.[col.key]) || 0;
+                        const exportValue = Number(exportSubtotalRow?.values?.[col.key]) || 0;
+                        const netSales = domesticValue + exportValue;
                         
                         newRow.values[col.key] = netSales > 0 ? (totalRD / netSales) * 100 : 0;
                     }
@@ -169,8 +176,15 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
       table.columns.forEach(col => {
         if (col.formulaId === 'share') {
           const yearKey = col.key.replace('share', '').toLowerCase();
-          const total = getColumnTotal(yearKey, undefined, processedRows);
+          const domesticRow = processedRows.find(r => r.id === 'geo-1' && !r.deleted);
+          const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && !r.deleted);
+
+          const domesticValue = Number(domesticRow?.values?.[yearKey]) || 0;
+          const exportValue = Number(exportSubtotalRow?.values?.[yearKey]) || 0;
+          const total = domesticValue + exportValue;
+          
           const rowValue = parseFloat(newRow.values[yearKey]);
+
           if (total > 0 && !isNaN(rowValue)) {
             newRow.values[col.key] = ((rowValue / total) * 100);
           } else {
@@ -312,7 +326,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId && 'bg-muted/80 font-bold', (row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) && 'italic', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
                 const isFormulaField = row.formulaId || col.formulaId;
                 const cellValue = row.values?.[col.key] ?? row[col.key];
@@ -323,7 +337,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
                 else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel) && !isFormulaField && !row.isFixed;
+                const isEditable = !row.isFixed && (col.editable || row.editableLabel) && !isFormulaField && !row.isFixed;
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
@@ -333,7 +347,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
 
                 if (fieldKey) {
                     return (
-                        <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
+                        <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }} className={cn((row.isParent || row.formulaId === 'total') && 'font-bold')}>
                           <div className='flex items-center gap-2'>
                            {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
                            {isEditable ? (
@@ -344,7 +358,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                                     className="h-8"
                                 />
                             ) : (
-                                <span>{cellValue}</span>
+                                <span className={cn(row.formulaId && 'italic')}>{cellValue}</span>
                             )}
                           </div>
                         </TableCell>

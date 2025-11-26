@@ -1080,7 +1080,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
             ],
             rows: [
-                { id: 'geo-1', region: 'Domestic', fixedLabel: true, values: { fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 } },
+                { id: 'geo-1', region: 'Domestic', editableLabel: false, isFixed: true, values: { fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 } },
                 { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true, formulaId: 'subtotal' },
                 { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, values: { fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800 }, canDelete: true, canHide: true },
                 { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, values: { fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300 }, canDelete: true, canHide: true },
