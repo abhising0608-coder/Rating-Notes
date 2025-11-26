@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import { useState, useMemo, useCallback } from 'react';
@@ -225,16 +226,16 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
                 else if (col.type === 'percent') displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = (col.editable && !row.fixedLabel) || (row.editableLabel && col.key === 'region');
+                const isEditable = (col.editable && !row.fixedLabel) || (row.editableLabel && (col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name'));
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName') && row.parentId) {
+                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name') && row.parentId) {
                   return (
                     <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }}>
-                       {row.editableLabel ? (
+                       {isEditable ? (
                         <Input 
                             type='text'
                             value={displayValue || ''}
@@ -247,7 +248,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                   )
                 }
                 
-                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName') && isParent) {
+                if ((col.key === 'region' || col.key === 'therapy' || col.key === 'brandName' || col.key === 'name') && isParent) {
                    return (
                      <TableCell key={col.key} className="flex items-center gap-2">
                        {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
@@ -272,7 +273,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 </TableCell>
                 )
             })}
-             {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && (
+             {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild) || table.rows.some(r => r.canAddBelow)) && (
               <TableCell>
                   <div className='flex'>
                       {row.canHide && (
@@ -337,7 +338,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                         </TooltipContent>}
                     </Tooltip>
                 ))}
-                {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild)) && <TableHead>Actions</TableHead>}
+                {(table.rows.some(r => r.canHide || r.canDelete) || table.rows.some(r => r.canAddChild) || table.rows.some(r => r.canAddBelow)) && <TableHead>Actions</TableHead>}
                 </TableRow>
             </TableHeader>
             <TableBody>
