@@ -10,6 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from './ui/alert-dialog';
+
 
 interface ImportantDataTableProps {
   table: ImportantDataTable;
@@ -30,6 +32,7 @@ const formatNumber = (num: number | string | undefined | null) => {
 export default function ImportantDataTableComponent({ table, onRefresh, allTables }: ImportantDataTableProps) {
   const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
+  const [rowToDelete, setRowToDelete] = useState<string | null>(null);
   
  const getColumnTotal = useCallback((colKey: string, parentId?: string, rowsToSum: TableRowData[] = tableRows, group?: string) => {
       return rowsToSum.reduce((sum, row) => {
@@ -100,11 +103,20 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
        if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
             const sourceTable = allTables.find(t => t.id === row.sourceTableId);
             if (sourceTable) {
-                const sourceRows = sourceTable.rows.filter(r => !r.parentId);
+                const sourceRows = sourceTable.rows.filter(r => !r.parentId && !r.isParent && r.id !== row.subTotalRowId && !r.formulaId);
                 table.columns.forEach(col => {
                     if(col.isYearColumn) {
-                         const total = sourceRows.reduce((acc, sr) => acc + (Number(sr.values?.[col.key]) || 0), 0);
-                        newRow.values[col.key] = total;
+                        const total = sourceRows.reduce((acc, sr) => {
+                            const value = sr.values ? sr.values[col.key] : sr[col.key];
+                            return acc + (Number(value) || 0)
+                        }, 0);
+                        if (row.subTotalRowId) {
+                             const subTotalRow = sourceTable.rows.find(r => r.id === row.subTotalRowId);
+                             const subTotalValue = subTotalRow?.values ? subTotalRow.values[col.key] : subTotalRow?.[col.key];
+                             newRow.values[col.key] = Number(subTotalValue) || 0;
+                        } else {
+                            newRow.values[col.key] = total;
+                        }
                     }
                 });
             }
@@ -241,12 +253,46 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   }
 
   const handleRowAction = (id: string, action: 'hide' | 'delete') => {
+    const isDeletion = action === 'delete';
+    
     setTableRows(prev => prev.map(row => {
         if (row.id === id) {
             return { ...row, [action]: !(row[action]) };
         }
         return row;
     }));
+
+    if (isDeletion) {
+      toast({
+        title: "Row deleted",
+        description: "The row has been marked for deletion.",
+        action: (
+          <Button variant="secondary" onClick={() => handleUndoDelete(id)}>
+            Undo
+          </Button>
+        ),
+      });
+    }
+  };
+  
+  const handleConfirmDelete = () => {
+    if (rowToDelete) {
+      handleRowAction(rowToDelete, 'delete');
+    }
+    setRowToDelete(null);
+  };
+
+  const handleUndoDelete = (id: string) => {
+    setTableRows(prev => prev.map(row => {
+        if (row.id === id) {
+            return { ...row, deleted: false };
+        }
+        return row;
+    }));
+    toast({
+      title: "Row restored",
+      description: "The row has been restored.",
+    });
   };
 
   const hasNegativeValues = tableRows.some(row =>
@@ -266,7 +312,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId && 'bg-muted/80 font-bold', (row.formulaId === 'importAsPctOfRM' || col.formulaId === 'share') && 'italic', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(row.formulaId && 'bg-muted/80 font-bold', (row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) && 'italic', row.isParent && 'bg-muted/50 font-medium')}>
             {table.columns.map(col => {
                 const isFormulaField = row.formulaId || col.formulaId;
                 const cellValue = row.values?.[col.key] ?? row[col.key];
@@ -275,15 +321,15 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 let displayValue: any = cellValue;
                 if(isNM) displayValue = 'NM';
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
-                else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM') displayValue = `${formatNumber(cellValue)}%`;
+                else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel) && !isFormulaField;
+                const isEditable = !row.fixedLabel && (col.editable || row.editableLabel) && !isFormulaField && !row.isFixed;
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
                 }
 
-                const fieldKey = ['name', 'region', 'therapy', 'brandName', 'particulars'].find(k => k === col.key);
+                const fieldKey = ['name', 'region', 'therapy', 'brandName', 'particulars', 'location', 'productSegment', 'regApprovals'].find(k => k === col.key);
 
                 if (fieldKey) {
                     return (
@@ -316,7 +362,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                             placeholder={col.type === 'date' ? 'MM-YY' : undefined}
                         />
                     ) : (
-                        <span className={cn(col.type === 'number' || col.type === 'percent' || row.formulaId === 'importAsPctOfRM' ? "text-right block" : "")}>{displayValue}</span>
+                        <span className={cn(col.type === 'number' || col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct') ? "text-right block" : "")}>{displayValue}</span>
                     )}
                 </TableCell>
                 )
@@ -332,12 +378,12 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                               <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
                           </Tooltip>
                       )}
-                      {row.canDelete && (
+                      {row.canDelete && !row.isFixed && (
                           <Tooltip>
                               <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'delete')}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                  <Button variant="ghost" size="icon" onClick={() => setRowToDelete(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                               </TooltipTrigger>
-                              <TooltipContent><p>{row.deleted ? 'Undo Delete' : 'Delete'} Row</p></TooltipContent>
+                              <TooltipContent><p>Delete Row</p></TooltipContent>
                           </Tooltip>
                       )}
                   </div>
@@ -406,6 +452,21 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
           </div>
         )}
       </div>
+
+       <AlertDialog open={!!rowToDelete} onOpenChange={(open) => !open && setRowToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this row?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be immediately undone, but you will have a 5-second window to restore the row.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setRowToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   );
 }
