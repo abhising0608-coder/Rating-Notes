@@ -337,7 +337,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
                 else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) displayValue = `${formatNumber(cellValue)}%`;
 
-                const isEditable = !row.isFixed && (col.editable || row.editableLabel) && !isFormulaField && !row.isFixed;
+                const isEditable = !row.isFixed && (col.editable || row.editableLabel) && !isFormulaField;
                 
                 if (col.key === 'srNo') {
                   return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
@@ -392,7 +392,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                               <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
                           </Tooltip>
                       )}
-                      {row.canDelete && !row.isFixed && (
+                      {row.canDelete && (
                           <Tooltip>
                               <TooltipTrigger asChild>
                                   <Button variant="ghost" size="icon" onClick={() => setRowToDelete(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>

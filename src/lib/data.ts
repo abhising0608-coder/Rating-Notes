@@ -1080,7 +1080,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'share6mfy25', label: '% Share 6MFY25', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
             ],
             rows: [
-                { id: 'geo-1', region: 'Domestic', editableLabel: false, isFixed: true, values: { fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 } },
+                { id: 'geo-1', region: 'Domestic', editableLabel: true, isFixed: false, canDelete: false, canHide: true, values: { fy22: 1926, fy23: 2063, fy24: 2200, '6mfy25': 1050 } },
                 { id: 'geo-2', region: 'Export', fixedLabel: true, isParent: true, canAddChild: true, formulaId: 'subtotal' },
                 { id: 'geo-2-1', region: 'USA', parentId: 'geo-2', editableLabel: true, values: { fy22: 1666, fy23: 1572, fy24: 1730, '6mfy25': 800 }, canDelete: true, canHide: true },
                 { id: 'geo-2-2', region: 'Rest of the world', parentId: 'geo-2', editableLabel: true, values: { fy22: 400, fy23: 500, fy24: 600, '6mfy25': 300 }, canDelete: true, canHide: true },
@@ -1173,7 +1173,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { id: 'fac-total', name: 'Total Sales', fixedLabel: true, formulaId: 'total', canAddBelow: true },
             ]
         },
-         {
+        {
             id: '5.2.5_customerWiseSales',
             label: '5.2.5 — Customer Wise Sales',
             ckcModuleUrl: '#',
@@ -1219,13 +1219,13 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
             ],
             rows: [
-                { id: 'rd-1', particulars: 'Capital R&D Expenses', values: { fy22: 80, fy23: 100, fy24: 105 } },
-                { id: 'rd-2', particulars: 'Recurring R&D Expenses', values: { fy22: 200, fy23: 210, fy24: 220 } },
+                { id: 'rd-1', particulars: 'Capital R&D Expenses', isFixed: false, editableLabel: false, values: { fy22: 80, fy23: 100, fy24: 105 } },
+                { id: 'rd-2', particulars: 'Recurring R&D Expenses', isFixed: false, editableLabel: false, values: { fy22: 200, fy23: 210, fy24: 220 } },
                 { id: 'rd-total', particulars: 'Total R&D Spend', fixedLabel: true, formulaId: 'totalRD' },
                 { id: 'rd-pct-sales', particulars: 'R&D Expenses as % of net sales', fixedLabel: true, formulaId: 'pctOfNetSales', sourceTableId: '5.2.1_geographyWiseSales' },
             ]
         },
-         {
+        {
             id: '5.2.7_rawMaterialImport',
             label: '5.2.7 Raw Material Import details',
             ckcModuleUrl: '',
@@ -1239,9 +1239,9 @@ const pharmaImportantDataSection: ImportantDataSection = {
                 { key: 'fy24', label: 'FY24', type: 'number', editable: true, canHide: true, isYearColumn: true },
             ],
             rows: [
-                { id: 'rm-1', particulars: 'Import of Raw Material', values: { fy22: 1100, fy23: 1300, fy24: 1600 }, editableLabel: false, isFixed: true },
-                { id: 'rm-2', particulars: 'China', values: { fy22: 800, fy23: 825, fy24: 900 }, editableLabel: true },
-                { id: 'rm-3', particulars: 'Domestic Procurement', values: { fy22: 300, fy23: 325, fy24: 350 }, editableLabel: false, isFixed: true },
+                { id: 'rm-1', particulars: 'Import of Raw Material', isFixed: true, editableLabel: false, values: { fy22: 1100, fy23: 1300, fy24: 1600 } },
+                { id: 'rm-2', particulars: 'China', isFixed: false, editableLabel: true, values: { fy22: 800, fy23: 825, fy24: 900 } },
+                { id: 'rm-3', particulars: 'Domestic Procurement', isFixed: true, editableLabel: false, values: { fy22: 300, fy23: 325, fy24: 350 } },
                 { id: 'rm-total', particulars: 'Total Raw Material Cost', fixedLabel: true, formulaId: 'totalRM' },
                 { id: 'rm-pct-import', particulars: 'Import as a % of RM Cost', fixedLabel: true, formulaId: 'importAsPctOfRM' }
             ]
