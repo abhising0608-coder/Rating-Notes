@@ -24,7 +24,7 @@ export const TableValidationSchema = z.object({
 export const TableColumnSchema = z.object({
   key: z.string(),
   label: z.string(),
-  type: z-enum(['text', 'number', 'percent', 'formula', 'actions']),
+  type: z.enum(['text', 'number', 'percent', 'formula', 'actions']),
   editable: z.boolean().describe("Whether this column is editable by the user."),
   isYearColumn: z.boolean().optional().describe("Identifies this column as representing a fiscal year."),
   validation: TableValidationSchema.optional(),
@@ -40,6 +40,7 @@ export const TableRowSchema = z.object({
   id: z.string(),
   label: z.string(),
   isParent: z.boolean().optional(),
+  parentId: z.string().optional(),
   canAddChild: z.boolean().optional(),
   canDelete: z.boolean().optional(),
   isFixed: z.boolean().optional().describe("If true, the row label cannot be edited and the row cannot be deleted."),
@@ -77,6 +78,7 @@ export const geographySalesSchema = TableSchema.parse({
   unit: 'Rs. Crore',
   developerGuidance: [
     "Headers are fixed; years can be added/hidden.",
+    "Year Range to be provided",
     "Any rows can be added under Export.",
     "Indian numbering system with decimal option.",
     "Formula in Export and Total sales; percentage to be displayed (Italics).",
@@ -87,7 +89,9 @@ export const geographySalesSchema = TableSchema.parse({
   },
   columns: [
     { key: 'region', label: 'Region', type: 'text', editable: true },
-    // Year columns will be dynamically inserted here by the component
+    // Dynamic year columns will be inserted here by the UI renderer
+    // Example: { key: 'FY24', label: 'FY24', type: 'number', editable: true, isYearColumn: true }
+    { key: 'share', label: '% Share', type: 'formula', formula: 'share', editable: false, style: { italic: true, textAlign: 'right' } },
     { key: 'yoyGrowth', label: 'Y-o-Y Growth (%)', type: 'formula', formula: 'yoy', editable: false, style: { italic: true, textAlign: 'right' } },
     { key: 'actions', label: 'Actions', type: 'actions', editable: false },
   ],

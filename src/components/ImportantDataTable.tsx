@@ -269,20 +269,24 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
               <TableCell>
                   <div className='flex'>
                       {row.canHide && (
-                          <Tooltip>
-                              <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'hide')}><EyeOff className="h-4 w-4 text-muted-foreground" /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
-                          </Tooltip>
+                          <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" onClick={() => handleRowAction(row.id, 'hide')}><EyeOff className="h-4 w-4 text-muted-foreground" /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>{row.hidden ? 'Show' : 'Hide'} Row</p></TooltipContent>
+                            </Tooltip>
+                           </TooltipProvider>
                       )}
                       {row.canDelete && (
-                          <Tooltip>
-                              <TooltipTrigger asChild>
-                                  <Button variant="ghost" size="icon" onClick={() => setRowToDelete(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                              </TooltipTrigger>
-                              <TooltipContent><p>Delete Row</p></TooltipContent>
-                          </Tooltip>
+                         <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" onClick={() => setRowToDelete(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                </TooltipTrigger>
+                                <TooltipContent><p>Delete Row</p></TooltipContent>
+                            </Tooltip>
+                         </TooltipProvider>
                       )}
                   </div>
               </TableCell>

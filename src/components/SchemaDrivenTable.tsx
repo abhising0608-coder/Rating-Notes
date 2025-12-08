@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { TTableSchema } from '@/schema/geography-sales.schema';
+import type { TTableSchema } from '@/schema/geography-sales.schema';
 
 interface SchemaDrivenTableProps {
     schema: TTableSchema;
