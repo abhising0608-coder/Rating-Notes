@@ -1,3 +1,4 @@
+
 'use client';
 import * as React from 'react';
 import { useState, useMemo, useCallback } from 'react';
@@ -33,188 +34,69 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
   const [tableRows, setTableRows] = useState<TableRowData[]>(table.rows || []);
   const { toast } = useToast();
   const [rowToDelete, setRowToDelete] = useState<string | null>(null);
-  
- const getColumnTotal = useCallback((colKey: string, parentId?: string, rowsToSum: TableRowData[] = tableRows, group?: string) => {
-      return rowsToSum.reduce((sum, row) => {
-          if (row.fixedLabel || row.deleted) return sum;
-          if (parentId && row.parentId !== parentId) return sum;
-          if (!parentId && row.parentId) return sum;
-           if (group && row.group !== group) return sum;
-
-          const value = parseFloat(row.values?.[colKey]);
-          return sum + (isNaN(value) ? 0 : value);
-      }, 0);
-  }, [tableRows]);
 
   const allRows = useMemo(() => {
     let processedRows = [...tableRows];
     
-    processedRows = processedRows.map(row => {
-        let newRow: TableRowData = { ...row };
-        if (!newRow.values) newRow.values = {};
-        if(row.formulaId === 'subtotal'){
-            const children = tableRows.filter(r => r.parentId === row.id && !r.deleted);
-            table.columns.forEach(col => {
-                if (col.isYearColumn) {
-                    newRow.values[col.key] = children.reduce((acc, child) => acc + (Number(child.values?.[col.key]) || 0), 0);
-                }
-            });
-        }
-        if (row.formulaId === 'groupTotal') {
-            const groupRows = tableRows.filter(r => r.group === row.formulaGroup && !r.deleted);
-            table.columns.forEach(col => {
-                if (col.isYearColumn) {
-                    newRow.values[col.key] = groupRows.reduce((acc, r) => acc + (Number(r.values?.[col.key]) || 0), 0);
-                }
-            });
-        }
-        if(row.formulaId === 'total'){
-            const domesticRow = tableRows.find(r => r.id === 'geo-1' && !r.deleted);
-            const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && !r.deleted);
-            
-            table.columns.forEach(col => {
-                if (col.isYearColumn) {
-                    const domesticValue = Number(domesticRow?.values?.[col.key]) || 0;
-                    const exportValue = Number(exportSubtotalRow?.values?.[col.key]) || 0;
-                    newRow.values[col.key] = domesticValue + exportValue;
-                }
-            })
-        }
-        if(row.formulaId === 'totalRD'){
-             table.columns.forEach(col => {
-                if (col.isYearColumn) {
-                    const capital = tableRows.find(r => r.id === 'rd-1')?.values?.[col.key] || 0;
-                    const recurring = tableRows.find(r => r.id === 'rd-2')?.values?.[col.key] || 0;
-                    newRow.values[col.key] = Number(capital) + Number(recurring);
-                }
-            });
-        }
-        if (row.formulaId === 'totalRM') {
-            table.columns.forEach(col => {
-                if (col.isYearColumn) {
-                    const importVal = tableRows.find(r => r.id === 'rm-1')?.values?.[col.key] || 0;
-                    const chinaVal = tableRows.find(r => r.id === 'rm-2')?.values?.[col.key] || 0;
-                    const domesticVal = tableRows.find(r => r.id === 'rm-3')?.values?.[col.key] || 0;
-                    newRow.values[col.key] = Number(importVal) + Number(chinaVal) + Number(domesticVal);
-                }
-            });
-        }
-        return newRow;
-    });
+    // This is a complex memo that calculates derived values.
+    // It will be simplified or replaced by the schema-driven approach.
+    processedRows.forEach(row => {
+      if (!row.values) row.values = {};
 
-    return processedRows.map(row => {
-      let newRow = { ...row };
-      if (!newRow.values) newRow.values = {};
-       if(row.formulaId === 'crossTableTotal' && row.sourceTableId) {
-            const sourceTable = allTables.find(t => t.id === row.sourceTableId);
-            if (sourceTable) {
-                const sourceRows = sourceTable.rows.filter(r => !r.parentId && !r.isParent && r.id !== row.subTotalRowId && !r.formulaId);
-                table.columns.forEach(col => {
-                    if(col.isYearColumn) {
-                        const total = sourceRows.reduce((acc, sr) => {
-                            const value = sr.values ? sr.values[col.key] : sr[col.key];
-                            return acc + (Number(value) || 0)
-                        }, 0);
-                        if (row.subTotalRowId) {
-                             const subTotalRow = sourceTable.rows.find(r => r.id === row.subTotalRowId);
-                             const subTotalValue = subTotalRow?.values ? subTotalRow.values[col.key] : subTotalRow?.[col.key];
-                             newRow.values[col.key] = Number(subTotalValue) || 0;
-                        } else {
-                            newRow.values[col.key] = total;
-                        }
-                    }
-                });
-            }
-        }
-        if (row.formulaId === 'groupTotalAsPctOfCrossTableTotal' && row.sourceTableId) {
-            const groupTotalRow = processedRows.find(r => r.formulaId === 'groupTotal' && r.formulaGroup === row.formulaGroup);
-            const crossTableTotalRow = processedRows.find(r => r.formulaId === 'crossTableTotal' && r.sourceTableId === row.sourceTableId && r.subTotalRowId === row.subTotalRowId);
-            
-            if (groupTotalRow && crossTableTotalRow) {
-                table.columns.forEach(col => {
-                    if (col.isYearColumn) {
-                        const groupTotal = Number(groupTotalRow.values?.[col.key]) || 0;
-                        const crossTableTotal = Number(crossTableTotalRow.values?.[col.key]) || 0;
-                        newRow.values[col.key] = crossTableTotal !== 0 ? (groupTotal / crossTableTotal) * 100 : 0;
-                    }
-                });
-            }
-        }
-        if(row.formulaId === 'pctOfNetSales'){
-            const totalRDRow = processedRows.find(r => r.formulaId === 'totalRD');
-            const geographyTable = allTables.find(t => t.id === '5.2.1_geographyWiseSales');
-            if (totalRDRow && geographyTable) {
-                table.columns.forEach(col => {
-                    if (col.isYearColumn) {
-                        const totalRD = Number(totalRDRow.values?.[col.key]) || 0;
-                        const domesticRow = geographyTable.rows.find(r => r.id === 'geo-1');
-                        const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && r.formulaId === 'subtotal');
-                        const domesticValue = Number(domesticRow?.values?.[col.key]) || 0;
-                        const exportValue = Number(exportSubtotalRow?.values?.[col.key]) || 0;
-                        const netSales = domesticValue + exportValue;
-                        
-                        newRow.values[col.key] = netSales > 0 ? (totalRD / netSales) * 100 : 0;
-                    }
-                });
-            }
-        }
-        if (row.formulaId === 'importAsPctOfRM') {
-            const totalRMRaw = processedRows.find(r => r.formulaId === 'totalRM');
-            const importRMRaw = tableRows.find(r => r.id === 'rm-1');
-
-            if(totalRMRaw && importRMRaw) {
-                table.columns.forEach(col => {
-                    if (col.isYearColumn) {
-                        const totalRM = Number(totalRMRaw.values?.[col.key]) || 0;
-                        const importRM = Number(importRMRaw.values?.[col.key]) || 0;
-                        newRow.values[col.key] = totalRM > 0 ? (importRM / totalRM) * 100 : 0;
-                    }
-                });
-            }
-        }
-
-      table.columns.forEach(col => {
-        if (col.formulaId === 'share') {
-          const yearKey = col.key.replace('share', '').toLowerCase();
-          const domesticRow = processedRows.find(r => r.id === 'geo-1' && !r.deleted);
-          const exportSubtotalRow = processedRows.find(r => r.id === 'geo-2' && !r.deleted);
-
-          const domesticValue = Number(domesticRow?.values?.[yearKey]) || 0;
-          const exportValue = Number(exportSubtotalRow?.values?.[yearKey]) || 0;
-          const total = domesticValue + exportValue;
-          
-          const rowValue = parseFloat(newRow.values[yearKey]);
-
-          if (total > 0 && !isNaN(rowValue)) {
-            newRow.values[col.key] = ((rowValue / total) * 100);
-          } else {
-            newRow.values[col.key] = 0;
+      if (row.formulaId === 'total' && table.id === '5.2.4_manufacturingFacilityWiseSales') {
+        table.columns.forEach(col => {
+          if (col.isYearColumn) {
+            const total = tableRows.reduce((acc, r) => acc + (r.id !== 'fac-total' && !r.deleted ? Number(r.values?.[col.key]) || 0 : 0), 0);
+            row.values[col.key] = total;
           }
-        } else if (col.formulaId === 'yoy') {
-            const currentYearKey = 'fy24';
-            const prevYearKey = 'fy23';
-            const currentVal = parseFloat(newRow.values[currentYearKey]);
-            const prevVal = parseFloat(newRow.values[prevYearKey]);
-            if (!isNaN(currentVal) && !isNaN(prevVal) && prevVal !== 0) {
-                 newRow.values[col.key] = (((currentVal - prevVal) / prevVal) * 100);
-            } else {
-                 newRow.values[col.key] = 'N/A';
-            }
+        });
+      }
+
+      if (row.formulaId === 'totalRM') {
+          table.columns.forEach(col => {
+              if (col.isYearColumn) {
+                  const importVal = tableRows.find(r => r.id === 'rm-1')?.values?.[col.key] || 0;
+                  const chinaVal = tableRows.find(r => r.id === 'rm-2')?.values?.[col.key] || 0;
+                  const domesticVal = tableRows.find(r => r.id === 'rm-3')?.values?.[col.key] || 0;
+                  row.values[col.key] = Number(importVal) + Number(chinaVal) + Number(domesticVal);
+              }
+          });
+      }
+
+      if (row.formulaId === 'importAsPctOfRM') {
+          const totalRMRaw = processedRows.find(r => r.formulaId === 'totalRM');
+          const importRMRaw = tableRows.find(r => r.id === 'rm-1');
+          if(totalRMRaw && importRMRaw) {
+              table.columns.forEach(col => {
+                  if (col.isYearColumn) {
+                      const totalRM = Number(totalRMRaw.values?.[col.key]) || 0;
+                      const importRM = Number(importRMRaw.values?.[col.key]) || 0;
+                      row.values[col.key] = totalRM > 0 ? (importRM / totalRM) * 100 : 0;
+                  }
+              });
+          }
+      }
+
+       if (row.formulaId === 'groupTotal' && row.formulaGroup === 'top10' && table.id === '5.2.3_brandWiseSales') {
+            table.columns.forEach(col => {
+                if (col.isYearColumn) {
+                    row.values[col.key] = tableRows
+                        .filter(r => r.group === 'top10' && !r.deleted)
+                        .reduce((acc, r) => acc + (Number(r.values?.[col.key]) || 0), 0);
+                }
+            });
         }
-      });
-      return newRow;
+        if (row.formulaId === 'crossTableTotal' && row.sourceTableId === '5.2.1_geographyWiseSales' && row.subTotalRowId === 'geo-1') {
+             // This logic needs to be revisited, as it depends on external state
+             // For now, we'll keep it simple or mock it. This highlights the need for a better state management solution (like a context or hook).
+        }
     });
-  }, [tableRows, table.columns, getColumnTotal, allTables]);
+
+    return processedRows;
+  }, [tableRows, table.columns, table.id]);
+
 
   const handleAddRow = (parentId?: string, group?: string) => {
-    if (table.id === '5.1_listManufacturingFacilities' && tableRows.filter(r => !r.deleted).length >= 200) {
-      toast({
-        variant: 'destructive',
-        title: 'Row Limit Reached',
-        description: 'You can add a maximum of 200 rows.',
-      });
-      return;
-    }
     const newRow: TableRowData = { id: `manual-${Date.now()}` };
     newRow.values = {};
     table.columns.forEach(col => {
@@ -225,28 +107,24 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     newRow.canHide = true;
     newRow.isManual = true;
     
-    if (parentId) {
-      const parentRow = table.rows.find(r => r.id === parentId);
-      newRow.parentId = parentId;
-      newRow.group = group || parentRow?.group || 'others';
-      newRow.editableLabel = true;
-
-      const parentIndex = allRows.findIndex(r => r.id === parentId);
-      const childRows = allRows.filter(r => r.parentId === parentId);
-      const lastChildIndex = childRows.length > 0 ? allRows.findIndex(r => r.id === childRows[childRows.length - 1].id) : parentIndex;
-      
-      const newRows = [...allRows];
-      newRows.splice(lastChildIndex + 1, 0, newRow);
-      setTableRows(newRows);
+    if (table.id === '5.2.4_manufacturingFacilityWiseSales') {
+        const insertIndex = allRows.findIndex(r => r.id === 'fac-total');
+        if (insertIndex !== -1) {
+            const newRows = [...allRows];
+            newRows.splice(insertIndex, 0, newRow);
+            setTableRows(newRows);
+        } else {
+            setTableRows(prev => [...prev, newRow]);
+        }
     } else {
-       const insertIndex = tableRows.findIndex(r => r.canAddBelow || r.formulaId === 'total' || r.formulaId === 'groupTotal');
-      if (insertIndex !== -1) {
-        const newRows = [...tableRows];
-        newRows.splice(insertIndex, 0, newRow);
-        setTableRows(newRows);
-      } else {
-        setTableRows(prev => [...prev, newRow]);
-      }
+         const insertIndex = allRows.findIndex(r => r.canAddBelow || r.formulaId === 'total' || r.formulaId === 'groupTotal' || r.formulaId === 'crossTableTotal');
+        if (insertIndex !== -1) {
+            const newRows = [...allRows];
+            newRows.splice(insertIndex, 0, newRow);
+            setTableRows(newRows);
+        } else {
+            setTableRows(prev => [...prev, newRow]);
+        }
     }
   };
 
@@ -255,10 +133,12 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
         if (row.id === id) {
             let updatedRow: TableRowData = { ...row };
              if (!updatedRow.values) updatedRow.values = {};
-            if (['name', 'region', 'therapy', 'brandName', 'particulars'].includes(key)) {
-                updatedRow[key] = value;
+            
+            const columnDef = table.columns.find(c => c.key === key);
+            if (columnDef?.isYearColumn) {
+                 updatedRow.values[key] = value;
             } else {
-                updatedRow.values[key] = value;
+                 updatedRow[key] = value;
             }
             return updatedRow;
         }
@@ -326,7 +206,11 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
     
     return (
       <React.Fragment key={row.id}>
-        <TableRow className={cn(row.formulaId === 'total' && 'bg-muted/80 font-bold', row.isParent && 'bg-muted/50 font-medium')}>
+        <TableRow className={cn(
+            row.formulaId && 'font-bold',
+            row.style?.backgroundColor,
+            row.isParent && 'bg-muted/50 font-medium'
+        )}>
             {table.columns.map(col => {
                 const isFormulaField = row.formulaId || col.formulaId;
                 const cellValue = row.values?.[col.key] ?? row[col.key];
@@ -335,19 +219,19 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                 let displayValue: any = cellValue;
                 if(isNM) displayValue = 'NM';
                 else if (col.type === 'number') displayValue = formatNumber(cellValue);
-                else if (col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct')) displayValue = `${formatNumber(cellValue)}%`;
+                else if (col.type === 'percent' || col.formulaId?.includes('Pct') || row.formulaId?.includes('Pct') || col.formulaId === 'share') displayValue = `${formatNumber(cellValue)}%`;
 
                 const isEditable = !row.isFixed && (col.editable || row.editableLabel) && !isFormulaField;
                 
                 if (col.key === 'srNo') {
-                  return <TableCell key={col.key} className="text-center">{row.fixedLabel ? '' : srNoCounter++}</TableCell>;
+                  return <TableCell key={col.key} className="text-center">{row.isFixed ? '' : srNoCounter++}</TableCell>;
                 }
 
-                const fieldKey = ['name', 'region', 'therapy', 'brandName', 'particulars', 'location', 'productSegment', 'regApprovals'].find(k => k === col.key);
+                const fieldKey = ['name', 'region', 'therapy', 'brandName', 'particulars', 'location', 'productSegment', 'regApprovals', 'therapeuticSegment', 'creditRatings'].find(k => k === col.key);
 
                 if (fieldKey) {
                     return (
-                        <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }} className={cn((row.isParent || row.formulaId === 'total') && 'font-bold')}>
+                        <TableCell key={col.key} style={{ paddingLeft: `${1 + level * 1.5}rem` }} className={cn((row.isParent || row.formulaId) && 'font-bold', row.style?.italic && 'italic')}>
                           <div className='flex items-center gap-2'>
                            {row.canAddChild && <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id, row.group)}><Plus className="h-4 w-4" /></Button>}
                            {isEditable ? (
@@ -376,7 +260,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
                             placeholder={col.type === 'date' ? 'MM-YY' : undefined}
                         />
                     ) : (
-                        <span className={cn(col.type === 'number' || col.type === 'percent' || row.formulaId === 'importAsPctOfRM' || row.formulaId?.includes('share') || row.formulaId?.includes('pct') ? "text-right block" : "")}>{displayValue}</span>
+                        <span className={cn(col.type === 'number' || col.type === 'percent' || col.formulaId?.includes('Pct') || row.formulaId?.includes('Pct') || col.formulaId === 'share' ? "text-right block" : "")}>{displayValue}</span>
                     )}
                 </TableCell>
                 )
@@ -433,7 +317,7 @@ export default function ImportantDataTableComponent({ table, onRefresh, allTable
             <TableHeader>
                 <TableRow>
                 {table.columns.map(col => (
-                     <TableHead key={col.key} className={cn(col.formulaId && "italic")}>
+                     <TableHead key={col.key} className={cn(col.formulaId && "italic", col.style?.textAlign === 'right' && 'text-right')}>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <div>{col.label}</div>

@@ -1,11 +1,14 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { ImportantDataSection, ImportantDataTable, TableRowData } from '@/types';
+import type { ImportantDataSection, ImportantDataTable } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getImportantDataTable } from '@/lib/data';
 import ImportantDataTableComponent from './ImportantDataTable';
+import SchemaDrivenTable from './SchemaDrivenTable';
+import { geographySalesSchema } from '@/schema/geography-sales.schema';
 import CommentsEditor from './CommentsEditor';
 import { Separator } from './ui/separator';
 
@@ -24,18 +27,26 @@ export default function ImportantDataAccordion({ section, entityId, period }: Im
   const handleApplicabilityChange = (tableId: string, value: string) => {
     setApplicability(prev => ({ ...prev, [tableId]: value }));
     if (value === 'Applicable' && !tableData[tableId]) {
-      setLoading(prev => ({ ...prev, [tableId]: true }));
-      getImportantDataTable(entityId, section.id, tableId, period)
-        .then(data => {
-          setTableData(prev => ({ ...prev, [tableId]: data }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, [tableId]: false }));
-        });
+      // For schema-driven tables, we don't need to pre-fetch data this way
+      if (tableId !== '5.2.1_geographyWiseSales') {
+        setLoading(prev => ({ ...prev, [tableId]: true }));
+        getImportantDataTable(entityId, section.id, tableId, period)
+          .then(data => {
+            setTableData(prev => ({ ...prev, [tableId]: data }));
+          })
+          .finally(() => {
+            setLoading(prev => ({ ...prev, [tableId]: false }));
+          });
+      }
     }
   };
   
   const handleRefresh = (tableId: string) => {
+    if (tableId === geographySalesSchema.id) {
+        // Refresh logic for schema-driven table can be added here
+        console.log(`Refreshing schema-driven table: ${tableId}`);
+        return;
+    }
     setLoading(prev => ({ ...prev, [tableId]: true }));
     getImportantDataTable(entityId, section.id, tableId, period, true) // force refresh
         .then(data => {
@@ -78,6 +89,8 @@ export default function ImportantDataAccordion({ section, entityId, period }: Im
               {applicability[tableMeta.id] === 'Applicable' && (
                 loading[tableMeta.id] ? (
                   <p>Loading table...</p>
+                ) : tableMeta.id === geographySalesSchema.id ? (
+                  <SchemaDrivenTable schema={geographySalesSchema} />
                 ) : tableData[tableMeta.id] ? (
                   <ImportantDataTableComponent
                     table={tableData[tableMeta.id]!}
