@@ -56,6 +56,13 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
   const { toast } = useToast();
 
   const dynamicYearColumns = React.useMemo(() => generateYearColumns(schema), [schema]);
+  
+  const periodColumns = React.useMemo(() => {
+    // Combine dynamic years with any static year-like columns from the schema
+    const staticPeriodColumns = schema.columns.filter(c => c.isYearColumn && !dynamicYearColumns.some(dc => dc.key === c.key));
+    return [...dynamicYearColumns, ...staticPeriodColumns];
+  }, [schema.columns, dynamicYearColumns]);
+
 
   const allColumns = React.useMemo(() => {
     const staticCols = schema.columns.filter(c => !c.isYearColumn);
@@ -64,7 +71,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     const regionCol = staticCols.find(c => c.key === 'region');
     if (regionCol) combined.push(regionCol);
   
-    dynamicYearColumns.forEach(yearCol => {
+    periodColumns.forEach(yearCol => {
       combined.push(yearCol);
       const shareCol = staticCols.find(c => c.formula === 'share');
       if (shareCol) {
@@ -79,7 +86,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     if (actionsCol) combined.push(actionsCol);
   
     return combined;
-  }, [schema.columns, dynamicYearColumns]);
+  }, [schema.columns, periodColumns]);
   
     const computedValues = React.useMemo(() => {
         const newComputations: { [rowId: string]: { [year: string]: number } } = {};
@@ -88,7 +95,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         rows.forEach(row => {
             if (row.formula === 'subtotal') {
                 newComputations[row.id] = {};
-                dynamicYearColumns.forEach(yearCol => {
+                periodColumns.forEach(yearCol => {
                     const subtotal = rows
                         .filter(child => child.parentId === row.id)
                         .reduce((acc, child) => {
@@ -104,7 +111,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         rows.forEach(row => {
             if (row.formula === 'total') {
                 newComputations[row.id] = {};
-                dynamicYearColumns.forEach(yearCol => {
+                periodColumns.forEach(yearCol => {
                     const domesticRow = rows.find(r => (r.label || '').toLowerCase().trim() === 'domestic');
                     const domesticValue = domesticRow ? parseFloat(domesticRow.initialValues?.[yearCol.key] as string || '0') : 0;
                     
@@ -118,7 +125,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
 
 
         return newComputations;
-    }, [rows, dynamicYearColumns]);
+    }, [rows, periodColumns]);
 
 
   const handleAddRow = (parentId?: string) => {
@@ -175,7 +182,8 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         }
         const value = row.initialValues?.[column.key] || '';
         const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
-        return (row.isFixed && !isDomesticRow) ? formatNumber(value as number) : <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" />;
+        const isEditable = !row.isFixed || isDomesticRow;
+        return isEditable ? <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" /> : <span>{formatNumber(value as number)}</span>;
     }
 
     if(column.key === 'region') {
@@ -184,7 +192,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         return isEditable ? <Input value={row.label} onChange={e => handleCellChange(row.id, 'region', e.target.value)} className="h-8" /> : <span>{row.label}</span>
     }
     
-    // Placeholder for formula columns like % Share
+    // Placeholder for formula columns like % Share and Y-o-Y
     if (column.type === 'formula') {
        if (column.formula === 'share') {
             const yearKey = column.key.replace('share_', '');
@@ -206,9 +214,9 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
             return <span className={cn(column.style?.italic && 'italic')}>{percentage.toFixed(2)}%</span>;
         }
         if(column.formula === 'yoy') {
-            if (dynamicYearColumns.length < 2) return <span className={cn(column.style?.italic && 'italic')}>-</span>;
-            const currentYearKey = dynamicYearColumns[dynamicYearColumns.length - 1].key;
-            const previousYearKey = dynamicYearColumns[dynamicYearColumns.length - 2].key;
+            if (periodColumns.length < 2) return <span className={cn(column.style?.italic && 'italic')}>-</span>;
+            const currentYearKey = periodColumns[periodColumns.length - 1].key;
+            const previousYearKey = periodColumns[periodColumns.length - 2].key;
             
             let currentValue = 0;
             let previousValue = 0;

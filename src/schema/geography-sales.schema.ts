@@ -89,6 +89,7 @@ export const geographySalesSchema = TableSchema.parse({
   },
   columns: [
     { key: 'region', label: 'Region', type: 'text', editable: true },
+    { key: '6mfy25', label: '6MFY25', type: 'number', editable: true, isYearColumn: true },
     // Dynamic year columns will be inserted here by the UI renderer
     // Example: { key: 'FY24', label: 'FY24', type: 'number', editable: true, isYearColumn: true }
     { key: 'share', label: '% Share', type: 'formula', formula: 'share', editable: false, style: { italic: true, textAlign: 'right' } },
@@ -101,7 +102,7 @@ export const geographySalesSchema = TableSchema.parse({
       label: 'Domestic',
       isFixed: false, // Make it editable
       canDelete: false, // But not deletable
-      initialValues: { "FY24": 2200, "FY23": 2063, "FY22": 1926 },
+      initialValues: { "FY24": 2200, "FY23": 2063, "FY22": 1926, "6mfy25": 1050 },
     },
     {
       id: 'geo-2',
@@ -117,21 +118,21 @@ export const geographySalesSchema = TableSchema.parse({
       label: 'USA',
       parentId: 'geo-2',
       canDelete: true,
-      initialValues: { "FY24": 1730, "FY23": 1572, "FY22": 1666 },
+      initialValues: { "FY24": 1730, "FY23": 1572, "FY22": 1666, "6mfy25": 800 },
     },
     {
       id: 'geo-2-2',
       label: 'Rest of the world',
       parentId: 'geo-2',
       canDelete: true,
-      initialValues: { "FY24": 600, "FY23": 500, "FY22": 400 },
+      initialValues: { "FY24": 600, "FY23": 500, "FY22": 400, "6mfy25": 300 },
     },
     {
       id: 'geo-2-3',
       label: 'Others',
       parentId: 'geo-2',
       canDelete: true,
-      initialValues: { "FY24": 452, "FY23": 352, "FY22": 375 },
+      initialValues: { "FY24": 452, "FY23": 352, "FY22": 375, "6mfy25": 150 },
     },
     {
       id: 'geo-total',
