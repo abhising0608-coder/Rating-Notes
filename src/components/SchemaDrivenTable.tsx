@@ -58,9 +58,10 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
   const dynamicYearColumns = React.useMemo(() => generateYearColumns(schema), [schema]);
   
   const periodColumns = React.useMemo(() => {
-    // Combine dynamic years with any static year-like columns from the schema
-    const staticPeriodColumns = schema.columns.filter(c => c.isYearColumn && !dynamicYearColumns.some(dc => dc.key === c.key));
-    return [...dynamicYearColumns, ...staticPeriodColumns];
+    const staticPeriodColumns = schema.columns.filter(c => c.isYearColumn);
+    const dynamicKeys = new Set(dynamicYearColumns.map(c => c.key));
+    const uniqueStaticPeriodColumns = staticPeriodColumns.filter(c => !dynamicKeys.has(c.key));
+    return [...dynamicYearColumns, ...uniqueStaticPeriodColumns];
   }, [schema.columns, dynamicYearColumns]);
 
 
@@ -91,7 +92,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     const computedValues = React.useMemo(() => {
         const newComputations: { [rowId: string]: { [year: string]: number } } = {};
 
-        // Calculate subtotals first
+        // Calculate subtotals first for parent rows
         rows.forEach(row => {
             if (row.formula === 'subtotal') {
                 newComputations[row.id] = {};
@@ -183,13 +184,13 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         }
         const value = row.initialValues?.[column.key] || '';
         const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
-        const isEditable = (!row.isFixed && row.id !== 'geo-total') || isDomesticRow;
+        const isEditable = !row.isFixed && !row.formula && (row.id !== 'geo-total' || isDomesticRow);
         return isEditable ? <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" /> : <span>{formatNumber(value as number)}</span>;
     }
 
     if(column.key === 'region') {
         const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
-        const isEditable = !row.isFixed || isDomesticRow;
+        const isEditable = !row.isFixed && !row.isParent && !row.formula;
         return isEditable ? <Input value={row.label} onChange={e => handleCellChange(row.id, 'region', e.target.value)} className="h-8" /> : <span>{row.label}</span>
     }
     
