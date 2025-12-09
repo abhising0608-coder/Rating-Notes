@@ -166,10 +166,11 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
 
   const renderCellContent = (row: TTableRowSchema, column: TTableColumnSchema) => {
      if (column.type === 'actions') {
+      const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
       if (row.canAddChild) {
         return <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleAddRow(row.id)}><Plus className="h-4 w-4" /></Button>;
       }
-       if (row.canDelete) {
+       if (row.canDelete && !isDomesticRow) {
         return <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setRowToDelete(row.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>;
       }
       return null;
@@ -182,7 +183,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         }
         const value = row.initialValues?.[column.key] || '';
         const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
-        const isEditable = !row.isFixed || isDomesticRow;
+        const isEditable = (!row.isFixed && row.id !== 'geo-total') || isDomesticRow;
         return isEditable ? <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" /> : <span>{formatNumber(value as number)}</span>;
     }
 
