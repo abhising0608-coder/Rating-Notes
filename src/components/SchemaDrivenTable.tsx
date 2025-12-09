@@ -97,6 +97,16 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
                     newComputations[row.id][yearCol.key] = subtotal;
                 });
             }
+             if (row.formula === 'total') {
+                newComputations[row.id] = {};
+                dynamicYearColumns.forEach(yearCol => {
+                    const domesticRow = rows.find(r => r.id === 'geo-1');
+                    const domesticValue = domesticRow?.initialValues?.[yearCol.key] || '0';
+                    const exportSubtotal = newComputations['geo-2']?.[yearCol.key] || 0;
+                    
+                    newComputations[row.id][yearCol.key] = parseFloat(domesticValue as string) + exportSubtotal;
+                });
+            }
         });
 
         return newComputations;
@@ -151,7 +161,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     }
     
     if (column.isYearColumn) {
-        if (row.formula === 'subtotal') {
+        if (row.formula) {
             const computedValue = computedValues[row.id]?.[column.key] || 0;
             return <span className="font-bold">{formatNumber(computedValue)}</span>;
         }
