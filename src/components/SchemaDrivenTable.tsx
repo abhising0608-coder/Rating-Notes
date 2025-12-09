@@ -105,10 +105,11 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
             if (row.formula === 'total') {
                 newComputations[row.id] = {};
                 dynamicYearColumns.forEach(yearCol => {
-                    const domesticRow = rows.find(r => r.label.toLowerCase().trim() === 'domestic');
+                    const domesticRow = rows.find(r => (r.label || '').toLowerCase().trim() === 'domestic');
                     const domesticValue = domesticRow ? parseFloat(domesticRow.initialValues?.[yearCol.key] as string || '0') : 0;
                     
-                    const exportSubtotal = newComputations['geo-2']?.[yearCol.key] || 0;
+                    const exportSubtotalRowId = rows.find(r => r.label.toLowerCase().trim() === 'export' && r.isParent)?.id;
+                    const exportSubtotal = exportSubtotalRowId ? (newComputations[exportSubtotalRowId]?.[yearCol.key] || 0) : 0;
                     
                     newComputations[row.id][yearCol.key] = domesticValue + exportSubtotal;
                 });
@@ -173,12 +174,13 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
             return <span className="font-bold">{formatNumber(computedValue)}</span>;
         }
         const value = row.initialValues?.[column.key] || '';
-        const isDomesticRow = row.label.toLowerCase().trim() === 'domestic';
+        const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
         return (row.isFixed && !isDomesticRow) ? formatNumber(value as number) : <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" />;
     }
 
     if(column.key === 'region') {
-        const isEditable = !row.isFixed;
+        const isDomesticRow = (row.label || '').toLowerCase().trim() === 'domestic';
+        const isEditable = !row.isFixed || isDomesticRow;
         return isEditable ? <Input value={row.label} onChange={e => handleCellChange(row.id, 'region', e.target.value)} className="h-8" /> : <span>{row.label}</span>
     }
     
@@ -200,7 +202,31 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
             }
             
             const percentage = (rowValue / totalSales) * 100;
+             if (row.formula === 'total') return <span className={cn(column.style?.italic && 'italic', 'font-bold')}>100.00%</span>
             return <span className={cn(column.style?.italic && 'italic')}>{percentage.toFixed(2)}%</span>;
+        }
+        if(column.formula === 'yoy') {
+            if (dynamicYearColumns.length < 2) return <span className={cn(column.style?.italic && 'italic')}>-</span>;
+            const currentYearKey = dynamicYearColumns[dynamicYearColumns.length - 1].key;
+            const previousYearKey = dynamicYearColumns[dynamicYearColumns.length - 2].key;
+            
+            let currentValue = 0;
+            let previousValue = 0;
+
+            if (row.formula) {
+                currentValue = computedValues[row.id]?.[currentYearKey] || 0;
+                previousValue = computedValues[row.id]?.[previousYearKey] || 0;
+            } else {
+                currentValue = parseFloat(row.initialValues?.[currentYearKey] as string || '0');
+                previousValue = parseFloat(row.initialValues?.[previousYearKey] as string || '0');
+            }
+
+            if (previousValue === 0) {
+                return <span className={cn(column.style?.italic && 'italic')}>-</span>;
+            }
+
+            const yoy = ((currentValue - previousValue) / previousValue) * 100;
+            return <span className={cn(column.style?.italic && 'italic')}>{yoy.toFixed(2)}%</span>;
         }
         return <span className={cn(column.style?.italic && 'italic')}>-</span>;
     }
