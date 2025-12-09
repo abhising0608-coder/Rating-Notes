@@ -81,6 +81,28 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     return combined;
   }, [schema.columns, dynamicYearColumns]);
   
+    const computedValues = React.useMemo(() => {
+        const newComputations: { [rowId: string]: { [year: string]: number } } = {};
+
+        rows.forEach(row => {
+            if (row.formula === 'subtotal') {
+                newComputations[row.id] = {};
+                dynamicYearColumns.forEach(yearCol => {
+                    const subtotal = rows
+                        .filter(child => child.parentId === row.id)
+                        .reduce((acc, child) => {
+                            const value = child.initialValues?.[yearCol.key] || '0';
+                            return acc + parseFloat(value as string);
+                        }, 0);
+                    newComputations[row.id][yearCol.key] = subtotal;
+                });
+            }
+        });
+
+        return newComputations;
+    }, [rows, dynamicYearColumns]);
+
+
   const handleAddRow = (parentId?: string) => {
     const newRow: TTableRowSchema = {
       id: `manual-${Date.now()}`,
@@ -129,6 +151,10 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
     }
     
     if (column.isYearColumn) {
+        if (row.formula === 'subtotal') {
+            const computedValue = computedValues[row.id]?.[column.key] || 0;
+            return <span className="font-bold">{formatNumber(computedValue)}</span>;
+        }
         const value = row.initialValues?.[column.key] || '';
         return row.isFixed ? formatNumber(value as number) : <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" />;
     }
