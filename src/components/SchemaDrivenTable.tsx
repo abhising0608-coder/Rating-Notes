@@ -58,32 +58,33 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
   const dynamicYearColumns = React.useMemo(() => generateYearColumns(schema), [schema]);
 
   const allColumns = React.useMemo(() => {
-    const staticCols = schema.columns.filter(c => !c.isYearColumn && c.formula !== 'share' && c.formula !== 'yoy');
-    const shareCol = schema.columns.find(c => c.formula === 'share');
-    const yoyCol = schema.columns.find(c => c.formula === 'yoy');
-    
+    const staticCols = schema.columns.filter(c => !c.isYearColumn);
     let combined: TTableColumnSchema[] = [];
+  
     const regionCol = staticCols.find(c => c.key === 'region');
     if (regionCol) combined.push(regionCol);
-    
+  
     dynamicYearColumns.forEach(yearCol => {
       combined.push(yearCol);
+      const shareCol = staticCols.find(c => c.formula === 'share');
       if (shareCol) {
         combined.push({ ...shareCol, key: `${shareCol.key}_${yearCol.key}`, label: shareCol.label });
       }
     });
-
+  
+    const yoyCol = staticCols.find(c => c.formula === 'yoy');
     if (yoyCol) combined.push(yoyCol);
-    
+  
     const actionsCol = staticCols.find(c => c.key === 'actions');
-    if(actionsCol) combined.push(actionsCol);
-
+    if (actionsCol) combined.push(actionsCol);
+  
     return combined;
   }, [schema.columns, dynamicYearColumns]);
   
     const computedValues = React.useMemo(() => {
         const newComputations: { [rowId: string]: { [year: string]: number } } = {};
 
+        // Calculate subtotals first
         rows.forEach(row => {
             if (row.formula === 'subtotal') {
                 newComputations[row.id] = {};
@@ -97,17 +98,23 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
                     newComputations[row.id][yearCol.key] = subtotal;
                 });
             }
-             if (row.formula === 'total') {
+        });
+
+        // Calculate totals based on subtotals and other rows
+        rows.forEach(row => {
+            if (row.formula === 'total') {
                 newComputations[row.id] = {};
                 dynamicYearColumns.forEach(yearCol => {
-                    const domesticRow = rows.find(r => r.id === 'geo-1');
-                    const domesticValue = domesticRow?.initialValues?.[yearCol.key] || '0';
+                    const domesticRow = rows.find(r => r.label.toLowerCase().trim() === 'domestic');
+                    const domesticValue = domesticRow ? parseFloat(domesticRow.initialValues?.[yearCol.key] as string || '0') : 0;
+                    
                     const exportSubtotal = newComputations['geo-2']?.[yearCol.key] || 0;
                     
-                    newComputations[row.id][yearCol.key] = parseFloat(domesticValue as string) + exportSubtotal;
+                    newComputations[row.id][yearCol.key] = domesticValue + exportSubtotal;
                 });
             }
         });
+
 
         return newComputations;
     }, [rows, dynamicYearColumns]);
@@ -166,7 +173,8 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
             return <span className="font-bold">{formatNumber(computedValue)}</span>;
         }
         const value = row.initialValues?.[column.key] || '';
-        return row.isFixed ? formatNumber(value as number) : <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" />;
+        const isDomesticRow = row.label.toLowerCase().trim() === 'domestic';
+        return (row.isFixed && !isDomesticRow) ? formatNumber(value as number) : <Input value={value} onChange={e => handleCellChange(row.id, column.key, e.target.value)} className="h-8" />;
     }
 
     if(column.key === 'region') {
@@ -174,8 +182,26 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
         return isEditable ? <Input value={row.label} onChange={e => handleCellChange(row.id, 'region', e.target.value)} className="h-8" /> : <span>{row.label}</span>
     }
     
-    // Placeholder for formula columns
+    // Placeholder for formula columns like % Share
     if (column.type === 'formula') {
+       if (column.formula === 'share') {
+            const yearKey = column.key.replace('share_', '');
+            const totalSales = computedValues['geo-total']?.[yearKey] || 0;
+
+            let rowValue = 0;
+            if (row.formula) { // For subtotal/total rows
+                rowValue = computedValues[row.id]?.[yearKey] || 0;
+            } else { // For regular data rows
+                rowValue = parseFloat(row.initialValues?.[yearKey] as string || '0');
+            }
+
+            if (totalSales === 0) {
+                return <span className={cn(column.style?.italic && 'italic')}>-</span>;
+            }
+            
+            const percentage = (rowValue / totalSales) * 100;
+            return <span className={cn(column.style?.italic && 'italic')}>{percentage.toFixed(2)}%</span>;
+        }
         return <span className={cn(column.style?.italic && 'italic')}>-</span>;
     }
 
