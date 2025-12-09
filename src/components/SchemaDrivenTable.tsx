@@ -275,11 +275,7 @@ export default function SchemaDrivenTable({ schema }: SchemaDrivenTableProps) {
           </TableBody>
         </Table>
       </div>
-      {schema.developerGuidance && (
-         <div className="text-xs text-red-500 italic space-y-1">
-            {schema.developerGuidance.map((line, index) => <p key={index}>* {line}</p>)}
-        </div>
-      )}
+      
        <AlertDialog open={!!rowToDelete} onOpenChange={(open) => !open && setRowToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
