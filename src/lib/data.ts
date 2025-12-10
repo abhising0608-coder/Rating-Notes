@@ -95,6 +95,13 @@ const companies: Company[] = [
     subIndustry: 'Pharmaceuticals',
     registeredOffice: '202 Health Ave, Mumbai, India',
   },
+  {
+    id: '6',
+    name: 'NFCC',
+    nseIndustry: 'NSE_FINANCE',
+    subIndustry: 'NBFC',
+    registeredOffice: '303 Finance Tower, Delhi, India',
+  },
 ];
 
 const users: User[] = [
