@@ -3,8 +3,10 @@ import { z } from 'zod';
 
 // == Helper Functions & Constants ==
 
-const CURRENT_YEAR = new Date().getFullYear();
 const getFiscalYear = (date: Date): number => {
+  // The fiscal year is determined by the year of the March month.
+  // If the month is January, February, or March (0, 1, 2), the fiscal year is the current calendar year.
+  // If the month is April or later (3-11), the fiscal year is the next calendar year.
   return date.getMonth() >= 3 ? date.getFullYear() + 1 : date.getFullYear();
 };
 
@@ -76,13 +78,6 @@ export const geographySalesSchema = TableSchema.parse({
   id: '5.2.1_geographyWiseSales',
   title: '5.2.1 Geography wise sales',
   unit: 'Rs. Crore',
-  developerGuidance: [
-    "Headers are fixed; years can be added/hidden.",
-    "Year Range to be provided",
-    "Any rows can be added under Export.",
-    "Indian numbering system with decimal option.",
-    "Formula in Export and Total sales; percentage to be displayed (Italics).",
-  ],
   yearGeneration: {
     type: 'past',
     count: 3, // Generates last 3 fiscal years dynamically
