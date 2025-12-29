@@ -172,8 +172,9 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('contactDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Contact Name' },
+                { key: 'name', label: 'Contact Name', mandatory: true },
                 { key: 'designation', label: 'Designation' },
+                { key: 'department', label: 'Department' },
                 { key: 'email', label: 'Email' },
                 { key: 'mobile', label: 'Mobile' },
               ]}
@@ -200,8 +201,8 @@ export default function CompanyInfoPage({
                   { key: 'bankName', label: 'Bank Name', mandatory: true },
                   { key: 'name', label: 'Contact Person', mandatory: true },
                   { key: 'designation', label: 'Designation' },
-                  { key: 'email', label: 'Email' },
-                  { key: 'contactNumber', label: 'Contact Number' },
+                  { key: 'email', label: 'Email ID' },
+                  { key: 'contactNumber', label: 'Contact No.' },
               ]}
           />
            <DetailSection<DebentureTrustee>

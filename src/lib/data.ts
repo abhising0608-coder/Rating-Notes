@@ -1683,8 +1683,8 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
       { id: 'c2', name: 'Sunita Williams', designation: 'Company Secretary', department: 'Compliance', email: 'sunita.w@sample.com', mobile: '9876543211', phone: '022-12345679', isPrimary: false, isUPSI: true, authorizedSignatory: true, source: 'CRM' },
     ],
     auditorDetails: [
-        { id: 'au1', firmName: 'A.U. Mojad & Associates', partnerName: 'Amit Varma', email: 'Amit@gmail.com', contactNumber: '9029193811', source: 'CRM' },
-        { id: 'au2', firmName: 'R. K. GARJE AND CO', partnerName: 'Anil Patil', email: 'Anil@gmail.com', contactNumber: '9038873118', source: 'Rating' }
+        { id: 'au1', firmName: 'A.U. Mojad & Associates', partnerName: 'Amit Varma', designation: "Partner", email: 'Amit@gmail.com', contactNumber: '9029193811', source: 'CRM' },
+        { id: 'au2', firmName: 'R. K. GARJE AND CO', partnerName: 'Anil Patil', designation: "Proprietor", email: 'Anil@gmail.com', contactNumber: '9038873118', source: 'Rating' }
     ],
     bankerDetails: [
         { id: 'bnk1', bankName: 'HDFC Bank', name: 'Priya Singh', designation: 'Relationship Manager', email: 'priya.singh@hdfc.com', contactNumber: '9820098200', source: 'CRM' },

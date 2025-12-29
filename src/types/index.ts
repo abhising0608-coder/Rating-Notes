@@ -856,6 +856,7 @@ export interface Contact extends BaseDetailRecord {
 export interface Auditor extends BaseDetailRecord {
   firmName: string;
   partnerName: string;
+  designation: string;
   email: string;
   contactNumber: string;
 }
