@@ -2,6 +2,7 @@
 
 
 
+
 import type {
   Company,
   FinancialData,
@@ -62,8 +63,10 @@ import type {
   TableRowData,
   CompanyInfo,
   Group,
+  Contact,
   Auditor,
-  Banker
+  Banker,
+  DebentureTrustee
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1688,7 +1691,9 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
         { id: 'bnk1', bankName: 'HDFC Bank', name: 'Priya Singh', designation: 'Relationship Manager', email: 'priya.singh@hdfc.com', contactNumber: '9820098200', source: 'CRM' },
         { id: 'bnk2', bankName: 'ICICI Bank', name: 'Rajesh Kumar', designation: 'Senior Manager', email: 'rajesh.k@icici.com', contactNumber: '9988776655', source: 'Rating' },
     ],
-    dtDetails: [],
+    dtDetails: [
+        { id: 'dt1', name: 'IDBI Trusteeship', designation: 'Trustee Officer', email: 'trustee@idbi.com', contactNumber: '022-98765432', source: 'CRM' }
+    ],
     ipaDetails: [],
     thirdPartyDetails: [],
   },
