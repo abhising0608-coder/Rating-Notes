@@ -43,9 +43,6 @@ export default function DashboardPage() {
                   <p className="text-sm text-muted-foreground">Welcome, Rating Analyst</p>
               </div>
               <div className="flex items-center gap-4">
-                  <Link href="/portfolio">
-                    <Button variant="outline">Portfolio</Button>
-                  </Link>
                   <Button onClick={handleInitiate}>
                       Initiate Rating Note
                   </Button>
@@ -107,6 +104,9 @@ export default function DashboardPage() {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuItem onClick={() => router.push(`/notes/${note.companyId}`)}>Open Note</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => router.push(`/portfolio/pre-committee/${note.companyId}?applicationId=app-001&ratingCycleId=rc-001`)}>
+                                              View Portfolio Info
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem>Assign to Maker & Checker</DropdownMenuItem>
                                             <DropdownMenuItem className="text-destructive">Reject Request</DropdownMenuItem>
                                         </DropdownMenuContent>
