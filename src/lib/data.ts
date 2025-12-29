@@ -64,7 +64,8 @@ import type {
   Auditor,
   Banker,
   DebentureTrustee,
-  Ipa
+  Ipa,
+  ThirdParty,
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1695,7 +1696,9 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
     ipaDetails: [
         { id: 'ipa1', name: 'Axis Bank Ltd', designation: 'IPA Officer', email: 'ipa@axisbank.com', contactNumber: '022-24252627', source: 'CRM' }
     ],
-    thirdPartyDetails: [],
+    thirdPartyDetails: [
+        { id: 'tp1', type: 'Supplier', name: 'Global Raw Materials Inc.', designation: 'Sales Head', email: 'sales@globalraw.com', contactNumber: '1-800-555-1234', source: 'Rating' }
+    ],
   },
 };
 

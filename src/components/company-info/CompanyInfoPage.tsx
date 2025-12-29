@@ -158,7 +158,7 @@ export default function CompanyInfoPage({
         </div>
       </header>
 
-      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'Auditor Details', 'Banker Details', 'DT Details', 'IPA Details']} className="w-full">
+      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'Auditor Details', 'Banker Details', 'DT Details', 'IPA Details', 'Third Party Details']} className="w-full">
           <CompanyMasterInfo masterInfo={companyInfo.masterSnapshot} />
           <GroupTagging
             groups={groups}
@@ -210,7 +210,7 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('dtDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Name' },
+                { key: 'name', label: 'Firm Name' },
                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
@@ -222,7 +222,7 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('ipaDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Name' },
+                { key: 'name', label: 'Bank Name' },
                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
@@ -234,9 +234,9 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('thirdPartyDetails', value)}
               isEditable={canEdit}
                columns={[
-                { key: 'type', label: 'Type' },
-                { key: 'name', label: 'Name' },
-                { key: 'designation', label: 'Designation' },
+                { key: 'type', label: 'Relation with the Client' },
+                { key: 'name', label: 'Firm Name' },
+                { key: 'designation', label: 'Contact Person' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
               ]}
