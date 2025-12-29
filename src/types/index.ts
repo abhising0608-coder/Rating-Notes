@@ -1,4 +1,5 @@
 
+
 export interface Company {
   id: string;
   name: string;
@@ -803,4 +804,92 @@ export interface IndustryMapping {
   nseIndustryCode: string;
   description: string;
   recommendedTemplateIds: string[];
+}
+
+// Company Info Page Specific Types
+export interface CompanyMasterInfo {
+  address: string;
+  city: string;
+  zipCode: string;
+  state: string;
+  country: string;
+  listingStatus: 'Listed' | 'Unlisted';
+  listingIn: string;
+  macroEconomicIndicator: string;
+  sector: string;
+  industry: string;
+  basicIndustry: string;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+}
+
+export interface GroupSelection {
+  crmGroupId: string | null; // From CRM, locked if present
+  selectedGroupId: string | null; // Manually selected by RA
+  selectedCombinedGroupId: string | null;
+}
+
+export interface BaseDetailRecord {
+  id: string;
+  source: 'CRM' | 'Rating'; // CRM is read-only for deletion
+  pendingSync?: boolean;
+}
+
+export interface Contact extends BaseDetailRecord {
+  name: string;
+  designation: string;
+  email: string;
+  contactNumber: string;
+}
+
+export interface Auditor extends BaseDetailRecord {
+  firmName: string;
+  partnerName: string;
+  email: string;
+  contactNumber: string;
+}
+
+export interface Banker extends BaseDetailRecord {
+  bankName: string;
+  name: string;
+  designation: string;
+  email: string;
+  contactNumber: string;
+}
+
+export interface DebentureTrustee extends BaseDetailRecord {
+  name: string;
+  designation: string;
+  email: string;
+  contactNumber: string;
+}
+
+export interface Ipa extends BaseDetailRecord {
+  name: string;
+  designation: string;
+  email: string;
+  contactNumber: string;
+}
+
+export interface ThirdParty extends BaseDetailRecord {
+  type: string;
+  name: string;
+  designation: string;
+  email: string;
+  contactNumber: string;
+}
+
+
+export interface CompanyInfo {
+  masterSnapshot: CompanyMasterInfo;
+  groupSelection: GroupSelection;
+  contactDetails: Contact[];
+  auditorDetails: Auditor[];
+  bankerDetails: Banker[];
+  dtDetails: DebentureTrustee[];
+  ipaDetails: Ipa[];
+  thirdPartyDetails: ThirdParty[];
 }

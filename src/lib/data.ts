@@ -1,3 +1,4 @@
+
 import type {
   Company,
   FinancialData,
@@ -56,6 +57,8 @@ import type {
   ImportantDataSection,
   ImportantDataTable,
   TableRowData,
+  CompanyInfo,
+  Group
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1075,7 +1078,7 @@ const pharmaImportantDataSection: ImportantDataSection = {
             tooltip: 'Sales distribution by geography.',
             negativeAsNMAttributeIds: [],
             columns: [
-                { key: 'region', label: 'Region', type: 'text', editable: false, canHide: false },
+                { key: 'region', label: 'Region', type: 'text', editable: true, canHide: false },
                 { key: 'fy22', label: 'FY22', type: 'number', editable: true, canHide: true, isYearColumn: true },
                 { key: 'shareFy22', label: '% Share FY22', type: 'percent', editable: false, canHide: true, formulaId: 'share' },
                 { key: 'fy23', label: 'FY23', type: 'number', editable: true, canHide: true, isYearColumn: true },
@@ -1633,6 +1636,54 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
   },
 ];
 
+// MOCK DATA for Company Info Page
+const groups: Group[] = [
+  { id: 'grp_tata', name: 'Tata Group' },
+  { id: 'grp_reliance', name: 'Reliance Industries' },
+  { id: 'grp_adani', name: 'Adani Group' },
+];
+
+const combinedApproachGroups: Group[] = [
+  { id: 'comb_grp_1', name: 'Infrastructure Combined Group' },
+  { id: 'comb_grp_2', name: 'BFSI Combined Group' },
+];
+
+const companyInfoData: { [companyId: string]: CompanyInfo } = {
+  '1': {
+    masterSnapshot: {
+      address: '123 Industrial Way',
+      city: 'Mumbai',
+      zipCode: '400001',
+      state: 'Maharashtra',
+      country: 'India',
+      listingStatus: 'Listed',
+      listingIn: 'NSE, BSE',
+      macroEconomicIndicator: 'Manufacturing PMI',
+      sector: 'Core Sector',
+      industry: 'Heavy Machinery',
+      basicIndustry: 'Industrial Components',
+    },
+    groupSelection: {
+      crmGroupId: 'grp_tata',
+      selectedGroupId: null,
+      selectedCombinedGroupId: 'comb_grp_1',
+    },
+    contactDetails: [
+      { id: 'c1', name: 'Ravi Sharma', designation: 'CFO', email: 'ravi.s@sample.com', contactNumber: '9876543210', source: 'CRM' },
+    ],
+    auditorDetails: [
+        { id: 'au1', firmName: 'Deloitte', partnerName: 'Anjali Verma', email: 'anjali.v@deloitte.com', contactNumber: '9123456780', source: 'CRM' }
+    ],
+    bankerDetails: [
+        { id: 'bk1', bankName: 'HDFC Bank', name: 'Priya Singh', designation: 'Relationship Manager', email: 'priya.s@hdfc.com', contactNumber: '9988776655', source: 'CRM' }
+    ],
+    dtDetails: [],
+    ipaDetails: [],
+    thirdPartyDetails: [],
+  },
+};
+
+
 // Simulate DB calls
 export const getRatingNotes = async (): Promise<RatingNote[]> => {
   return ratingNotes.map(note => ({
@@ -1671,6 +1722,11 @@ export const getTooltipByKey = async (key: string): Promise<TooltipData | undefi
 export const getCompanies = async (): Promise<Company[]> => {
     return companies;
 }
+
+export const getCompanyById = async (id: string): Promise<Company | undefined> => {
+  return companies.find(c => c.id === id);
+};
+
 
 export const getTemplates = async (): Promise<Template[]> => {
     return templates;
@@ -2267,3 +2323,19 @@ export const getImportantDataTableById = (tableId: string): ImportantDataTable |
     }
     return undefined;
 }
+
+
+// == Company Info Page Data ==
+export const getCompanyInfo = async (companyId: string): Promise<CompanyInfo | null> => {
+  console.log(`Fetching company info for companyId: ${companyId}`);
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return companyInfoData[companyId] || null;
+};
+
+export const getGroups = async (): Promise<Group[]> => {
+  return groups;
+};
+
+export const getCombinedApproachGroups = async (): Promise<Group[]> => {
+  return combinedApproachGroups;
+};
