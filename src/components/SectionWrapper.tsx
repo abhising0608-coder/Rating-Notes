@@ -822,7 +822,7 @@ const ParentGovSupportSection = ({ initialData, onUpdate }: { initialData: Paren
             
             const updated = { ...currentData, governmentSupport: { ...currentData.governmentSupport, calculations: { strategicImportance, moralObligation, totalScore, extentNotchUp } } };
             setData(updated);
-            onUpdate(updated);
+            onUpdate(updatedData);
         }
     };
     
@@ -3517,7 +3517,6 @@ export default function SectionWrapper({
   const isStressedAssetsSection = section.id === 's_stressed_assets';
   const isRationaleDriversSection = section.id === 's_rationale_drivers';
   const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
-  const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
   const isLiquiditySection = section.id === 's_liquidity';
   const isAlmStatementSection = section.id === 's_alm_statement';
@@ -3951,7 +3950,7 @@ export default function SectionWrapper({
                 {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
                     <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
                 )}
-
+                
                 {isLastRatingActionSection && sectionVisible && lastRatingAction && (
                   <LastRatingActionSection 
                     data={lastRatingAction} 
@@ -4068,5 +4067,5 @@ export default function SectionWrapper({
     </AccordionItem>
   );
 }
-
     
+
