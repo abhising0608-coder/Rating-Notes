@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -157,95 +158,90 @@ export default function CompanyInfoPage({
         </div>
       </header>
 
-      <Tabs defaultValue="general">
-        <TabsList className="mb-4">
-          <TabsTrigger value="general">General Info</TabsTrigger>
-          <TabsTrigger value="contacts">Company Contact Details</TabsTrigger>
-        </TabsList>
-        <TabsContent value="general">
-           <div className="space-y-6">
-            <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-3']} className="w-full">
-                <CompanyMasterInfo masterInfo={companyInfo.masterSnapshot} />
-                <GroupTagging
-                  groups={groups}
-                  combinedGroups={combinedGroups}
-                  selection={companyInfo.groupSelection}
-                  onUpdate={(value) => handleUpdate('groupSelection', value)}
-                  isEditable={canEdit}
-                />
-                <DetailSection<Auditor>
-                    title="Auditor Details"
-                    data={companyInfo.auditorDetails}
-                    onUpdate={(value) => handleUpdate('auditorDetails', value)}
-                    isEditable={canEdit}
-                    columns={[
-                      { key: 'firmName', label: 'Firm Name' },
-                      { key: 'partnerName', label: 'Partner Name' },
-                      { key: 'email', label: 'Email' },
-                      { key: 'contactNumber', label: 'Contact Number' },
-                    ]}
-                />
-                <DetailSection<Banker>
-                    title="Banker Details"
-                    data={companyInfo.bankerDetails}
-                    onUpdate={(value) => handleUpdate('bankerDetails', value)}
-                    isEditable={canEdit}
-                    columns={[
-                        { key: 'bankName', label: 'Bank Name' },
-                        { key: 'name', label: 'Name' },
-                        { key: 'designation', label: 'Designation' },
-                        { key: 'email', label: 'Email' },
-                        { key: 'contactNumber', label: 'Contact Number' },
-                    ]}
-                />
-                 <DetailSection<DebentureTrustee>
-                    title="Debenture Trustee (DT) Details"
-                    data={companyInfo.dtDetails}
-                    onUpdate={(value) => handleUpdate('dtDetails', value)}
-                    isEditable={canEdit}
-                    columns={[
-                      { key: 'name', label: 'Name' },
-                      { key: 'designation', label: 'Designation' },
-                      { key: 'email', label: 'Email' },
-                      { key: 'contactNumber', label: 'Contact Number' },
-                    ]}
-                />
-                <DetailSection<Ipa>
-                    title="IPA Details"
-                    data={companyInfo.ipaDetails}
-                    onUpdate={(value) => handleUpdate('ipaDetails', value)}
-                    isEditable={canEdit}
-                    columns={[
-                      { key: 'name', label: 'Name' },
-                      { key: 'designation', label: 'Designation' },
-                      { key: 'email', label: 'Email' },
-                      { key: 'contactNumber', label: 'Contact Number' },
-                    ]}
-                />
-                <DetailSection<ThirdParty>
-                    title="Third-Party Details"
-                    data={companyInfo.thirdPartyDetails}
-                    onUpdate={(value) => handleUpdate('thirdPartyDetails', value)}
-                    isEditable={canEdit}
-                     columns={[
-                      { key: 'type', label: 'Type' },
-                      { key: 'name', label: 'Name' },
-                      { key: 'designation', label: 'Designation' },
-                      { key: 'email', label: 'Email' },
-                      { key: 'contactNumber', label: 'Contact Number' },
-                    ]}
-                />
-            </Accordion>
-          </div>
-        </TabsContent>
-        <TabsContent value="contacts">
-            <CompanyContactDetails 
-                contacts={companyInfo.contactDetails}
-                onUpdate={(value) => handleUpdate('contactDetails', value)}
-                isEditable={canEdit}
-            />
-        </TabsContent>
-      </Tabs>
+      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-Auditor Details']} className="w-full">
+          <CompanyMasterInfo masterInfo={companyInfo.masterSnapshot} />
+          <GroupTagging
+            groups={groups}
+            combinedGroups={combinedGroups}
+            selection={companyInfo.groupSelection}
+            onUpdate={(value) => handleUpdate('groupSelection', value)}
+            isEditable={canEdit}
+          />
+          <DetailSection<Contact>
+              title="Contact Details"
+              data={companyInfo.contactDetails}
+              onUpdate={(value) => handleUpdate('contactDetails', value)}
+              isEditable={canEdit}
+              columns={[
+                { key: 'name', label: 'Contact Name' },
+                { key: 'designation', label: 'Designation' },
+                { key: 'email', label: 'Email' },
+                { key: 'mobile', label: 'Mobile' },
+              ]}
+          />
+          <DetailSection<Auditor>
+              title="Auditor Details"
+              data={companyInfo.auditorDetails}
+              onUpdate={(value) => handleUpdate('auditorDetails', value)}
+              isEditable={canEdit}
+              columns={[
+                { key: 'firmName', label: 'Firm Name' },
+                { key: 'partnerName', label: 'Contact Person' },
+                { key: 'email', label: 'Email ID' },
+                { key: 'contactNumber', label: 'Contact No.' },
+              ]}
+          />
+          <DetailSection<Banker>
+              title="Banker Details"
+              data={companyInfo.bankerDetails}
+              onUpdate={(value) => handleUpdate('bankerDetails', value)}
+              isEditable={canEdit}
+              columns={[
+                  { key: 'bankName', label: 'Bank Name' },
+                  { key: 'name', label: 'Name' },
+                  { key: 'designation', label: 'Designation' },
+                  { key: 'email', label: 'Email' },
+                  { key: 'contactNumber', label: 'Contact Number' },
+              ]}
+          />
+           <DetailSection<DebentureTrustee>
+              title="DT Details"
+              data={companyInfo.dtDetails}
+              onUpdate={(value) => handleUpdate('dtDetails', value)}
+              isEditable={canEdit}
+              columns={[
+                { key: 'name', label: 'Name' },
+                { key: 'designation', label: 'Designation' },
+                { key: 'email', label: 'Email' },
+                { key: 'contactNumber', label: 'Contact Number' },
+              ]}
+          />
+          <DetailSection<Ipa>
+              title="IPA Details"
+              data={companyInfo.ipaDetails}
+              onUpdate={(value) => handleUpdate('ipaDetails', value)}
+              isEditable={canEdit}
+              columns={[
+                { key: 'name', label: 'Name' },
+                { key: 'designation', label: 'Designation' },
+                { key: 'email', label: 'Email' },
+                { key: 'contactNumber', label: 'Contact Number' },
+              ]}
+          />
+          <DetailSection<ThirdParty>
+              title="Third Party Details"
+              data={companyInfo.thirdPartyDetails}
+              onUpdate={(value) => handleUpdate('thirdPartyDetails', value)}
+              isEditable={canEdit}
+               columns={[
+                { key: 'type', label: 'Type' },
+                { key: 'name', label: 'Name' },
+                { key: 'designation', label: 'Designation' },
+                { key: 'email', label: 'Email' },
+                { key: 'contactNumber', label: 'Contact Number' },
+              ]}
+          />
+      </Accordion>
     </div>
   );
 }
