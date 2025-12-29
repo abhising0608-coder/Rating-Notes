@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import * as React from 'react';
@@ -158,7 +159,7 @@ export default function CompanyInfoPage({
         </div>
       </header>
 
-      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-Auditor Details']} className="w-full">
+      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'Auditor Details', 'Banker Details']} className="w-full">
           <CompanyMasterInfo masterInfo={companyInfo.masterSnapshot} />
           <GroupTagging
             groups={groups}
@@ -191,7 +192,7 @@ export default function CompanyInfoPage({
                 { key: 'contactNumber', label: 'Contact No.' },
               ]}
           />
-          <DetailSection<Banker>
+           <DetailSection<Banker>
               title="Banker Details"
               data={companyInfo.bankerDetails}
               onUpdate={(value) => handleUpdate('bankerDetails', value)}

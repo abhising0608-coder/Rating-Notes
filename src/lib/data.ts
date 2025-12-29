@@ -1,6 +1,7 @@
 
 
 
+
 import type {
   Company,
   FinancialData,
@@ -61,7 +62,8 @@ import type {
   TableRowData,
   CompanyInfo,
   Group,
-  Auditor
+  Auditor,
+  Banker
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -889,7 +891,7 @@ const boardCompositionData: BoardCompositionData = {
     keyManagementPersonnel: [
         { id: 'kmp-1', name: 'Mr. John Doe', designation: 'CEO', yearsOfExperience: '25+', briefProfile: 'CEO of the company', age: '55', qualification: 'MBA' }
     ]
-}
+};
 
 const goodwillAssessmentData: GoodwillAssessmentData = {
     tableRows: [
@@ -1682,7 +1684,10 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
         { id: 'au1', firmName: 'A.U. Mojad & Associates', partnerName: 'Amit Varma', email: 'Amit@gmail.com', contactNumber: '9029193811', source: 'CRM' },
         { id: 'au2', firmName: 'R. K. GARJE AND CO', partnerName: 'Anil Patil', email: 'Anil@gmail.com', contactNumber: '9038873118', source: 'Rating' }
     ],
-    bankerDetails: [],
+    bankerDetails: [
+        { id: 'bnk1', bankName: 'HDFC Bank', name: 'Priya Singh', designation: 'Relationship Manager', email: 'priya.singh@hdfc.com', contactNumber: '9820098200', source: 'CRM' },
+        { id: 'bnk2', bankName: 'ICICI Bank', name: 'Rajesh Kumar', designation: 'Senior Manager', email: 'rajesh.k@icici.com', contactNumber: '9988776655', source: 'Rating' },
+    ],
     dtDetails: [],
     ipaDetails: [],
     thirdPartyDetails: [],
