@@ -1700,6 +1700,84 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
         { id: 'tp1', type: 'Supplier', name: 'Global Raw Materials Inc.', designation: 'Sales Head', email: 'sales@globalraw.com', contactNumber: '1-800-555-1234', source: 'Rating' }
     ],
   },
+  '2': {
+    masterSnapshot: {
+      address: '456 Tech Park',
+      city: 'Bangalore',
+      zipCode: '560001',
+      state: 'Karnataka',
+      country: 'India',
+      listingStatus: 'Listed',
+      listingIn: 'NSE',
+      macroEconomicIndicator: 'IT Services Index',
+      sector: 'Technology',
+      industry: 'Software Development',
+      basicIndustry: 'Enterprise Software',
+    },
+    groupSelection: {
+      crmGroupId: null,
+      selectedGroupId: null,
+      selectedCombinedGroupId: null,
+    },
+    contactDetails: [],
+    auditorDetails: [],
+    bankerDetails: [],
+    dtDetails: [],
+    ipaDetails: [],
+    thirdPartyDetails: [],
+  },
+  '3': {
+    masterSnapshot: {
+      address: '789 Market St',
+      city: 'Delhi',
+      zipCode: '110001',
+      state: 'Delhi',
+      country: 'India',
+      listingStatus: 'Unlisted',
+      listingIn: 'N/A',
+      macroEconomicIndicator: 'Retail Sales Index',
+      sector: 'Retail',
+      industry: 'E-commerce',
+      basicIndustry: 'Online Marketplace',
+    },
+    groupSelection: {
+      crmGroupId: null,
+      selectedGroupId: null,
+      selectedCombinedGroupId: null,
+    },
+    contactDetails: [],
+    auditorDetails: [],
+    bankerDetails: [],
+    dtDetails: [],
+    ipaDetails: [],
+    thirdPartyDetails: [],
+  },
+  '6': {
+    masterSnapshot: {
+      address: '303 Finance Tower',
+      city: 'Delhi',
+      zipCode: '110006',
+      state: 'Delhi',
+      country: 'India',
+      listingStatus: 'Listed',
+      listingIn: 'BSE',
+      macroEconomicIndicator: 'Financial Services Index',
+      sector: 'BFSI',
+      industry: 'NBFC',
+      basicIndustry: 'Lending',
+    },
+    groupSelection: {
+      crmGroupId: 'grp_adani',
+      selectedGroupId: null,
+      selectedCombinedGroupId: 'comb_grp_2',
+    },
+    contactDetails: [],
+    auditorDetails: [],
+    bankerDetails: [],
+    dtDetails: [],
+    ipaDetails: [],
+    thirdPartyDetails: [],
+  },
 };
 
 
@@ -2358,3 +2436,5 @@ export const getGroups = async (): Promise<Group[]> => {
 export const getCombinedApproachGroups = async (): Promise<Group[]> => {
   return combinedApproachGroups;
 };
+
+    
