@@ -1,8 +1,5 @@
 
 
-
-
-
 import type {
   Company,
   FinancialData,
@@ -66,7 +63,8 @@ import type {
   Contact,
   Auditor,
   Banker,
-  DebentureTrustee
+  DebentureTrustee,
+  Ipa
 } from '@/types';
 import { format } from 'date-fns';
 
@@ -1694,7 +1692,9 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
     dtDetails: [
         { id: 'dt1', name: 'IDBI Trusteeship', designation: 'Trustee Officer', email: 'trustee@idbi.com', contactNumber: '022-98765432', source: 'CRM' }
     ],
-    ipaDetails: [],
+    ipaDetails: [
+        { id: 'ipa1', name: 'Axis Bank Ltd', designation: 'IPA Officer', email: 'ipa@axisbank.com', contactNumber: '022-24252627', source: 'CRM' }
+    ],
     thirdPartyDetails: [],
   },
 };
