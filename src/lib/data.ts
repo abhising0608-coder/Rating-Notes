@@ -1291,13 +1291,7 @@ const nbfcImportantDataSection: ImportantDataSection = {
 
 const importantDataSections: ImportantDataSection[] = [pharmaImportantDataSection, nbfcImportantDataSection];
 
-const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
-  {
-    id: '1',
-    companyId: '1',
-    noteName: 'GBC Surveillance Note',
-    templateId: 'tmpl_001',
-    createdBy: 'Abhay Singh',
+const baseNote = {
     status: 'In Progress',
     currencyDenomination: 'INR',
     scale: 'Long Term',
@@ -1305,23 +1299,23 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
     createdAt: '2024-07-29T10:00:00Z',
     lastModified: '2024-07-30T14:30:00Z',
     analysts: ['u_001', 'u_002'],
-    financialApproach: 'Standalone',
+    financialApproach: 'Standalone' as 'Standalone' | 'Consolidated' | 'Combined',
     financialYearFrom: 2022,
     financialYearTo: 2024,
-    operationalApproach: 'Standalone',
+    operationalApproach: 'Standalone' as 'Standalone' | 'Consolidated',
     operationalYearFrom: 2022,
     operationalYearTo: 2024,
-    zeroRowPolicy: 'Delete',
-    zeroColumnPolicy: 'Delete',
+    zeroRowPolicy: 'Delete' as 'Delete' | 'No Deletion',
+    zeroColumnPolicy: 'Delete' as 'Delete' | 'No Deletion',
     highlightZeros: false,
     applicableCriteria: ['cr_001', 'cr_002'],
     description: 'FY22-24 rating note.',
     version: '1.0',
     rcmDate: '2024-08-15',
-    ratingCycle: 'Review',
+    ratingCycle: 'Review' as any,
     sections: {
       s1: {
-        applicable: 'Applicable',
+        applicable: 'Applicable' as const,
         tableRows: [],
         comments: '<h1>Cover Page Comments</h1><p>Initial draft of the cover page is ready.</p>',
         attachments: [],
@@ -1336,314 +1330,91 @@ const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
         careAndCrasText: "CARE and other CRAs (Click here for their history, sensitivities and key factors)",
         summaryHygieneChecks: hygieneChecksData,
       },
-      s_about_company: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        aboutCompany: aboutCompanyData,
-      },
-      s_key_updates: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        keyUpdatesContent: keyUpdatesData,
-      },
-       s_analytical_approach: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        analyticalApproach: analyticalApproachData
-      },
-       s_model_summary: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        modelSummary: modelSummaryData,
-      },
-      s_parent_gov_support: {
-          applicable: 'Applicable',
-          tableRows: [],
-          comments: '',
-          attachments: [],
-          parentGovSupport: parentGovSupportData,
-      },
-      s_ce_checklist: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        ceChecklist: ceChecklistData,
-      },
-      s_linked_ratings: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        linkedRatings: linkedRatingsData,
-      },
-      s_board_composition: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        boardComposition: boardCompositionData
-      },
-       s_financials_past_projected: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        financials: financialsPastProjectedData,
-      },
-       s_interim_results: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        interimResults: interimResultsData,
-      },
-       s_quarterly_financials: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        quarterlyFinancials: quarterlyFinancialsData,
-      },
-      s_balance_sheet: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        balanceSheet: balanceSheetData,
-        contingentLiabilities: contingentLiabilitiesData
-      },
-      s_profit_loss: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        profitAndLoss: profitAndLossData,
-      },
-      s_cash_flow_statement: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        cashFlow: cashFlowData,
-      },
-      s_ratio_analysis: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_rcm_minutes: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_qc_observations: {
-        applicable: 'Not Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_past_rating_sensitivities: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_management_discussion: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_discussion_audit_committee: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_cash_flow_assumptions: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>Initial assumptions for the cash flow models are documented here.</p>',
-        attachments: [],
-        assumptionsForCashFlow: 'Initial assumptions...'
-      },
-      s_sensitivity_analysis: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>Sensitivity analysis details can be added here.</p>',
-        attachments: [],
-        sensitivityAnalysis: 'Sensitivity analysis...'
-      },
-      s_gst_calculation: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>GST calculation details can be added here.</p>',
-        attachments: [],
-        gstCalculation: 'GST calculation...'
-      },
-      s_projections_assumptions: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>Assumptions for projections can be detailed here.</p>',
-        attachments: [],
-        assumptionsForProjections: 'Assumptions for projections...'
-      },
-      s_non_interest_income: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_stressed_assets: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_rationale_drivers: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        rationaleAndKeyRatingDrivers: 'Initial rationale...'
-      },
-      s_rating_sensitivities: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        ratingSensitivities: {
-            positiveFactors: [],
-            negativeFactors: [],
-        }
-      },
-      s_analytical_approach_display: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: []
-      },
-      s_detailed_drivers: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        detailedDescriptionOfKeyRatingDrivers: {
-            keyStrengths: 'Initial key strengths...',
-            keyWeaknesses: 'Initial key weaknesses...'
-        }
-      },
-      s_liquidity: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-       s_alm_statement: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_quarterly_cash_flow: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_details_of_instrument: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_esg_risks: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '<p>Initial ESG risks can be detailed here.</p>',
-        attachments: [],
-        esgRisks: 'Initial ESG risks...'
-      },
-      s_non_cooperation_status: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_any_other_info: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_consolidated_entities: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_goodwill_assessment: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_instrument_details: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_checklist: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-        checklist: checklistData,
-      },
-      s_cpti_mandate_details: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_cpti_contact_entity: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_cpti_contact_bankers: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_cpti_contact_auditor: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      },
-      s_cpti_last_rating_action: {
-        applicable: 'Applicable',
-        tableRows: [],
-        comments: '',
-        attachments: [],
-      }
-    },
+      s_about_company: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], aboutCompany: aboutCompanyData, },
+      s_key_updates: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], keyUpdatesContent: keyUpdatesData, },
+      s_analytical_approach: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], analyticalApproach: analyticalApproachData },
+      s_model_summary: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], modelSummary: modelSummaryData, },
+      s_parent_gov_support: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], parentGovSupport: parentGovSupportData, },
+      s_ce_checklist: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], ceChecklist: ceChecklistData, },
+      s_linked_ratings: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], linkedRatings: linkedRatingsData, },
+      s_board_composition: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], boardComposition: boardCompositionData },
+      s_financials_past_projected: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], financials: financialsPastProjectedData, },
+      s_interim_results: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], interimResults: interimResultsData, },
+      s_quarterly_financials: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], quarterlyFinancials: quarterlyFinancialsData, },
+      s_balance_sheet: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], balanceSheet: balanceSheetData, contingentLiabilities: contingentLiabilitiesData },
+      s_profit_loss: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], profitAndLoss: profitAndLossData, },
+      s_cash_flow_statement: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], cashFlow: cashFlowData, },
+      s_ratio_analysis: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_rcm_minutes: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_qc_observations: { applicable: 'Not Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_past_rating_sensitivities: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_management_discussion: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_discussion_audit_committee: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_cash_flow_assumptions: { applicable: 'Applicable' as const, tableRows: [], comments: '<p>Initial assumptions for the cash flow models are documented here.</p>', attachments: [], assumptionsForCashFlow: 'Initial assumptions...' },
+      s_sensitivity_analysis: { applicable: 'Applicable' as const, tableRows: [], comments: '<p>Sensitivity analysis details can be added here.</p>', attachments: [], sensitivityAnalysis: 'Sensitivity analysis...' },
+      s_gst_calculation: { applicable: 'Applicable' as const, tableRows: [], comments: '<p>GST calculation details can be added here.</p>', attachments: [], gstCalculation: 'GST calculation...' },
+      s_projections_assumptions: { applicable: 'Applicable' as const, tableRows: [], comments: '<p>Assumptions for projections can be detailed here.</p>', attachments: [], assumptionsForProjections: 'Assumptions for projections...' },
+      s_non_interest_income: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_stressed_assets: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_rationale_drivers: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], rationaleAndKeyRatingDrivers: 'Initial rationale...' },
+      s_rating_sensitivities: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], ratingSensitivities: { positiveFactors: [], negativeFactors: [], } },
+      s_analytical_approach_display: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [] },
+      s_detailed_drivers: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], detailedDescriptionOfKeyRatingDrivers: { keyStrengths: 'Initial key strengths...', weaknesses: 'Initial key weaknesses...' } },
+      s_liquidity: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_alm_statement: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_quarterly_cash_flow: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_details_of_instrument: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_esg_risks: { applicable: 'Applicable' as const, tableRows: [], comments: '<p>Initial ESG risks can be detailed here.</p>', attachments: [], esgRisks: 'Initial ESG risks...' },
+      s_non_cooperation_status: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_any_other_info: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_consolidated_entities: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_goodwill_assessment: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_instrument_details: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_checklist: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], checklist: checklistData, },
+      s_cpti_mandate_details: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_cpti_contact_entity: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_cpti_contact_bankers: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_cpti_contact_auditor: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], },
+      s_cpti_last_rating_action: { applicable: 'Applicable' as const, tableRows: [], comments: '', attachments: [], }
+    }
+}
+
+const ratingNotes: Omit<RatingNote, 'company' | 'template'>[] = [
+  {
+    id: '1',
+    companyId: '1',
+    templateId: 'tmpl_001',
+    noteName: 'GBC Surveillance Note',
+    createdBy: 'Abhay Singh',
+    ...baseNote
   },
+  {
+    id: '2',
+    companyId: '2',
+    templateId: 'tmpl_002',
+    noteName: 'Tech Solutions Initial Rating',
+    createdBy: 'Ananya Mehta',
+    ...baseNote,
+    description: 'Initial rating note for Tech Solutions Inc.'
+  },
+  {
+    id: '3',
+    companyId: '3',
+    templateId: 'tmpl_agn_01',
+    noteName: 'General Goods Co. Review',
+    createdBy: 'Rahul Sharma',
+    ...baseNote,
+    description: 'Annual review for General Goods Co.'
+  },
+  {
+    id: '4',
+    companyId: '6',
+    templateId: 'tmpl_agn_01',
+    noteName: 'NFCC Initial Rating',
+    createdBy: 'Ananya Mehta',
+    ...baseNote,
+    description: 'Initial rating for NFCC.'
+  }
 ];
 
 // MOCK DATA for Company Info Page

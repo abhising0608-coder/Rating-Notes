@@ -13,10 +13,10 @@ import Link from 'next/link';
 
 // Mock data for the dashboard
 const ratingNotes = [
-  { id: 'NOTE-001', company: 'Sample Industries Ltd', requestId: 'REQ-123', companyId: '1', date: '2024-07-28', sector: 'Manufacturing', status: 'Accepted', cycle: 'Review', analyst: 'Rahul Sharma', ho_ro: 'Mumbai HO' },
-  { id: 'NOTE-002', company: 'Tech Solutions Inc.', requestId: 'REQ-124', companyId: '2', date: '2024-07-27', sector: 'Technology', status: 'Pending', cycle: 'Initial', analyst: 'Ananya Mehta', ho_ro: 'Bangalore RO' },
-  { id: 'NOTE-003', company: 'General Goods Co.', requestId: 'REQ-125', companyId: '3', date: '2024-07-26', sector: 'Retail', status: 'In Review', cycle: 'Surveillance', analyst: 'Rahul Sharma', ho_ro: 'Delhi RO' },
-  { id: 'NOTE-004', company: 'NFCC', requestId: 'REQ-126', companyId: '6', date: '2024-07-25', sector: 'NBFC', status: 'WIP', cycle: 'Initial', analyst: 'Ananya Mehta', ho_ro: 'Mumbai HO' },
+  { id: '1', company: 'Sample Industries Ltd', requestId: 'REQ-123', companyId: '1', date: '2024-07-28', sector: 'Manufacturing', status: 'Accepted', cycle: 'Review', analyst: 'Rahul Sharma', ho_ro: 'Mumbai HO' },
+  { id: '2', company: 'Tech Solutions Inc.', requestId: 'REQ-124', companyId: '2', date: '2024-07-27', sector: 'Technology', status: 'Pending', cycle: 'Initial', analyst: 'Ananya Mehta', ho_ro: 'Bangalore RO' },
+  { id: '3', company: 'General Goods Co.', requestId: 'REQ-125', companyId: '3', date: '2024-07-26', sector: 'Retail', status: 'In Review', cycle: 'Surveillance', analyst: 'Rahul Sharma', ho_ro: 'Delhi RO' },
+  { id: '4', company: 'NFCC', requestId: 'REQ-126', companyId: '6', date: '2024-07-25', sector: 'NBFC', status: 'WIP', cycle: 'Initial', analyst: 'Ananya Mehta', ho_ro: 'Mumbai HO' },
 ];
 
 const summaryCards = [
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                         {ratingNotes.map(note => (
                             <TableRow key={note.id}>
                                 <TableCell>
-                                    <Link href={`/notes/${note.companyId}`} className="text-primary hover:underline font-medium">
+                                    <Link href={`/notes/${note.id}`} className="text-primary hover:underline font-medium">
                                         {note.requestId}
                                     </Link>
                                 </TableCell>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                            <DropdownMenuItem onClick={() => router.push(`/notes/${note.companyId}`)}>Open Note</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => router.push(`/notes/${note.id}`)}>Open Note</DropdownMenuItem>
                                             <DropdownMenuItem onClick={() => router.push(`/portfolio/pre-committee/${note.companyId}?applicationId=app-001&ratingCycleId=rc-001`)}>
                                               View Portfolio Info
                                             </DropdownMenuItem>
