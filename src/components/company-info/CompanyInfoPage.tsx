@@ -224,7 +224,7 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('ipaDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Bank Name', mandatory: true },
+                { key: 'name', label: 'Name of the IPA', mandatory: true },
                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },

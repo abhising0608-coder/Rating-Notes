@@ -871,6 +871,7 @@ export interface Banker extends BaseDetailRecord {
 
 export interface DebentureTrustee extends BaseDetailRecord {
   name: string;
+  contactPerson: string;
   designation: string;
   email: string;
   contactNumber: string;
