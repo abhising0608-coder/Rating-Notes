@@ -170,7 +170,7 @@ export default function DetailSection<T extends BaseRecord>({
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {editingRecord?.id?.startsWith('new-') ? 'Add New' : 'Edit'} {title}
+              {editingRecord?.id?.startsWith('new-') ? 'Add New' : 'Edit'} {title.slice(0,-1)}
             </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">

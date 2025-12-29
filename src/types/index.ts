@@ -12,7 +12,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'Rating Analyst' | 'Secondary Analyst' | 'Quality Control / Reviewer (QC)' | 'Rating Committee (RCM)' | 'Compliance / Audit Teams' | 'Admin';
+  role: 'Rating Analyst' | 'Secondary Analyst' | 'Quality Control / Reviewer (QC)' | 'Rating Committee (RCM)' | 'Compliance / Audit Teams' | 'Admin' | 'Group Head (GH)' | 'Rating Head (RH)' | 'Senior Director (SD)';
 }
 
 export interface Criteria {
@@ -841,8 +841,16 @@ export interface BaseDetailRecord {
 export interface Contact extends BaseDetailRecord {
   name: string;
   designation: string;
+  department: string;
   email: string;
-  contactNumber: string;
+  mobile: string;
+  phone: string;
+  isPrimary: boolean;
+  isUPSI: boolean;
+  authorizedSignatory: boolean;
+  isDeleted?: boolean;
+  lastUpdatedBy?: string;
+  lastUpdatedAt?: string;
 }
 
 export interface Auditor extends BaseDetailRecord {

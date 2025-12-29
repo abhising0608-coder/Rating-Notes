@@ -1,4 +1,5 @@
 
+
 import type {
   Company,
   FinancialData,
@@ -113,6 +114,9 @@ const users: User[] = [
     { id: 'u_003', name: 'Quality Control / Reviewer (QC)', email: 'qc1@example.com', role: 'Quality Control / Reviewer (QC)' },
     { id: 'u_004', name: 'Rating Committee (RCM)', email: 'rcm1@example.com', role: 'Rating Committee (RCM)' },
     { id: 'u_005', name: 'Compliance / Audit Teams', email: 'compliance@example.com', role: 'Compliance / Audit Teams' },
+    { id: 'u_006', name: 'Group Head (GH)', email: 'gh1@example.com', role: 'Group Head (GH)' },
+    { id: 'u_007', name: 'Rating Head (RH)', email: 'rh1@example.com', role: 'Rating Head (RH)' },
+    { id: 'u_008', name: 'Senior Director (SD)', email: 'sd1@example.com', role: 'Senior Director (SD)' },
 ];
 
 const criteria: Criteria[] = [
@@ -1669,7 +1673,8 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
       selectedCombinedGroupId: 'comb_grp_1',
     },
     contactDetails: [
-      { id: 'c1', name: 'Ravi Sharma', designation: 'CFO', email: 'ravi.s@sample.com', contactNumber: '9876543210', source: 'CRM' },
+      { id: 'c1', name: 'Ravi Sharma', designation: 'CFO', department: 'Finance', email: 'ravi.s@sample.com', mobile: '9876543210', phone: '022-12345678', isPrimary: true, isUPSI: false, authorizedSignatory: true, source: 'CRM' },
+      { id: 'c2', name: 'Sunita Williams', designation: 'Company Secretary', department: 'Compliance', email: 'sunita.w@sample.com', mobile: '9876543211', phone: '022-12345679', isPrimary: false, isUPSI: true, authorizedSignatory: true, source: 'CRM' },
     ],
     auditorDetails: [
         { id: 'au1', firmName: 'Deloitte', partnerName: 'Anjali Verma', email: 'anjali.v@deloitte.com', contactNumber: '9123456780', source: 'CRM' }
