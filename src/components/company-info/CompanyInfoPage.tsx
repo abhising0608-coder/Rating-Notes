@@ -211,10 +211,11 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('dtDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Firm Name', mandatory: true },
+                { key: 'name', label: 'Name of the DT', mandatory: true },
+                { key: 'contactPerson', label: 'Contact Person', mandatory: true },
                 { key: 'designation', label: 'Designation' },
-                { key: 'email', label: 'Email' },
-                { key: 'contactNumber', label: 'Contact Number' },
+                { key: 'email', label: 'Email ID' },
+                { key: 'contactNumber', label: 'Contact No.' },
               ]}
           />
           <DetailSection<Ipa>

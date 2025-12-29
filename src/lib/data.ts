@@ -1691,7 +1691,7 @@ const companyInfoData: { [companyId: string]: CompanyInfo } = {
         { id: 'bnk2', bankName: 'ICICI Bank', name: 'Rajesh Kumar', designation: 'Senior Manager', email: 'rajesh.k@icici.com', contactNumber: '9988776655', source: 'Rating' },
     ],
     dtDetails: [
-        { id: 'dt1', name: 'IDBI Trusteeship', designation: 'Trustee Officer', email: 'trustee@idbi.com', contactNumber: '022-98765432', source: 'CRM' }
+        { id: 'dt1', name: 'IDBI Trusteeship', contactPerson: 'Anjali Sharma', designation: 'Trustee Officer', email: 'trustee@idbi.com', contactNumber: '022-98765432', source: 'CRM' }
     ],
     ipaDetails: [
         { id: 'ipa1', name: 'Axis Bank Ltd', designation: 'IPA Officer', email: 'ipa@axisbank.com', contactNumber: '022-24252627', source: 'CRM' }
