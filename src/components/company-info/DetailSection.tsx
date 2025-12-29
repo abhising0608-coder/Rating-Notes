@@ -26,6 +26,18 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { cn } from '@/lib/utils';
 
 type BaseRecord = {
   id: string;
@@ -38,7 +50,7 @@ interface DetailSectionProps<T extends BaseRecord> {
   data: T[];
   onUpdate: (data: T[]) => void;
   isEditable: boolean;
-  columns: { key: string; label: string }[];
+  columns: { key: string; label: string, mandatory?: boolean }[];
 }
 
 export default function DetailSection<T extends BaseRecord>({
@@ -52,6 +64,8 @@ export default function DetailSection<T extends BaseRecord>({
   const [editingRecord, setEditingRecord] = React.useState<Partial<T> | null>(
     null
   );
+  const [recordToDelete, setRecordToDelete] = React.useState<T | null>(null);
+  const { toast } = useToast();
 
   const handleAddNew = () => {
     if (!isEditable) return;
@@ -69,14 +83,48 @@ export default function DetailSection<T extends BaseRecord>({
     setIsModalOpen(true);
   };
 
+  const handleDelete = (record: T) => {
+    if (!isEditable) return;
+    setRecordToDelete(record);
+  };
+
+  const confirmDelete = () => {
+    if (!recordToDelete) return;
+    onUpdate(data.filter(d => d.id !== recordToDelete.id));
+    toast({
+      title: 'Record Deleted',
+      description: `The record has been successfully deleted.`,
+    });
+    setRecordToDelete(null);
+  }
+
   const handleSave = () => {
     if (!editingRecord) return;
     
-    // Simple validation
-    if (columns.some(col => !editingRecord[col.key])) {
-        alert('All fields are required.');
+    // Validation
+    for (const col of columns) {
+      if (col.mandatory && !editingRecord[col.key]) {
+        toast({
+          variant: 'destructive',
+          title: 'Validation Error',
+          description: `${col.label} is a mandatory field.`,
+        });
         return;
+      }
     }
+    
+    const emailColumn = columns.find(c => c.key.toLowerCase().includes('email'));
+    if (emailColumn && editingRecord[emailColumn.key] && !/^\S+@\S+\.\S+$/.test(editingRecord[emailColumn.key])) {
+       toast({ variant: 'destructive', title: 'Validation Error', description: 'Please enter a valid email address.' });
+       return;
+    }
+
+    const contactNoColumn = columns.find(c => c.key.toLowerCase().includes('contact'));
+     if (contactNoColumn && editingRecord[contactNoColumn.key] && !/^\d+$/.test(editingRecord[contactNoColumn.key])) {
+       toast({ variant: 'destructive', title: 'Validation Error', description: 'Contact number must contain only digits.' });
+       return;
+    }
+
 
     const isNew = editingRecord.id?.startsWith('new-');
     let updatedData;
@@ -88,14 +136,10 @@ export default function DetailSection<T extends BaseRecord>({
       );
     }
     onUpdate(updatedData);
+    toast({ title: 'Success', description: `${title.slice(0, -1)} details have been saved.` });
     setIsModalOpen(false);
     setEditingRecord(null);
   };
-
-  const handleDelete = (id: string) => {
-    if(!isEditable) return;
-    onUpdate(data.filter(d => d.id !== id));
-  }
 
   const handleFieldChange = (key: string, value: string) => {
     setEditingRecord((prev) => (prev ? { ...prev, [key]: value } : null));
@@ -144,7 +188,7 @@ export default function DetailSection<T extends BaseRecord>({
                                <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleDelete(record.id)}
+                                onClick={() => handleDelete(record)}
                               >
                                 <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
@@ -167,39 +211,62 @@ export default function DetailSection<T extends BaseRecord>({
       </AccordionContent>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg p-0">
+          <DialogHeader className="p-6 pb-0">
             <DialogTitle>
               {editingRecord?.id?.startsWith('new-') ? 'Add New' : 'Edit'} {title.slice(0,-1)}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {columns.map(col => (
-               <div key={col.key} className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor={col.key} className="text-right">
-                    {col.label}
-                  </Label>
-                  <Input
-                    id={col.key}
-                    value={editingRecord?.[col.key] || ''}
-                    onChange={(e) => handleFieldChange(col.key, e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-            ))}
+          <div className="p-6">
+            <Table>
+              <TableBody>
+                 {columns.map(col => (
+                   <TableRow key={col.key}>
+                      <TableCell className="w-1/3 font-medium bg-muted/50">
+                        {col.label}
+                        {col.mandatory && <span className="text-destructive">*</span>}
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          id={col.key}
+                          value={editingRecord?.[col.key] || ''}
+                          onChange={(e) => handleFieldChange(col.key, e.target.value)}
+                          placeholder={`Enter ${col.label}...`}
+                          className="border-0 shadow-none focus-visible:ring-0"
+                        />
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="secondary">
+          <DialogFooter className="bg-muted/50 px-6 py-4">
+            <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                 Cancel
-              </Button>
-            </DialogClose>
+            </Button>
             <Button type="button" onClick={handleSave}>
               Save
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+       <AlertDialog open={!!recordToDelete} onOpenChange={() => setRecordToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this record. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className={cn(buttonVariants({variant: "destructive"}))}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AccordionItem>
   );
 }

@@ -28,7 +28,6 @@ import GroupTagging from './GroupTagging';
 import DetailSection from './DetailSection';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CompanyContactDetails from './CompanyContactDetails';
 
 interface CompanyInfoPageProps {
@@ -158,7 +157,7 @@ export default function CompanyInfoPage({
         </div>
       </header>
 
-      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'Auditor Details', 'Banker Details', 'DT Details', 'IPA Details', 'Third Party Details']} className="w-full">
+      <Accordion type="multiple" defaultValue={['item-1', 'item-2', 'item-contact-details', 'item-auditor-details', 'item-banker-details', 'item-dt-details', 'item-ipa-details', 'item-third-party-details']} className="w-full">
           <CompanyMasterInfo masterInfo={companyInfo.masterSnapshot} />
           <GroupTagging
             groups={groups}
@@ -185,8 +184,9 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('auditorDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'firmName', label: 'Firm Name' },
-                { key: 'partnerName', label: 'Contact Person' },
+                { key: 'firmName', label: 'Firm Name', mandatory: true },
+                { key: 'partnerName', label: 'Contact Person', mandatory: true },
+                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email ID' },
                 { key: 'contactNumber', label: 'Contact No.' },
               ]}
@@ -197,8 +197,8 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('bankerDetails', value)}
               isEditable={canEdit}
               columns={[
-                  { key: 'bankName', label: 'Bank Name' },
-                  { key: 'name', label: 'Name' },
+                  { key: 'bankName', label: 'Bank Name', mandatory: true },
+                  { key: 'name', label: 'Contact Person', mandatory: true },
                   { key: 'designation', label: 'Designation' },
                   { key: 'email', label: 'Email' },
                   { key: 'contactNumber', label: 'Contact Number' },
@@ -210,7 +210,7 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('dtDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Firm Name' },
+                { key: 'name', label: 'Firm Name', mandatory: true },
                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
@@ -222,7 +222,7 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('ipaDetails', value)}
               isEditable={canEdit}
               columns={[
-                { key: 'name', label: 'Bank Name' },
+                { key: 'name', label: 'Bank Name', mandatory: true },
                 { key: 'designation', label: 'Designation' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
@@ -234,8 +234,8 @@ export default function CompanyInfoPage({
               onUpdate={(value) => handleUpdate('thirdPartyDetails', value)}
               isEditable={canEdit}
                columns={[
-                { key: 'type', label: 'Relation with the Client' },
-                { key: 'name', label: 'Firm Name' },
+                { key: 'type', label: 'Relation with the Client', mandatory: true },
+                { key: 'name', label: 'Firm Name', mandatory: true },
                 { key: 'designation', label: 'Contact Person' },
                 { key: 'email', label: 'Email' },
                 { key: 'contactNumber', label: 'Contact Number' },
