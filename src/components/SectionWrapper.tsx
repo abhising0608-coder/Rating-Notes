@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useMemo, useTransition } from 'react';
 import type { RatingNote, TableRowData, TemplateSection, BankFacilitiesData, AnalystDetails, RatingRecommendation, QCSectorSpecialistData, SummaryHygieneChecksData, RichTextContent, Attachment, AnalyticalApproachData, ModelSummaryRow, ParentGovSupportData, CEChecklistData, LinkedRatingsData, FinancialsPastProjectedData, InterimResultsData, QuarterlyFinancialsData, RatingSensitivitiesData, LiquidityData, AboutCompanyData, StatusOfNonCooperationData, AnyOtherInformationData, ConsolidatedEntity, ExtentOfConsolidation, BoardCompositionData, GoodwillAssessmentData, BalanceSheetData, ContingentLiabilitiesData, ProfitAndLossData, CashFlowData, RatioAnalysisData, PreviousRCMMinutesData, AddressedQCObservationData, PastRatingSensitivitiesData, ManagementDiscussionData, DiscussionWithAuditCommitteeData, MandateDetailsData, ContactDetails, AuditCommitteeRecord, LastRatingActionData, AlmStatementData, QuarterlyCashFlowData, DetailsOfInstrumentData } from '@/types';
@@ -821,7 +822,7 @@ const ParentGovSupportSection = ({ initialData, onUpdate }: { initialData: Paren
             
             const updated = { ...currentData, governmentSupport: { ...currentData.governmentSupport, calculations: { strategicImportance, moralObligation, totalScore, extentNotchUp } } };
             setData(updated);
-            onUpdate(updated);
+            onUpdate(updatedData);
         }
     };
     
@@ -2600,7 +2601,14 @@ export default function SectionWrapper({
   onUpdateSection,
   onRefreshTable
 }: SectionWrapperProps) {
-  const sectionData = note.sections[section.id];
+  const initialSectionData = note.sections[section.id] || {
+    applicable: 'Applicable',
+    tableRows: [],
+    comments: '',
+    attachments: [],
+  };
+  
+  const [sectionData, setSectionData] = useState(initialSectionData);
   const [applicability, setApplicability] = useState(sectionData.applicable);
   const [tableRows, setTableRows] = useState(sectionData.tableRows);
   const [disclosureData, setDisclosureData] = useState(sectionData.disclosure);
@@ -3483,6 +3491,7 @@ export default function SectionWrapper({
   const isAboutCompanySection = section.id === 's_about_company';
   const isKeyUpdatesSection = section.id === 's_key_updates';
   const isAnalyticalApproachSection = section.id === 's_analytical_approach';
+  const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isModelSummarySection = section.id === 's_model_summary';
   const isParentGovSupportSection = section.id === 's_parent_gov_support';
   const isCEChecklistSection = section.id === 's_ce_checklist';
@@ -3508,7 +3517,6 @@ export default function SectionWrapper({
   const isStressedAssetsSection = section.id === 's_stressed_assets';
   const isRationaleDriversSection = section.id === 's_rationale_drivers';
   const isRatingSensitivitiesSection = section.id === 's_rating_sensitivities';
-  const isAnalyticalApproachDisplaySection = section.id === 's_analytical_approach_display';
   const isDetailedDriversSection = section.id === 's_detailed_drivers';
   const isLiquiditySection = section.id === 's_liquidity';
   const isAlmStatementSection = section.id === 's_alm_statement';
@@ -3942,7 +3950,7 @@ export default function SectionWrapper({
                 {isContactDetailsAuditorSection && sectionVisible && contactDetailsAuditor && (
                     <ContactDetailsSection title="Contact Details - Auditor" contacts={contactDetailsAuditor} />
                 )}
-
+                
                 {isLastRatingActionSection && sectionVisible && lastRatingAction && (
                   <LastRatingActionSection 
                     data={lastRatingAction} 
@@ -4059,3 +4067,5 @@ export default function SectionWrapper({
     </AccordionItem>
   );
 }
+    
+
